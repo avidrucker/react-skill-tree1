@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 
 function App() {
@@ -16,10 +16,15 @@ function App() {
   const [editNodePosition, setEditNodePosition] = useState(null);
   const [editLabel, setEditLabel] = useState('');
 
+  const nodeIdCounter = useRef(2); // Start from 2 since 'node-1' exists
+
   const addNode = () => {
     if (!cyRef) return;
 
-    const newId = `node-${elements.length + 1}`;
+    const newId = `node-${nodeIdCounter.current}`;
+    const newLabel = `Skill ${nodeIdCounter.current}`;
+    nodeIdCounter.current += 1; // Increment the counter
+
     const zoom = cyRef.zoom();
     const pan = cyRef.pan();
     const viewportCenter = {
@@ -28,7 +33,7 @@ function App() {
     };
 
     const newNode = {
-      data: { id: newId, label: `Skill ${elements.length + 1}` },
+      data: { id: newId, label: newLabel },
       position: viewportCenter,
     };
 
@@ -196,8 +201,7 @@ function App() {
 
   return (
     <div
-      className="bg-black"
-      style={{ position: 'relative', width: '100%', height: '100vh' }}
+      className="bg-black relative w-100 vh-100"
     >
       <CytoscapeComponent
         className="bg-dark-gray h-100 w-100"
