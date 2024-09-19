@@ -2,9 +2,13 @@
   - [x] implement edge selection causes a popup delete edge button to appear
     - [x] implement edge deletion
 
-- [ ] add keydown handler to delete selected nodes via the delete key
+- [ ] move text to above node
+- [ ] put SVG icon inside each node
+- [ ] implement ability to select icon for a given node from a list of icons
 
-- [ ] fix connect node button so that it appears centered vertically as well as horizontally between the two nodes that it is to connect
+- [ ] add keydown handler to delete selected nodes and edges via the delete key
+
+- [x] fix connect node button so that it appears centered vertically as well as horizontally between the two nodes that it is to connect
 
 - [ ] fix button popups so that they always appear visually on the canvas, so, in other words, if the selected node to edit is at the top of the screen, the buttons will appear below it. if the selected node is at the right-most edge of the canvas, then the buttons will be offset to the left so that they are both visible
 
