@@ -1,8 +1,4 @@
-// src/graphStyles.js
-// This stylesheet defines the styles used for the 
-// Cryptoscape node graph. It includes styles for 
-// different types of nodes and edges, as well as 
-// specific styles for selected nodes.
+// Add these styles in your graphStyles.js
 const stylesheet = [
     {
       selector: 'node',
@@ -51,6 +47,14 @@ const stylesheet = [
         'target-arrow-color': '#ccc',
         'target-arrow-shape': 'triangle',
         'curve-style': 'bezier',
+      },
+    },
+    {
+      selector: 'edge:selected',
+      style: {
+        'line-color': '#ff6347', // Highlight color for selected edge
+        'target-arrow-color': '#ff6347',
+        'width': 4,
       },
     },
   ];

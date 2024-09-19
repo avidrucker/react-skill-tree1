@@ -13,6 +13,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
   const [editNode, setEditNode] = useState(null);
   const [editNodePosition, setEditNodePosition] = useState(null);
   const [editLabel, setEditLabel] = useState('');
+  const [selectedEdge, setSelectedEdge] = useState(null);
   const nodeIdCounter = useRef(2);
 
   const selectedNodes = useRef([]);
@@ -45,13 +46,14 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     if (sourceNode.length === 0 || targetNode.length === 0) return;
     if (!selectedNodes) return;
 
+    ////
     // Calculate position between the two nodes
     const sourcePosition = sourceNode.position();
     const targetPosition = targetNode.position();
 
     const connectNodePosition = {
       x: (sourcePosition.x + targetPosition.x) / 2,
-      y: (sourcePosition.y + targetPosition.y) / 2 - 50, // Adjust as needed
+      y: (sourcePosition.y + targetPosition.y) / 2 - 20, // Adjust as needed
     };
 
     const connectNodeId = `connect-${sourceId}-${targetId}`;
@@ -133,6 +135,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     }
 
     setElements((els) => (newEdge ? [...els, newNode, newEdge] : [...els, newNode]));
+
   }, [cyRef, editNode, setElements]);
 
   const handleNodeDoubleClick = useCallback(
@@ -300,6 +303,56 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     }
   }, [editNode, editLabel, setElements, setIsEditing, setEditNode, removeTempNodes]);
 
+  // Function to handle edge selection
+  const handleEdgeSelect = useCallback((evt) => {
+    const edge = evt.target;
+    setSelectedEdge(edge);
+
+    // Calculate the position for the delete button based on the edge's midpoint
+    const midPointX = (edge.source().position().x + edge.target().position().x) / 2;
+    const midPointY = (edge.source().position().y + edge.target().position().y) / 2;
+
+    const deleteEdgeButtonId = `delete-edge-${edge.id()}`;
+    ////
+    // Create a temporary node for deleting the edge
+    const deleteEdgeButton = {
+      data: { id: deleteEdgeButtonId, label: 'Delete Edge' },
+      position: { x: midPointX, y: midPointY - 20 },
+      classes: ['delete-edge-button', 'action-node']
+    };
+
+    setElements(els => [...els, deleteEdgeButton]);
+    setTempEdgeNodes([deleteEdgeButtonId]);
+  }, [setElements, setTempEdgeNodes]);
+
+  const removeTempEdgeNodes = useCallback(() => {
+    if (tempEdgeNodes.length > 0) {
+      setElements(els => els.filter(el => !tempEdgeNodes.includes(el.data.id)));
+      setTempEdgeNodes([]);
+    }
+  }, [tempEdgeNodes, setElements, setTempEdgeNodes]);
+
+  // Function to handle edge deselection
+  const handleEdgeDeselect = useCallback(() => {
+    setSelectedEdge(null);
+    removeTempEdgeNodes(); // Ensure to implement this function similar to removeTempNodes
+  }, [removeTempEdgeNodes]);
+
+  // Function to handle edge deletion
+  const handleDeleteEdge = useCallback(() => {
+    if (selectedEdge) {
+      const edgeId = selectedEdge.id();
+      setElements((els) => els.filter((el) => el.data.id !== edgeId));
+      setSelectedEdge(null); // Reset selected edge after deletion
+    }
+  }, [selectedEdge, setElements]);
+
+  // Button click handler for deleting an edge
+  const handleTempEdgeButtonClick = useCallback(() => {
+    handleDeleteEdge();
+  }, [handleDeleteEdge]);
+
+
   // Update position of input field when the graph changes
   useEffect(() => {
     if (isEditing && editNode && cyRef) {
@@ -340,7 +393,9 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
       const tappedNode = evt.target;
       const currentTime = new Date().getTime();
 
-      if (tappedNode.hasClass('action-node')) {
+      if (tappedNode.hasClass('delete-edge-button')) {
+        handleTempEdgeButtonClick();
+      } else if (tappedNode.hasClass('action-node')) {
         // Clicked on temporary button node
         handleTempNodeClick(tappedNode);
       } else {
@@ -402,6 +457,52 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     lastTappedNode,
     lastTapTime,
   ]);
+
+  useEffect(() => {
+
+    if (!cyRef) return;
+    const cy = cyRef;
+
+    const onTapEdge = (event) => {
+      handleEdgeSelect(event);
+    };
+
+    cy.on('select', 'edge', onTapEdge);
+    cy.on('unselect', 'edge', handleEdgeDeselect);
+
+    // Cleanup event listeners on component unmount
+    return () => {
+      cy.off('select', 'edge', onTapEdge);
+      cy.off('unselect', 'edge', handleEdgeDeselect);
+    };
+  }, [cyRef]);
+
+  useEffect(() => {
+    if (!cyRef) return;
+    const cy = cyRef.current;
+    if (!cy) return;
+
+    const onTapBackgroundOrDeleteButton = (event) => {
+      if (event.target === cy || event.target.hasClass('delete-edge-button')) {
+        // handleTempEdgeButtonClick(event.target.id());
+        handleDeleteEdge();
+        setIsEditing(false);
+        setEditNode(null);
+        removeTempNodes();
+        removeTempEdgeNodes();
+        cy.$('node:selected, edge:selected').unselect();
+        selectedNodes.current = [];
+        removeConnectButton();
+      }
+    };
+
+    cy.on('tap', onTapBackgroundOrDeleteButton);
+
+    return () => {
+      cy.off('tap', onTapBackgroundOrDeleteButton);
+    };
+  }, [cyRef, handleTempEdgeButtonClick, removeTempNodes, removeTempEdgeNodes, removeConnectButton]);
+
 
   return {
     isEditing,
