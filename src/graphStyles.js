@@ -26,6 +26,7 @@ const stylesheet = [
         'font-size': 12,
         'text-outline-width': 2,
         'text-outline-color': '#007bff',
+        'font-family': "sans-serif"
       },
     },
     {
