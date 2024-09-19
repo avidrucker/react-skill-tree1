@@ -25,9 +25,9 @@ function App() {
     setEditLabel,
   } = useGraphHandlers(cyRef, elements, setElements);
 
-  const printElements = () => {
-    console.log('Current elements:', elements);
-  };
+  // const printElements = () => {
+  //   console.log('Current elements:', elements);
+  // };
 
   return (
     <div
@@ -48,7 +48,7 @@ function App() {
         <div className="pointer-events-auto">
           <button onClick={addNode}>Add Skill</button>
           <button onClick={() => cyRef && cyRef.fit()}>Center Graph</button>
-          <button onClick={printElements}>Print Elements</button> 
+          {/* <button onClick={printElements}>Print Elements</button>  */}
         </div>
       </div>
       {/* Edit Input Field */}
