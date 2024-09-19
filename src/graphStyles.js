@@ -9,7 +9,8 @@ const stylesheet = [
         color: '#fff',
         'text-outline-width': 2,
         'text-outline-color': '#28a745',
-        'text-wrap': 'wrap'
+        'text-wrap': 'wrap',
+        'font-family': "UnifrakturMaguntia"
       },
     },
     {
