@@ -464,11 +464,10 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
         // Clicked on background
         setIsEditing(false);
         setEditNode(null);
-        // Remove temporary action nodes
-        removeTemporaryNodes();
         // Clear selected nodes and remove connect button
         cyRef.$('node:selected').unselect();
         selectedNodes.current = [];
+        // Remove temporary action nodes
         removeTemporaryNodes();
       }
     };
