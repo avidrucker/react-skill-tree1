@@ -31,7 +31,7 @@ function App() {
 
   return (
     <div
-      className="bg-black relative w-100 vh-100"
+      className="bg-black relative w-100 vh-100 unifrakturmaguntia-regular"
     >
       <CytoscapeComponent
         className="bg-dark-gray h-100 w-100 relative z-0"

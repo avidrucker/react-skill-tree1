@@ -76,3 +76,9 @@ html, body, #root {
 .user-select-none {
   user-select: none;
 }
+
+.unifrakturmaguntia-regular {
+  font-family: "UnifrakturMaguntia", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
