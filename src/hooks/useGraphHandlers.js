@@ -145,7 +145,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
       const editNodeId = `edit-${node.id()}`;
       const deleteNodeId = `delete-${node.id()}`;
 
-      const offsetY = 50; // Distance above the original node
+      const offsetY = 35; // Distance above the original node
 
       const editNodeButton = {
         data: { id: editNodeId, label: 'Edit', parentNodeId: node.id() },
