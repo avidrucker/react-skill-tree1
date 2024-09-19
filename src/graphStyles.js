@@ -23,7 +23,8 @@ const stylesheet = [
         'text-halign': 'center',
         color: '#fff',
         'font-size': 12,
-        'text-outline-width': 0,
+        'text-outline-width': 2,
+        'text-outline-color': '#007bff',
       },
     },
     {
