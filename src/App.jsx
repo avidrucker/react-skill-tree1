@@ -13,25 +13,15 @@ function App() {
     },
   ]);
   const [cyRef, setCyRef] = useState(null);
-  
-  // Custom double-click detection variables
-  let lastTappedNode = null;
-  let lastTapTime = 0;
 
   const {
-    tempNodes,
     isEditing,
     editNode,
     editNodePosition,
     editLabel,
     addNode,
-    handleNodeDoubleClick,
-    handleTempNodeClick,
     handleKeyDown,
     handleBlur,
-    setTempNodes,
-    setIsEditing,
-    setEditNode,
     setEditLabel,
   } = useGraphHandlers(cyRef, elements, setElements);
 
@@ -44,47 +34,7 @@ function App() {
         elements={elements}
         stylesheet={stylesheet}
         layout={{ name: 'preset' }}
-        cy={(cy) => {
-          setCyRef(cy);
-
-          cy.on('tap', 'node', (evt) => {
-            const tappedNode = evt.target;
-            const currentTime = new Date().getTime();
-
-            if (
-              lastTappedNode &&
-              lastTappedNode.id() === tappedNode.id() &&
-              currentTime - lastTapTime < 300
-            ) {
-              // Double-click detected
-              handleNodeDoubleClick(tappedNode);
-              lastTappedNode = null;
-              lastTapTime = 0;
-            } else {
-              if (tempNodes.includes(tappedNode.id())) {
-                // Clicked on temporary button node
-                handleTempNodeClick(tappedNode);
-              } else {
-                // Single tap
-                lastTappedNode = tappedNode;
-                lastTapTime = currentTime;
-              }
-            }
-          });
-
-          cy.on('tap', (event) => {
-            if (event.target === cy) {
-              // Clicked on background
-              setIsEditing(false);
-              setEditNode(null);
-              // Remove temp nodes
-              if (tempNodes.length > 0) {
-                setElements((els) => els.filter((el) => !tempNodes.includes(el.data.id)));
-                setTempNodes([]);
-              }
-            }
-          });
-        }}
+        cy={setCyRef}
       />
       {/* Overlay UI Elements */}
       <div
