@@ -4,13 +4,17 @@ const stylesheet = [
       selector: 'node',
       style: {
         'background-color': '#28a745',
+        'background-opacity': 0,
         label: 'data(label)',
-        'text-valign': 'center',
+        'text-valign': 'top',
+        'text-margin-y': 0,
         color: '#fff',
-        'text-outline-width': 2,
-        'text-outline-color': '#28a745',
+        // 'text-outline-width': 2,
+        // 'text-outline-color': '#28a745',
         'text-wrap': 'wrap',
-        'font-family': "UnifrakturMaguntia"
+        'font-family': "UnifrakturMaguntia",
+        'border-width': 2,
+        'border-color': 'white',
       },
     },
     {
@@ -24,15 +28,15 @@ const stylesheet = [
         'text-halign': 'center',
         color: '#fff',
         'font-size': 12,
-        'text-outline-width': 2,
-        'text-outline-color': '#007bff',
+        // 'text-outline-width': 2,
+        // 'text-outline-color': '#007bff',
         'font-family': "sans-serif"
       },
     },
     {
       selector: 'node:selected',
       style: {
-        'border-width': 3,
+        'border-width': 2,
         'border-color': '#FFD700',
       },
     },
@@ -57,7 +61,7 @@ const stylesheet = [
       style: {
         'line-color': '#ff6347', // Highlight color for selected edge
         'target-arrow-color': '#ff6347',
-        'width': 4,
+        'width': 2,
       },
     },
   ];
