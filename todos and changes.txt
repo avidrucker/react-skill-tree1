@@ -2,6 +2,10 @@
   - [x] implement edge selection causes a popup delete edge button to appear
     - [x] implement edge deletion
 
+- [x] make border thinner
+- [x] make node text smaller
+- [ ] change node text font to Old English Text MT
+
 - [x] move text to above node
 - [x] put image inside of 1 node
   - useful reference for rendering images inside of nodes: https://stackoverflow.com/questions/47801961/cytoscape-js-how-define-node-with-background-image-from-a-json-data-file?rq=3
