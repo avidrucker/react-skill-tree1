@@ -20,7 +20,7 @@ const stylesheet = [
       selector: 'node[image]',       // Target nodes with an 'image' data attribute
       style: {
         'background-image': 'data(image)', // Use the 'image' data attribute
-        'background-fit': 'cover',
+        'background-fit': 'contain',
         'background-clip': 'none',
       },
     },
