@@ -24,7 +24,7 @@ function App() {
         "background-image": [
           svgToDataURI(eyeIcon),
         ],
-        "background-fit": "contain contain",
+        "background-fit": "contain",
         "background-image-opacity": 1
       }
     },
