@@ -10,10 +10,6 @@ function svgToDataURI(svgString) {
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
 }
 
-// function svgToBase64DataURI(svgString) {
-//   return 'data:image/svg+xml;base64,' + window.btoa(svgString);
-// }
-
 function App() {
   const [elements, setElements] = useState([
     {
