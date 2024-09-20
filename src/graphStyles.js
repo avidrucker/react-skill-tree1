@@ -3,7 +3,6 @@ const stylesheet = [
     {
       selector: 'node',
       style: {
-        'background-color': '#28a745',
         'background-opacity': 0,
         label: 'data(label)',
         'text-valign': 'top',
@@ -15,6 +14,14 @@ const stylesheet = [
         'font-family': "UnifrakturMaguntia",
         'border-width': 2,
         'border-color': 'white',
+      },
+    },
+    {
+      selector: 'node[image]',       // Target nodes with an 'image' data attribute
+      style: {
+        'background-image': 'data(image)', // Use the 'image' data attribute
+        'background-fit': 'cover',
+        'background-clip': 'none',
       },
     },
     {
