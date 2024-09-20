@@ -12,7 +12,8 @@ const stylesheet = [
         // 'text-outline-color': '#28a745',
         'text-wrap': 'wrap',
         'font-family': "UnifrakturMaguntia",
-        'border-width': 2,
+        'font-size': 10,
+        'border-width': 1,
         'border-color': 'white',
       },
     },
@@ -34,7 +35,7 @@ const stylesheet = [
         'text-valign': 'center',
         'text-halign': 'center',
         color: '#fff',
-        'font-size': 12,
+        'font-size': 10,
         // 'text-outline-width': 2,
         // 'text-outline-color': '#007bff',
         'font-family': "sans-serif"
