@@ -4,12 +4,31 @@ import CytoscapeComponent from 'react-cytoscapejs';
 
 import stylesheet from './graphStyles';
 import useGraphHandlers from './hooks/useGraphHandlers';
+import { copyIcon, checkIcon, eyeIcon, eyeSlashIcon } from './assets/icons';
+
+// function svgToDataURI(svgString) {
+//   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+// }
+
+// function svgToBase64DataURI(svgString) {
+//   return 'data:image/svg+xml;base64,' + window.btoa(svgString);
+// }
 
 function App() {
   const [elements, setElements] = useState([
     {
       data: { id: 'node-1', label: 'Skill 1' },
       position: { x: 0, y: 0 },
+      // image: 'https://farm8.staticflickr.com/7272/7633179468_3e19e45a0c_b.jpg' 
+      "style": {
+        "background-image": [
+          "https://upload.wikimedia.org/wikipedia/commons/b/b4/High_above_the_Cloud_the_Sun_Stays_the_Same.jpg",
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Pigeon_silhouette_4874.svg/1000px-Pigeon_silhouette_4874.svg.png"
+        ],
+        "background-fit": "cover cover",
+        "background-image-opacity": 0.5
+      }
+      // svgToBase64DataURI(eyeIcon),
     },
   ]);
   const [cyRef, setCyRef] = useState(null);
@@ -25,9 +44,9 @@ function App() {
     setEditLabel,
   } = useGraphHandlers(cyRef, elements, setElements);
 
-  // const printElements = () => {
-  //   console.log('Current elements:', elements);
-  // };
+  const printElements = () => {
+    console.log('Current elements:', elements);
+  };
 
   return (
     <div
@@ -48,7 +67,7 @@ function App() {
         <div className="pointer-events-auto">
           <button onClick={addNode}>Add Skill</button>
           <button onClick={() => cyRef && cyRef.fit()}>Center Graph</button>
-          {/* <button onClick={printElements}>Print Elements</button>  */}
+          <button onClick={printElements}>Print Elements</button> 
         </div>
       </div>
       {/* Edit Input Field */}
