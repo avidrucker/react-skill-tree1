@@ -2,6 +2,9 @@
   - [x] implement edge selection causes a popup delete edge button to appear
     - [x] implement edge deletion
 
+- [ ] add helpful readme to build and run project
+- [ ] add how to contribute doc for open source contributions
+
 - [x] make border thinner
 - [x] make node text smaller
 - [ ] change node text font to Old English Text MT
