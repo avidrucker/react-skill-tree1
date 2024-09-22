@@ -24,6 +24,10 @@
 
 - [ ] fix button popups so that they always appear visually on the canvas, so, in other words, if the selected node to edit is at the top of the screen, the buttons will appear below it. if the selected node is at the right-most edge of the canvas, then the buttons will be offset to the left so that they are both visible
 
+- [x] prevent flashing edge bug from occurring when canvas is fullscreen height and width
+
+- [ ] fix bug where three nodes are selected, and 1 is unselected and the connect button should reappear but currently doesn't
+
 - [x] prevent the connect button from appearing when selecting two nodes that are already connected
 
 - [x] make popup buttons move with parent node when dragging a selected node
