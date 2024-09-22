@@ -12,8 +12,8 @@
 - [x] move text to above node
 - [x] put image inside of 1 node
   - useful reference for rendering images inside of nodes: https://stackoverflow.com/questions/47801961/cytoscape-js-how-define-node-with-background-image-from-a-json-data-file?rq=3
-- [ ] put SVG inside of 1 node
-- [ ] put SVG icon inside each node
+- ~~put SVG inside of 1 node w/o render glitching~~
+- ~~put SVG icon inside each node~~
 - [ ] implement ability to select icon for a given node from a list of icons
 
 - [ ] add keydown handler to delete selected nodes and edges via the delete key
@@ -24,7 +24,7 @@
 
 - [ ] fix button popups so that they always appear visually on the canvas, so, in other words, if the selected node to edit is at the top of the screen, the buttons will appear below it. if the selected node is at the right-most edge of the canvas, then the buttons will be offset to the left so that they are both visible
 
-- [ ] prevent the connect button from appearing when selecting two nodes that are already connected
+- [x] prevent the connect button from appearing when selecting two nodes that are already connected
 
 - [ ] make popup buttons disappear when dragging a selected node
 

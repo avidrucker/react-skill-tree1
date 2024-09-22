@@ -53,6 +53,17 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     // Validate that both nodes exist
     if (!sourceNode || !targetNode || sourceNode.length === 0 || targetNode.length === 0) return;
 
+    // Check if an edge already exists between these nodes
+    const edgeExists = cyRef.edges().some(edge => {
+      return (edge.data('source') === sourceId && edge.data('target') === targetId) ||
+             (edge.data('source') === targetId && edge.data('target') === sourceId);
+    });
+
+    if (edgeExists) {
+      console.log('Edge already exists between these nodes');
+      return;
+    }
+
     // Calculate position between the two nodes for placing the 'Connect' button
     const sourcePosition = sourceNode.position();
     const targetPosition = targetNode.position();
