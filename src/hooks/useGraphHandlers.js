@@ -8,9 +8,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 const useGraphHandlers = (cyRef, elements, setElements) => {
-  // State variables for temporary action nodes (e.g., Edit, Delete buttons)
-  const [tempNodes, setTempNodes] = useState([]);
-  const [tempEdgeNodes, setTempEdgeNodes] = useState([]);
+  // Refs for temporary action nodes (e.g., Edit, Delete buttons)
+  const tempNodes = useRef([]);
+  const tempEdgeNodes = useRef([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editNode, setEditNode] = useState(null);
   const [editNodePosition, setEditNodePosition] = useState(null);
@@ -27,22 +27,33 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
 
   /**
    * Removes temporary action nodes from the graph (e.g., Edit and Delete buttons).
-   * Removes temporary edge action nodes from the graph (e.g., Delete Edge button).
-   * Removes the temporary 'Connect' button node from the graph.
    */
   const removeTemporaryNodes = useCallback(() => {
+    console.log("removeTemporaryNodes, tempNodes.current", tempNodes.current);
+    setElements((els) =>
+      els.filter(
+        (el) =>
+          !tempNodes.current.includes(el.data.id) &&
+          !tempEdgeNodes.current.includes(el.data.id) &&
+          !el.classes?.includes('action-node')
+      )
+    );
+    tempNodes.current = [];
+    tempEdgeNodes.current = [];
+  }, [setElements]);
 
-    if (tempNodes.length > 0) {
-      setElements((els) => els.filter((el) => !tempNodes.includes(el.data.id)));
-      setTempNodes([]);
+  /**
+   * Performs cleanup after an action is completed.
+   */
+  const cleanupAfterAction = useCallback(() => {
+    if (cyRef) {
+      cyRef.$('node:selected').unselect();
     }
-
-    if (tempEdgeNodes.length > 0) {
-      setElements((els) => els.filter((el) => !tempEdgeNodes.includes(el.data.id)));
-      setTempEdgeNodes([]);
-    }
-    // console.log("elements after removing temp nodes: ", elements);
-  }, [tempNodes, tempEdgeNodes, setElements]);
+    selectedNodes.current = [];
+    setIsEditing(false);
+    setEditNode(null);
+    console.log("cleanupAfterAction");
+  }, [removeTemporaryNodes, cyRef]);
 
   /**
    * Displays a temporary 'Connect' button between two selected nodes.
@@ -53,12 +64,22 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     const targetNode = cyRef.getElementById(targetId);
 
     // Validate that both nodes exist
-    if (!sourceNode || !targetNode || sourceNode.length === 0 || targetNode.length === 0) return;
+    if (
+      !sourceNode ||
+      !targetNode ||
+      sourceNode.length === 0 ||
+      targetNode.length === 0
+    )
+      return;
 
     // Check if an edge already exists between these nodes
-    const edgeExists = cyRef.edges().some(edge => {
-      return (edge.data('source') === sourceId && edge.data('target') === targetId) ||
-             (edge.data('source') === targetId && edge.data('target') === sourceId);
+    const edgeExists = cyRef.edges().some((edge) => {
+      return (
+        (edge.data('source') === sourceId &&
+          edge.data('target') === targetId) ||
+        (edge.data('source') === targetId &&
+          edge.data('target') === sourceId)
+      );
     });
 
     if (edgeExists) {
@@ -89,7 +110,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     };
 
     setElements((els) => [...els, connectNode]);
-    setTempEdgeNodes([connectBtnId]);
+    tempEdgeNodes.current = [connectBtnId];
   }, [cyRef, setElements]);
 
   /**
@@ -101,6 +122,8 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
       const node = evt.target;
       const nodeId = node.id();
 
+      removeTemporaryNodes();
+
       // Add node to selectedNodes if not already there
       if (!selectedNodes.current.includes(nodeId)) {
         selectedNodes.current.push(nodeId);
@@ -111,36 +134,33 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
         showConnectButton();
       }
 
-      removeTemporaryNodes();
+      // cleanupAfterAction();
     },
-    [showConnectButton, removeTemporaryNodes]
+    [showConnectButton, cleanupAfterAction]
   );
 
+  /**
+   * Handles the unselection of a node.
+   * Removes the node from the selected nodes list and manages the 'Connect' button based on the new selection count.
+   */
+  const handleNodeUnselect = useCallback(
+    (evt) => {
+      const node = evt.target;
+      const nodeId = node.id();
 
-/**
- * Handles the unselection of a node.
- * Removes the node from the selected nodes list and manages the 'Connect' button based on the new selection count.
- */
-const handleNodeUnselect = useCallback(
-  (evt) => {
-    // debugger;
-    const node = evt.target;
-    const nodeId = node.id();
+      // Update the list of selected nodes by removing the deselected node
+      selectedNodes.current = selectedNodes.current.filter((id) => id !== nodeId);
 
-    // Update the list of selected nodes by removing the deselected node
-    selectedNodes.current = selectedNodes.current.filter(id => id !== nodeId);
+      // Remove all temporary nodes immediately
+      removeTemporaryNodes();
 
-    // Remove all temporary nodes immediately
-    removeTemporaryNodes();
-
-    // If exactly two nodes are still selected, potentially show the 'Connect' button
-    if (selectedNodes.current.length === 2) {
-      showConnectButton();
-    }
-  },
-  [removeTemporaryNodes, showConnectButton]
-);
-
+      // If exactly two nodes are still selected, potentially show the 'Connect' button
+      if (selectedNodes.current.length === 2) {
+        showConnectButton();
+      }
+    },
+    [removeTemporaryNodes, showConnectButton]
+  );
 
   /**
    * Adds a new node to the graph at the center of the viewport.
@@ -207,28 +227,53 @@ const handleNodeUnselect = useCallback(
 
       // Add the action buttons to the graph
       setElements((els) => [...els, editNodeButton, deleteNodeButton]);
-      setTempNodes([editNodeId, deleteNodeId]);
+      tempNodes.current = [editNodeId, deleteNodeId];
       setEditNode(node);
 
       // Set up position listener to move temporary nodes along with their parent
       const moveActionNodes = () => {
         const updatedPosition = node.position();
-        setElements((els) => els.map((el) => {
+        setElements((els) =>
+          els.map((el) => {
             if (el.data.id === editNodeId) {
-                return { ...el, position: { x: updatedPosition.x + 30, y: updatedPosition.y - offsetY } };
+              return {
+                ...el,
+                position: {
+                  x: updatedPosition.x + 30,
+                  y: updatedPosition.y - offsetY,
+                },
+              };
             } else if (el.data.id === deleteNodeId) {
-                return { ...el, position: { x: updatedPosition.x - 30, y: updatedPosition.y - offsetY } };
+              return {
+                ...el,
+                position: {
+                  x: updatedPosition.x - 30,
+                  y: updatedPosition.y - offsetY,
+                },
+              };
             }
             return el;
-        }));
-    };
-    node.on('position', moveActionNodes);
+          })
+        );
+      };
+      node.on('position', moveActionNodes);
 
-    // Clean up listener when nodes are removed or deselected
-    return () => node.removeListener('position', moveActionNodes);
+      // Clean up listener when nodes are removed or deselected
+      return () => node.removeListener('position', moveActionNodes);
     },
-    [setElements, setTempNodes, setEditNode]
+    [setElements, setEditNode]
   );
+
+  /**
+   * Deletes the currently selected edge from the graph.
+   */
+  const handleDeleteEdge = useCallback(() => {
+    if (selectedEdge) {
+      const edgeId = selectedEdge.id();
+      setElements((els) => els.filter((el) => el.data.id !== edgeId));
+      setSelectedEdge(null);
+    }
+  }, [selectedEdge, setElements]);
 
   /**
    * Handles clicking on a temporary action node (e.g., 'Edit', 'Delete', 'Connect').
@@ -247,38 +292,13 @@ const handleNodeUnselect = useCallback(
         setEditNode(parentNode);
         setEditLabel(parentNode.data('label'));
       } else if (label === 'Delete Edge') {
-        //  console.log("deleting edge");
-         // Remove temporary action nodes
-         
-         setTimeout(() => {
-          handleDeleteEdge();
-          setTimeout(() => {
-            removeTemporaryNodes();
-          }, 500);
-         }, 500);
-         
-        // Clear selection
-        if (cyRef) {
-          cyRef.$('node:selected').unselect();
-        }
-        setIsEditing(false);
-        setEditNode(null);
-        // console.log("elements after deleting edge 2: ", elements);
-        // console.log("selectedNodes: ", selectedNodes.current);
-
+        // Remove the edge
+        handleDeleteEdge();
+        cleanupAfterAction();
       } else if (label === 'Delete') {
         // Delete the original node
         const parentNodeId = node.data('parentNodeId');
         const nodeId = parentNodeId;
-
-        // Remove temporary action nodes
-        removeTemporaryNodes();
-
-        // Clear selection
-        if (cyRef) {
-          cyRef.$('node:selected').unselect();
-        }
-        selectedNodes.current = [];
 
         // Update elements state to remove the node and its edges
         setElements((els) =>
@@ -290,8 +310,10 @@ const handleNodeUnselect = useCallback(
           )
         );
 
-        setIsEditing(false);
-        setEditNode(null);
+        // remove action nodes
+
+
+        cleanupAfterAction();
       } else if (label === 'Connect') {
         // Handle connecting the two selected nodes
         const sourceId = node.data('sourceId');
@@ -308,12 +330,9 @@ const handleNodeUnselect = useCallback(
         setElements((els) => [...els, newEdge]);
 
         // Clear selection and remove temp nodes
-        cyRef.$('node:selected').unselect();
-        selectedNodes.current = [];
-        // removeTemporaryNodes();
+        cleanupAfterAction();
       }
 
-      // debugger;
       // Remove the action node that was clicked
       setElements((els) => els.filter((el) => el.data.id !== node.id()));
     },
@@ -323,7 +342,8 @@ const handleNodeUnselect = useCallback(
       setIsEditing,
       setEditNode,
       setEditLabel,
-      removeTemporaryNodes,
+      handleDeleteEdge,
+      cleanupAfterAction,
     ]
   );
 
@@ -353,15 +373,10 @@ const handleNodeUnselect = useCallback(
           })
         );
 
-        // Remove temporary action nodes
-        removeTemporaryNodes();
-
-        // Reset editing state
-        setIsEditing(false);
-        setEditNode(null);
+        cleanupAfterAction();
       }
     },
-    [editNode, editLabel, setElements, removeTemporaryNodes]
+    [editNode, editLabel, setElements, cleanupAfterAction]
   );
 
   /**
@@ -389,14 +404,9 @@ const handleNodeUnselect = useCallback(
         })
       );
 
-      // Remove temporary action nodes
-      removeTemporaryNodes();
-
-      // Reset editing state
-      setIsEditing(false);
-      setEditNode(null);
+      cleanupAfterAction();
     }
-  }, [editNode, editLabel, setElements, removeTemporaryNodes]);
+  }, [editNode, editLabel, setElements, cleanupAfterAction]);
 
   /**
    * Handles the selection of an edge.
@@ -408,8 +418,10 @@ const handleNodeUnselect = useCallback(
       setSelectedEdge(edge);
 
       // Calculate the position for the delete button based on the edge's midpoint
-      const midPointX = (edge.source().position().x + edge.target().position().x) / 2;
-      const midPointY = (edge.source().position().y + edge.target().position().y) / 2;
+      const midPointX =
+        (edge.source().position().x + edge.target().position().x) / 2;
+      const midPointY =
+        (edge.source().position().y + edge.target().position().y) / 2;
 
       const deleteEdgeButtonId = `delete-edge-${edge.id()}`;
 
@@ -422,9 +434,9 @@ const handleNodeUnselect = useCallback(
 
       // Add the delete button to the graph
       setElements((els) => [...els, deleteEdgeButton]);
-      setTempEdgeNodes([deleteEdgeButtonId]);
+      tempEdgeNodes.current = [deleteEdgeButtonId];
     },
-    [setElements, setTempEdgeNodes]
+    [setElements]
   );
 
   /**
@@ -433,21 +445,9 @@ const handleNodeUnselect = useCallback(
    */
   const handleEdgeDeselect = useCallback(() => {
     setSelectedEdge(null);
-    // removeTemporaryNodes();
-  }, [removeTemporaryNodes]);
-
-  /**
-   * Deletes the currently selected edge from the graph.
-   */
-  const handleDeleteEdge = useCallback(() => {
-    if (selectedEdge) {
-      const edgeId = selectedEdge.id();
-      setElements((els) => els.filter((el) => el.data.id !== edgeId));
-      setSelectedEdge(null);
-      selectedNodes.current = [];
-      // console.log("selectedNodes after deleting edge: ", selectedNodes.current)
-    }
-  }, [selectedEdge, setElements]);
+    removeTemporaryNodes();
+    cleanupAfterAction();
+  }, [cleanupAfterAction]);
 
   /**
    * Updates the position of the input field when the graph changes.
@@ -490,7 +490,7 @@ const handleNodeUnselect = useCallback(
     const onTapNode = (evt) => {
       const tappedNode = evt.target;
       const currentTime = new Date().getTime();
- 
+
       if (tappedNode.hasClass('action-node')) {
         // Clicked on a temporary action node (e.g., 'Edit', 'Delete', 'Connect')
         handleActionNodeClick(tappedNode);
@@ -524,6 +524,7 @@ const handleNodeUnselect = useCallback(
         selectedNodes.current = [];
         // Remove temporary action nodes
         removeTemporaryNodes();
+        cleanupAfterAction();
       }
     };
 
@@ -553,7 +554,6 @@ const handleNodeUnselect = useCallback(
     handleNodeUnselect,
     lastTappedNode,
     lastTapTime,
-    handleDeleteEdge,
   ]);
 
   /**
