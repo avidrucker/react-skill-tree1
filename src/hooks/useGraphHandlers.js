@@ -199,6 +199,23 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
       setElements((els) => [...els, editNodeButton, deleteNodeButton]);
       setTempNodes([editNodeId, deleteNodeId]);
       setEditNode(node);
+
+      // Set up position listener to move temporary nodes along with their parent
+      const moveActionNodes = () => {
+        const updatedPosition = node.position();
+        setElements((els) => els.map((el) => {
+            if (el.data.id === editNodeId) {
+                return { ...el, position: { x: updatedPosition.x + 30, y: updatedPosition.y - offsetY } };
+            } else if (el.data.id === deleteNodeId) {
+                return { ...el, position: { x: updatedPosition.x - 30, y: updatedPosition.y - offsetY } };
+            }
+            return el;
+        }));
+    };
+    node.on('position', moveActionNodes);
+
+    // Clean up listener when nodes are removed or deselected
+    return () => node.removeListener('position', moveActionNodes);
     },
     [setElements, setTempNodes, setEditNode]
   );
