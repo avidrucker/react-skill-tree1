@@ -26,7 +26,7 @@
 
 - [x] prevent the connect button from appearing when selecting two nodes that are already connected
 
-- [ ] make popup buttons disappear when dragging a selected node
+- [x] make popup buttons move with parent node when dragging a selected node
 
 - [x] fix bug where deleting a node does not yet unregister the node as "selected", which causes an error that, upon deleting a node and then immediately selecting another node triggers the following error: 
 """
