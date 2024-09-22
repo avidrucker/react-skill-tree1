@@ -5,6 +5,8 @@ import CytoscapeComponent from 'react-cytoscapejs';
 import stylesheet from './graphStyles';
 import useGraphHandlers from './hooks/useGraphHandlers';
 import { copyIcon, checkIcon, eyeIcon, eyeSlashIcon } from './assets/icons';
+import eyeImageSmall from './assets/eye_icon_small.png';
+import nodeOutlineBg from './assets/node_outline_bg.png';
 
 function svgToDataURI(svgString) {
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
@@ -14,13 +16,13 @@ function App() {
   const [elements, setElements] = useState([
     {
       data: { id: 'node-1', label: 'Skill 1' },
-      position: { x: 0, y: 0 },
-      // image: 'https://farm8.staticflickr.com/7272/7633179468_3e19e45a0c_b.jpg' 
+      position: { x: 0, y: 0 }, 
       "style": {
         "background-image": [
-          svgToDataURI(eyeIcon),
+          nodeOutlineBg,
+          eyeImageSmall,
         ],
-        "background-fit": "contain",
+        "background-fit": "contain cover",
         "background-image-opacity": 1
       }
     },
@@ -47,7 +49,7 @@ function App() {
       className="bg-black relative w-100 vh-100"
     >
       <CytoscapeComponent
-        className="bg-dark-gray h-100 w-100 relative z-0"
+        className="bg-dark-gray h-100 w-100 relative z-0 pa3"
         elements={elements}
         stylesheet={stylesheet}
         layout={{ name: 'preset' }}

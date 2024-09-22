@@ -1,3 +1,5 @@
+import nodeOutlineBg from './assets/node_outline_bg.png';
+
 // Add these styles in your graphStyles.js
 const stylesheet = [
     {
@@ -7,21 +9,27 @@ const stylesheet = [
         label: 'data(label)',
         'text-valign': 'top',
         'text-margin-y': 0,
+        'height': 50,
+        'width': 50,
         color: '#fff',
         // 'text-outline-width': 2,
         // 'text-outline-color': '#28a745',
         'text-wrap': 'wrap',
         'font-family': "UnifrakturMaguntia",
         'font-size': 10,
-        'border-width': 1,
-        'border-color': 'white',
+        'border-width': 0,
+        //'border-color': 'white',
+        'background-clip': 'none',
+        'background-image': [nodeOutlineBg],
+        "background-fit": "contain cover",
+        "background-image-opacity": 1
       },
     },
     {
       selector: 'node[image]',       // Target nodes with an 'image' data attribute
       style: {
         'background-image': 'data(image)', // Use the 'image' data attribute
-        'background-fit': 'contain',
+        'background-fit': 'cover',
         'background-clip': 'none',
       },
     },
@@ -35,7 +43,10 @@ const stylesheet = [
         'text-valign': 'center',
         'text-halign': 'center',
         color: '#fff',
-        'font-size': 10,
+        'font-size': 8,
+        'background-image': [],
+        'border-color': 'white',
+        'border-width': 1,
         // 'text-outline-width': 2,
         // 'text-outline-color': '#007bff',
         'font-family': "sans-serif"
@@ -44,7 +55,7 @@ const stylesheet = [
     {
       selector: 'node:selected',
       style: {
-        'border-width': 2,
+        'border-width': 1,
         'border-color': '#FFD700',
       },
     },
