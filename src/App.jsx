@@ -4,19 +4,40 @@ import CytoscapeComponent from 'react-cytoscapejs';
 
 import stylesheet from './graphStyles';
 import useGraphHandlers from './hooks/useGraphHandlers';
-import eyeIconBordered from './assets/eye_icon_bordered.png';
+import eyeIcon from './assets/eye.png';
+import leafIcon from './assets/leaf.png';
+import windIcon from './assets/wind.png';
+
 // import nodeOutlineBg from './assets/node_outline_bg.png';
 
 function App() {
   const [elements, setElements] = useState([
     {
-      data: { id: 'node-1', label: 'Skill 1', image: eyeIconBordered },
+      data: { id: 'node-1', label: 'Insight', image: eyeIcon },
       position: { x: 0, y: 0 }, 
     },
     {
-      data: { id: 'node-2', label: 'Skill 2' },
+      data: { id: 'node-2', label: 'Leaf Shield', image: leafIcon },
       position: { x: 100, y: 0 },
-    }
+    },
+    {
+      data: { id: 'node-3', label: 'Air Strike Shield', image: windIcon },
+      position: { x: 200, y: 0 },
+    },
+    {
+      data: {
+        id: 'edge-node-1-node-2',
+        source: 'node-1',
+        target: 'node-2'
+      },
+    },
+    {
+      data: {
+        id: 'edge-node-2-node-3',
+        source: 'node-2',
+        target: 'node-3'
+      },
+    },
   ]);
   const [cyRef, setCyRef] = useState(null);
 
