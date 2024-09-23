@@ -66,10 +66,10 @@ const stylesheet = [
     {
       selector: 'edge',
       style: {
-        width: 2,
-        'line-color': '#ccc',
+        width: 1,
+        'line-color': 'white',
         'target-arrow-color': '#ccc',
-        'target-arrow-shape': 'triangle',
+        'target-arrow-shape': 'none',
         'curve-style': 'bezier',
       },
     },
