@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 
 import stylesheet from './graphStyles';
@@ -8,14 +8,14 @@ import eyeIcon from './assets/eye.png';
 import leafIcon from './assets/leaf.png';
 import windIcon from './assets/wind.png';
 
-// import nodeOutlineBg from './assets/node_outline_bg.png';
-
 function App() {
   const [treeName, setTreeName] = useState('Untitled 1');
-  const [elements, setElements] = useState([
+
+  // Define the demo elements
+  const demoElements = [
     {
       data: { id: 'node-1', label: 'Insight', image: eyeIcon },
-      position: { x: 0, y: 0 }, 
+      position: { x: 0, y: 0 },
     },
     {
       data: { id: 'node-2', label: 'Leaf Shield', image: leafIcon },
@@ -29,18 +29,23 @@ function App() {
       data: {
         id: 'edge-node-1-node-2',
         source: 'node-1',
-        target: 'node-2'
+        target: 'node-2',
       },
     },
     {
       data: {
         id: 'edge-node-2-node-3',
         source: 'node-2',
-        target: 'node-3'
+        target: 'node-3',
       },
     },
-  ]);
+  ];
+
+  const [elements, setElements] = useState(demoElements);
   const [cyRef, setCyRef] = useState(null);
+
+  // Use a ref to track whether we've loaded from localStorage
+  const hasLoadedFromLocalStorage = useRef(false);
 
   const {
     isEditing,
@@ -57,12 +62,11 @@ function App() {
     console.log('Current elements:', elements);
   };
 
-  // const printCyRef = () => {
-  //   console.log('Current cyRef:', cyRef);
-  // }
-
   const saveToJson = () => {
-    const json = JSON.stringify({ elements, cyRef: cyRef.json(), treeName });
+    const json = JSON.stringify({
+      elements,
+      treeName,
+    });
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -78,51 +82,68 @@ function App() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const json = JSON.parse(e.target.result);
-        setElements(json.elements);
-        cyRef.json(json.cyRef);
-        setTreeName(json.treeName);
+        setElements(json.elements || demoElements);
+        setTreeName(json.treeName || 'Untitled 1');
       };
       reader.readAsText(file);
     }
   };
 
   const loadGraphFromJSON = () => {
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = "application/json";
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'application/json';
     fileInput.onchange = loadFromJson;
     fileInput.click();
   };
 
   const saveToLocalStorage = () => {
-    if(cyRef) {
-      const json = JSON.stringify({ elements, cyRef: cyRef.json(), treeName });
-      localStorage.setItem('graphState', json);
-    }
+    const json = JSON.stringify({
+      elements,
+      treeName,
+    });
+    localStorage.setItem('graphState', json);
   };
 
   const loadFromLocalStorage = () => {
     const json = localStorage.getItem('graphState');
-    if (json && cyRef) {
+    if (json) {
       const state = JSON.parse(json);
-      setElements(state.elements);
-      cyRef.json(state.cyRef);
-      setTreeName(state.treeName);
+      setElements(state.elements || demoElements);
+      setTreeName(state.treeName || 'Untitled 1');
+    } else {
+      // If no data in localStorage, use demo data
+      setElements(demoElements);
     }
   };
 
+  // Load from local storage once when the component mounts
   useEffect(() => {
-    loadFromLocalStorage();
-  }, []);
+    if (!hasLoadedFromLocalStorage.current) {
+      loadFromLocalStorage();
+      hasLoadedFromLocalStorage.current = true;
+    }
+  }, []); // Empty dependency array ensures this runs once
 
+  // Save to local storage whenever elements or treeName change
   useEffect(() => {
     saveToLocalStorage();
-  }, [treeName, elements, cyRef]);
+  }, [treeName, elements]);
+
+  const clearData = () => {
+    localStorage.removeItem('graphState');
+    setElements([]);
+    setTreeName('Untitled 1');
+  };
+
+  const loadDemoData = () => {
+    setElements(demoElements);
+    setTreeName('Demo Tree');
+    saveToLocalStorage();
+  };
 
   return (
-    <div
-      className="bg-black relative w-100 vh-100"
-    >
+    <div className="bg-black relative w-100 vh-100">
       <CytoscapeComponent
         className="bg-dark-gray h-100 w-100 relative z-0 pa3"
         elements={elements}
@@ -131,29 +152,25 @@ function App() {
         cy={setCyRef}
       />
       {/* Overlay UI Elements */}
-      <div
-        className="z-1 absolute top-0 left-0 pa3 pointer-events-none"
-      >
+      <div className="z-1 absolute top-0 left-0 pa3 pointer-events-none">
         <h1 className="ma0 user-select-none">
           <span className="f2 mr2">Skill Tree:</span>
-          {/*input which uses treeName as the default value and updating the text inside updates treeName via setTreeName*/}
-          {/*if the enter key is pressed the text input is blurred*/}
-          <input 
-            className="f2 pointer-events-auto" 
-            type="text" 
-            value={treeName} 
+          <input
+            className="f2 pointer-events-auto"
+            type="text"
+            value={treeName}
             onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
             onChange={(e) => setTreeName(e.target.value)}
-            />
+          />
         </h1>
         <div className="pointer-events-auto">
           <button onClick={addNode}>Add Skill</button>
           <button onClick={() => cyRef && cyRef.fit()}>Center Graph</button>
           <button onClick={printElements}>Print Elements</button>
-          {/* <button onClick={printCyRef}>Print CyRef</button> */}
-          <button onClick={saveToJson}>Save to JSON</button>
-          {/*<input type="file" accept="application/json" onChange={loadFromJson} />*/}
-          <button onClick={loadGraphFromJSON}>Load from JSON</button>
+          <button onClick={saveToJson}>Save</button>
+          <button onClick={loadGraphFromJSON}>Load</button>
+          <button onClick={clearData}>Clear</button>
+          <button onClick={loadDemoData}>Demo</button>
         </div>
       </div>
       {/* Edit Input Field */}
