@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 
 import stylesheet from './graphStyles';
@@ -93,6 +93,31 @@ function App() {
     fileInput.onchange = loadFromJson;
     fileInput.click();
   };
+
+  const saveToLocalStorage = () => {
+    if(cyRef) {
+      const json = JSON.stringify({ elements, cyRef: cyRef.json(), treeName });
+      localStorage.setItem('graphState', json);
+    }
+  };
+
+  const loadFromLocalStorage = () => {
+    const json = localStorage.getItem('graphState');
+    if (json && cyRef) {
+      const state = JSON.parse(json);
+      setElements(state.elements);
+      cyRef.json(state.cyRef);
+      setTreeName(state.treeName);
+    }
+  };
+
+  useEffect(() => {
+    loadFromLocalStorage();
+  }, []);
+
+  useEffect(() => {
+    saveToLocalStorage();
+  }, [treeName, elements, cyRef]);
 
   return (
     <div
