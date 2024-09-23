@@ -30,34 +30,29 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
    * Removes temporary action nodes from the graph (e.g., Edit and Delete buttons).
    */
   const removeTemporaryNodes = useCallback(() => {
-    // console.log("removeTemporaryNodes");
     setElements((els) =>
       els.filter(
         (el) =>
           !tempNodes.current.includes(el.data.id) &&
           !tempEdgeNodes.current.includes(el.data.id) &&
           !el.classes?.includes('action-node')
-          // && !el.data.id?.includes('delete-edge')
       )
     );
 
     // if selectedNodes has an nodes with the data.id containing "delete-edge", remove it
     selectedNodes.current = selectedNodes.current.filter(
-      (id) => !id.includes('delete-edge') || 
-              !id.includes('connect-node') || 
+      (id) => !id.includes('delete-edge') && 
+              !id.includes('connect-node') && 
               !id.includes('delete-node'));
 
     tempNodes.current = [];
     tempEdgeNodes.current = [];
-    // selectedNodes.current = [];
-    // console.log("after removing temp nodes, elements is: ", elements);
   }, [setElements]);
 
   /**
    * Performs cleanup after an action is completed.
    */
   const cleanupAfterAction = useCallback(() => {
-    // console.log("cleanupAfterAction");
     if (cyRef) {
       cyRef.$('node:selected').unselect();
     }
@@ -71,7 +66,6 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
    * Displays a temporary 'Connect' button between two selected nodes.
    */
   const showConnectButton = useCallback(() => {
-    // console.log("showConnectButton");
     const [sourceId, targetId] = selectedNodes.current;
     const sourceNode = cyRef.getElementById(sourceId);
     const targetNode = cyRef.getElementById(targetId);
@@ -132,7 +126,6 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
    */
   const handleNodeSelect = useCallback(
     (evt) => {
-      // console.log("handleNodeSelect");
       const node = evt.target;
       const nodeId = node.id();
 
@@ -150,9 +143,6 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
       if (selectedNodes.current.length === 2) {
         showConnectButton();
       }
-
-      // cleanupAfterAction();
-      // console.log("selectedNodes.current", selectedNodes.current);
     },
     [showConnectButton, removeTemporaryNodes]
   );
@@ -163,7 +153,6 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
    */
   const handleNodeUnselect = useCallback(
     (evt) => {
-      // console.log("handleNodeUnselect");
       const node = evt.target;
       const nodeId = node.id();
 
@@ -287,7 +276,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
    * Deletes the currently selected edge from the graph.
    */
   const handleDeleteEdge = useCallback(() => {
-    // console.log("handleDeleteEdge");
+    
     if (selectedEdge) {
       const edgeId = selectedEdge.id();
       setElements((els) => els.filter((el) => el.data.id !== edgeId));
@@ -302,7 +291,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
       cyRef.$('node:selected').unselect();
       selectedNodes.current = [];
       setSelectedEdge(null);
-      // console.log("after deleting edge, selectedNodes.current", selectedNodes.current);
+      handleEdgeDeselect();
     }
   }, [selectedEdge, setElements]);
 
@@ -322,7 +311,6 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
    */
   const handleActionNodeClick = useCallback(
     (node) => {
-      // console.log("handleActionNodeClick");
       const label = node.data('label');
 
       if (label === 'Edit') {
@@ -343,11 +331,9 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
 
         // if selectedNodes has an nodes with the data.id containing "delete-edge", remove it
         selectedNodes.current = selectedNodes.current.filter(
-          (id) => !id.includes('delete-edge') || 
-                  !id.includes('connect-node') || 
+          (id) => !id.includes('delete-edge') && 
+                  !id.includes('connect-node') && 
                   !id.includes('delete-node'));
-
-        // console.log("deleted edge done: selectedNodes.current", selectedNodes.current);
       } else if (label === 'Delete') {
         // Delete the original node
         const parentNodeId = node.data('parentNodeId');
@@ -382,7 +368,6 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
 
         // Clear selection and remove temp nodes
         cleanupAfterAction();
-        // removeTemporaryNodes(); ////
       }
 
       // Remove the action node that was clicked
@@ -400,6 +385,40 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
       removeTemporaryNodes
     ]
   );
+
+  // handler that handles keydown events for deleting nodes or edges when they are selected via the delete key
+  const handleGlobalKeyDown = useCallback(
+    (e) => {
+      // console.log("------");
+      // console.log("key pressed: ", e.key);
+      // console.log("selectedNodes.current", selectedNodes.current);
+      // console.log("selectedEdge", selectedEdge);
+      // console.log("isEditing: ", isEditing);
+      // console.log("------");
+      if (e.key === 'Delete' && !isEditing && selectedEdge !== null) {
+        // Delete the selected nodes
+        // console.log("deleting currently selected edge");
+        handleDeleteEdge();
+        // remove action nodes
+        cleanupAfterAction();
+      } else if (e.key === 'Delete' && !isEditing && selectedNodes.current.length > 0) {
+        // Delete the selected nodes
+        // console.log("deleting currently selected nodes");
+        selectedNodes.current.forEach((nodeId) => {
+          setElements((els) =>
+            els.filter(
+              (el) =>
+                el.data.id !== nodeId &&
+                el.data.source !== nodeId &&
+                el.data.target !== nodeId
+            )
+          );
+        });
+
+        // remove action nodes
+        cleanupAfterAction();
+      }
+    });
 
   /**
    * Handles key down events for the input field when editing a node label.
@@ -466,6 +485,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     }
   }, [editNode, editLabel, setElements, cleanupAfterAction]);
 
+  //// TODO: implement multi-edge selection, multi-edge deletion
   /**
    * Handles the selection of an edge.
    * Displays a temporary 'Delete Edge' button near the edge.
@@ -584,12 +604,16 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     cy.on('select', 'node', handleNodeSelect);
     cy.on('unselect', 'node', handleNodeUnselect);
 
+    document.addEventListener('keydown', handleGlobalKeyDown);
+
     // Cleanup event handlers on unmount
     return () => {
       cy.off('tap', 'node', onTapNode);
       cy.off('tap', onTapBackground);
       cy.off('select', 'node', handleNodeSelect);
       cy.off('unselect', 'node', handleNodeUnselect);
+
+      document.removeEventListener('keydown', handleGlobalKeyDown);
     };
   }, [
     cyRef,
@@ -602,7 +626,8 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     handleNodeUnselect,
     lastTappedNode,
     lastTapTime,
-    cleanupAfterAction
+    cleanupAfterAction,
+    handleGlobalKeyDown
   ]);
 
   /**
@@ -635,7 +660,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     handleBlur,
     setIsEditing,
     setEditNode,
-    setEditLabel,
+    setEditLabel
   };
 };
 
