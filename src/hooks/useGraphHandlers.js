@@ -210,7 +210,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
 
   /**
    * Handles double-clicking on a node.
-   * Displays temporary 'Edit' and 'Delete' action buttons near the node.
+   * Displays temporary 'Rename' and 'Delete' action buttons near the node.
    */
   const handleNodeDoubleClick = useCallback(
     (node) => {
@@ -222,7 +222,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
       const offsetY = 55; // Distance above the original node
 
       const editNodeButton = {
-        data: { id: editNodeId, label: 'Edit', parentNodeId: node.id() },
+        data: { id: editNodeId, label: 'Rename', parentNodeId: node.id() },
         position: { x: nodePosition.x + 30, y: nodePosition.y - offsetY },
         classes: 'action-node',
       };
@@ -313,7 +313,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     (node) => {
       const label = node.data('label');
 
-      if (label === 'Edit') {
+      if (label === 'Rename') {
         // Begin editing the original node
         const parentNodeId = node.data('parentNodeId');
         const parentNode = cyRef.getElementById(parentNodeId);
@@ -560,7 +560,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
       const currentTime = new Date().getTime();
 
       if (tappedNode.hasClass('action-node')) {
-        // Clicked on a temporary action node (e.g., 'Edit', 'Delete', 'Connect')
+        // Clicked on a temporary action node (e.g., 'Rename', 'Delete', 'Connect')
         handleActionNodeClick(tappedNode);
       } else {
         // Handle double-click detection for editing/deleting nodes
