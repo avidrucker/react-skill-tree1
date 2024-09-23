@@ -17,7 +17,12 @@
 
 - [ ] implement ability to select icon for a given node from a list of icons
 
-- [ ] add keydown handler to delete selected nodes and edges via the delete key
+- [ ] fix async font loading issue so that the correct font is loaded consistently before the graph loads
+
+- [o] add keydown handler to delete selected nodes and edges via the delete key
+  - [x] feat multi-node deletion via keyboard
+  - [ ] feat multi-edge deletion via keyboard and mouse
+    - [ ] feat correct multi-edge selection
 - [x] add keydown handler to escape from node edit mode via escape key
 
 - [x] fix connect node button so that it appears centered vertically as well as horizontally between the two nodes that it is to connect
@@ -28,7 +33,7 @@
 
 - [x] prevent flashing edge bug from occurring when canvas is fullscreen height and width
 
-- [ ] fix bug where three nodes are selected, and 1 is unselected and the connect button should reappear but currently doesn't
+- [x] fix bug where three nodes are selected, and 1 is unselected and the connect button should reappear but currently doesn't
 
 - [x] prevent the connect button from appearing when selecting two nodes that are already connected
 
