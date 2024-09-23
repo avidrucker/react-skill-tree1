@@ -18,7 +18,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
   const [selectedEdge, setSelectedEdge] = useState(null);
 
   // Counter for generating unique node IDs
-  const nodeIdCounter = useRef(2);
+  const nodeIdCounter = useRef(elements.length + 1);
 
   // References for selected nodes and double-click detection
   const selectedNodes = useRef([]);

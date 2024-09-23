@@ -4,18 +4,19 @@ import CytoscapeComponent from 'react-cytoscapejs';
 
 import stylesheet from './graphStyles';
 import useGraphHandlers from './hooks/useGraphHandlers';
-import eyeImageSmall from './assets/eye_icon_small.png';
-import nodeOutlineBg from './assets/node_outline_bg.png';
+import eyeIconBordered from './assets/eye_icon_bordered.png';
+// import nodeOutlineBg from './assets/node_outline_bg.png';
 
 function App() {
   const [elements, setElements] = useState([
     {
-      data: { id: 'node-1', label: 'Skill 1', image: eyeImageSmall },
+      data: { id: 'node-1', label: 'Skill 1', image: eyeIconBordered },
       position: { x: 0, y: 0 }, 
-      style: {
-        'background-image': [nodeOutlineBg, eyeImageSmall]
-      }
     },
+    {
+      data: { id: 'node-2', label: 'Skill 2' },
+      position: { x: 100, y: 0 },
+    }
   ]);
   const [cyRef, setCyRef] = useState(null);
 
