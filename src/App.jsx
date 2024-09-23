@@ -11,6 +11,7 @@ import windIcon from './assets/wind.png';
 // import nodeOutlineBg from './assets/node_outline_bg.png';
 
 function App() {
+  const [treeName, setTreeName] = useState('Untitled 1');
   const [elements, setElements] = useState([
     {
       data: { id: 'node-1', label: 'Insight', image: eyeIcon },
@@ -56,6 +57,43 @@ function App() {
     console.log('Current elements:', elements);
   };
 
+  // const printCyRef = () => {
+  //   console.log('Current cyRef:', cyRef);
+  // }
+
+  const saveToJson = () => {
+    const json = JSON.stringify({ elements, cyRef: cyRef.json(), treeName });
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${treeName}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const loadFromJson = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const json = JSON.parse(e.target.result);
+        setElements(json.elements);
+        cyRef.json(json.cyRef);
+        setTreeName(json.treeName);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const loadGraphFromJSON = () => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "application/json";
+    fileInput.onchange = loadFromJson;
+    fileInput.click();
+  };
+
   return (
     <div
       className="bg-black relative w-100 vh-100"
@@ -71,11 +109,26 @@ function App() {
       <div
         className="z-1 absolute top-0 left-0 pa3 pointer-events-none"
       >
-        <h1 className="ma0 user-select-none">Skill Tree</h1>
+        <h1 className="ma0 user-select-none">
+          <span className="f2 mr2">Skill Tree:</span>
+          {/*input which uses treeName as the default value and updating the text inside updates treeName via setTreeName*/}
+          {/*if the enter key is pressed the text input is blurred*/}
+          <input 
+            className="f2 pointer-events-auto" 
+            type="text" 
+            value={treeName} 
+            onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
+            onChange={(e) => setTreeName(e.target.value)}
+            />
+        </h1>
         <div className="pointer-events-auto">
           <button onClick={addNode}>Add Skill</button>
           <button onClick={() => cyRef && cyRef.fit()}>Center Graph</button>
-          <button onClick={printElements}>Print Elements</button> 
+          <button onClick={printElements}>Print Elements</button>
+          {/* <button onClick={printCyRef}>Print CyRef</button> */}
+          <button onClick={saveToJson}>Save to JSON</button>
+          {/*<input type="file" accept="application/json" onChange={loadFromJson} />*/}
+          <button onClick={loadGraphFromJSON}>Load from JSON</button>
         </div>
       </div>
       {/* Edit Input Field */}
