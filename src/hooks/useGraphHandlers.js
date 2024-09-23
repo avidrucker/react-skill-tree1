@@ -428,6 +428,10 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
         );
 
         cleanupAfterAction();
+      } else if (e.key === 'Escape' && editNode) {
+        // Cancel editing and reset the label
+        setEditLabel(editNode.data('label'));
+        cleanupAfterAction();
       }
     },
     [editNode, editLabel, setElements, cleanupAfterAction]
