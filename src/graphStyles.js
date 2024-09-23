@@ -20,17 +20,18 @@ const stylesheet = [
         'border-width': 0,
         //'border-color': 'white',
         'background-clip': 'none',
-        'background-image': [nodeOutlineBg],
-        "background-fit": "contain cover",
+        'background-image': [nodeOutlineBg, 'data(image)'],
+        "background-fit": "cover contain",
         "background-image-opacity": 1
       },
     },
     {
       selector: 'node[image]',       // Target nodes with an 'image' data attribute
       style: {
-        'background-image': 'data(image)', // Use the 'image' data attribute
-        'background-fit': 'cover',
+        'background-image': [nodeOutlineBg, 'data(image)'], // Use the 'image' data attribute
+        'background-fit': 'contain cover',
         'background-clip': 'none',
+        "background-image-opacity": 1
       },
     },
     {
