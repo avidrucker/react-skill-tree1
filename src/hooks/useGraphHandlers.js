@@ -25,11 +25,12 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
   const lastTappedNode = useRef(null);
   const lastTapTime = useRef(0);
 
+  // TODO: debug why removeTemporaryNodes is called 3-4 times in a row
   /**
    * Removes temporary action nodes from the graph (e.g., Edit and Delete buttons).
    */
   const removeTemporaryNodes = useCallback(() => {
-    console.log("removeTemporaryNodes");
+    // console.log("removeTemporaryNodes");
     setElements((els) =>
       els.filter(
         (el) =>
@@ -49,14 +50,14 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     tempNodes.current = [];
     tempEdgeNodes.current = [];
     // selectedNodes.current = [];
-    console.log("after removing temp nodes, elements is: ", elements);
+    // console.log("after removing temp nodes, elements is: ", elements);
   }, [setElements]);
 
   /**
    * Performs cleanup after an action is completed.
    */
   const cleanupAfterAction = useCallback(() => {
-    console.log("cleanupAfterAction");
+    // console.log("cleanupAfterAction");
     if (cyRef) {
       cyRef.$('node:selected').unselect();
     }
@@ -70,7 +71,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
    * Displays a temporary 'Connect' button between two selected nodes.
    */
   const showConnectButton = useCallback(() => {
-    console.log("showConnectButton");
+    // console.log("showConnectButton");
     const [sourceId, targetId] = selectedNodes.current;
     const sourceNode = cyRef.getElementById(sourceId);
     const targetNode = cyRef.getElementById(targetId);
@@ -131,13 +132,12 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
    */
   const handleNodeSelect = useCallback(
     (evt) => {
-      console.log("handleNodeSelect");
+      // console.log("handleNodeSelect");
       const node = evt.target;
       const nodeId = node.id();
 
       removeTemporaryNodes();
 
-      ////
       // Add node to selectedNodes if not already there
       if (!selectedNodes.current.includes(nodeId)) {
         // if the nodeId does not contain "delete-node", "connect-node", or "delete-edge", add it to selectedNodes
@@ -152,8 +152,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
       }
 
       // cleanupAfterAction();
-      console.log("selectedNodes.current", selectedNodes.current);
-      console.log("----------");
+      // console.log("selectedNodes.current", selectedNodes.current);
     },
     [showConnectButton, removeTemporaryNodes]
   );
@@ -164,7 +163,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
    */
   const handleNodeUnselect = useCallback(
     (evt) => {
-      console.log("handleNodeUnselect");
+      // console.log("handleNodeUnselect");
       const node = evt.target;
       const nodeId = node.id();
 
@@ -288,7 +287,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
    * Deletes the currently selected edge from the graph.
    */
   const handleDeleteEdge = useCallback(() => {
-    console.log("handleDeleteEdge");
+    // console.log("handleDeleteEdge");
     if (selectedEdge) {
       const edgeId = selectedEdge.id();
       setElements((els) => els.filter((el) => el.data.id !== edgeId));
@@ -303,9 +302,19 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
       cyRef.$('node:selected').unselect();
       selectedNodes.current = [];
       setSelectedEdge(null);
-      console.log("after deleting edge, selectedNodes.current", selectedNodes.current);
+      // console.log("after deleting edge, selectedNodes.current", selectedNodes.current);
     }
   }, [selectedEdge, setElements]);
+
+  /**
+   * Handles the deselection of an edge.
+   * Removes the temporary 'Delete Edge' button.
+   */
+  const handleEdgeDeselect = useCallback(() => {
+    setSelectedEdge(null);
+    removeTemporaryNodes();
+    cleanupAfterAction();
+  }, [cleanupAfterAction, removeTemporaryNodes]);
 
   /**
    * Handles clicking on a temporary action node (e.g., 'Edit', 'Delete', 'Connect').
@@ -313,7 +322,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
    */
   const handleActionNodeClick = useCallback(
     (node) => {
-      console.log("handleActionNodeClick");
+      // console.log("handleActionNodeClick");
       const label = node.data('label');
 
       if (label === 'Edit') {
@@ -338,7 +347,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
                   !id.includes('connect-node') || 
                   !id.includes('delete-node'));
 
-        console.log("deleted edge done: selectedNodes.current", selectedNodes.current);
+        // console.log("deleted edge done: selectedNodes.current", selectedNodes.current);
       } else if (label === 'Delete') {
         // Delete the original node
         const parentNodeId = node.data('parentNodeId');
@@ -355,8 +364,6 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
         );
 
         // remove action nodes
-
-
         cleanupAfterAction();
       } else if (label === 'Connect') {
         // Handle connecting the two selected nodes
@@ -388,7 +395,9 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
       setEditNode,
       setEditLabel,
       handleDeleteEdge,
+      handleEdgeDeselect,
       cleanupAfterAction,
+      removeTemporaryNodes
     ]
   );
 
@@ -483,16 +492,6 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     },
     [setElements]
   );
-
-  /**
-   * Handles the deselection of an edge.
-   * Removes the temporary 'Delete Edge' button.
-   */
-  const handleEdgeDeselect = useCallback(() => {
-    setSelectedEdge(null);
-    removeTemporaryNodes();
-    cleanupAfterAction();
-  }, [cleanupAfterAction]);
 
   /**
    * Updates the position of the input field when the graph changes.
@@ -599,6 +598,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     handleNodeUnselect,
     lastTappedNode,
     lastTapTime,
+    cleanupAfterAction
   ]);
 
   /**
