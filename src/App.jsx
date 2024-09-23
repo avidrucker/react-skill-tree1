@@ -81,6 +81,7 @@ function App() {
       {/* Edit Input Field */}
       {isEditing && editNode && editNodePosition && (
         <input
+          className="f3"
           type="text"
           value={editLabel}
           onChange={(e) => setEditLabel(e.target.value)}
@@ -89,7 +90,7 @@ function App() {
           style={{
             position: 'absolute',
             left: editNodePosition.x - 85, // Adjust based on input width
-            top: editNodePosition.y, // Adjust to position over the node
+            top: editNodePosition.y - 115, // Adjust to position over the node
             zIndex: 2,
           }}
           autoFocus
