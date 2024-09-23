@@ -14,9 +14,11 @@
   - useful reference for rendering images inside of nodes: https://stackoverflow.com/questions/47801961/cytoscape-js-how-define-node-with-background-image-from-a-json-data-file?rq=3
 - ~~put SVG inside of 1 node w/o render glitching~~
 - ~~put SVG icon inside each node~~
+
 - [ ] implement ability to select icon for a given node from a list of icons
 
 - [ ] add keydown handler to delete selected nodes and edges via the delete key
+- [x] add keydown handler to escape from node edit mode via escape key
 
 - [x] fix connect node button so that it appears centered vertically as well as horizontally between the two nodes that it is to connect
 
