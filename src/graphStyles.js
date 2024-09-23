@@ -12,26 +12,23 @@ const stylesheet = [
         'height': 50,
         'width': 50,
         color: '#fff',
-        // 'text-outline-width': 2,
-        // 'text-outline-color': '#28a745',
         'text-wrap': 'wrap',
         'font-family': "UnifrakturMaguntia",
         'font-size': 10,
         'border-width': 0,
-        //'border-color': 'white',
-        'background-clip': 'none',
-        'background-image': [nodeOutlineBg, 'data(image)'],
-        "background-fit": "cover contain",
-        "background-image-opacity": 1
+        'background-clip': ['none'],
+        'background-image': [nodeOutlineBg],
+        'background-fit': ['cover'],
+        'background-image-opacity': [1],
       },
     },
     {
       selector: 'node[image]',       // Target nodes with an 'image' data attribute
       style: {
-        'background-image': [nodeOutlineBg, 'data(image)'], // Use the 'image' data attribute
-        'background-fit': 'contain cover',
-        'background-clip': 'none',
-        "background-image-opacity": 1
+        'background-clip': ['none', 'none'],
+        'background-image': [nodeOutlineBg, 'data(image)'],
+        'background-fit': ['cover', 'cover'],
+        'background-image-opacity': [1, 1],
       },
     },
     {

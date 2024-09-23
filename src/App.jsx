@@ -10,9 +10,8 @@ import nodeOutlineBg from './assets/node_outline_bg.png';
 function App() {
   const [elements, setElements] = useState([
     {
-      data: { id: 'node-1', label: 'Skill 1' },
+      data: { id: 'node-1', label: 'Skill 1', image: eyeImageSmall },
       position: { x: 0, y: 0 }, 
-      // image: eyeImageSmall,
       style: {
         'background-image': [nodeOutlineBg, eyeImageSmall]
       }
@@ -67,8 +66,8 @@ function App() {
           onBlur={handleBlur}
           style={{
             position: 'absolute',
-            left: editNodePosition.x - 50, // Adjust based on input width
-            top: editNodePosition.y - 20, // Adjust to position over the node
+            left: editNodePosition.x - 85, // Adjust based on input width
+            top: editNodePosition.y, // Adjust to position over the node
             zIndex: 2,
           }}
           autoFocus
