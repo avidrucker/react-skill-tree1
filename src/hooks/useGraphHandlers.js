@@ -272,6 +272,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     [setElements, setEditNode]
   );
 
+  //// TODO: modify function to be handlleDeleteEdges
   /**
    * Deletes the currently selected edge from the graph.
    */
@@ -295,6 +296,8 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     }
   }, [selectedEdge, setElements]);
 
+
+  //// TODO: modify handleEdgeDeslect
   /**
    * Handles the deselection of an edge.
    * Removes the temporary 'Delete Edge' button.
