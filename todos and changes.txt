@@ -15,6 +15,8 @@
 - ~~put SVG inside of 1 node w/o render glitching~~
 - ~~put SVG icon inside each node~~
 
+- [x] fix bug where upon deselecting 1 of 2 selected edges that the button for the remaining selected egde is not put in the correct location
+
 - [ ] implement ability to select icon for a given node from a list of icons
 
 - [ ] fix async font loading issue so that the correct font is loaded consistently before the graph loads
