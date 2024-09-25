@@ -10,7 +10,10 @@ import leafIcon from './assets/leaf.png';
 import windIcon from './assets/wind.png';
 
 function App() {
-  const [treeName, setTreeName] = useState('Untitled 1');
+  const [treeName, setTreeName] = useState('Demo Tree');
+
+  const [zoom, setZoom] = useState(3.5);
+  const [pan, setPan] = useState({ x: 160, y: 272 });
 
   // Define the demo elements
   const demoElements = [
@@ -66,21 +69,39 @@ function App() {
     console.log('Current elements:', elements);
   };
 
-  const saveToJson = () => {
-    const json = JSON.stringify({
-      elements,
-      treeName,
-    });
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${treeName}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const saveGraphToJSON = () => {
+    if (cyRef) {
+      const elementsData = cyRef.elements().jsons(); // Get elements with positions
+      const json = JSON.stringify({
+        elements: elementsData,
+        treeName,
+        zoom: cyRef.zoom(),
+        pan: cyRef.pan(),
+      });
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${treeName}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+  
+  const saveToLocalStorage = () => {
+    if (cyRef) {
+      const elementsData = cyRef.elements().jsons(); // Get elements with positions
+      const json = JSON.stringify({
+        elements: elementsData,
+        treeName,
+        zoom: cyRef.zoom(),
+        pan: cyRef.pan(),
+      });
+      localStorage.setItem('graphState', json);
+    }
   };
 
-  const loadFromJson = (event) => {
+  const loadFromJSON = (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -88,6 +109,9 @@ function App() {
         const json = JSON.parse(e.target.result);
         setElements(json.elements || demoElements);
         setTreeName(json.treeName || 'Untitled 1');
+        // Save zoom and pan in state variables
+        setZoom(json.zoom || 1);
+        setPan(json.pan || { x: 0, y: 0 });
       };
       reader.readAsText(file);
     }
@@ -97,29 +121,27 @@ function App() {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'application/json';
-    fileInput.onchange = loadFromJson;
+    fileInput.onchange = loadFromJSON;
     fileInput.click();
   };
-
-  const saveToLocalStorage = () => {
-    const json = JSON.stringify({
-      elements,
-      treeName,
-    });
-    localStorage.setItem('graphState', json);
-  };
-
+  
   const loadFromLocalStorage = () => {
     const json = localStorage.getItem('graphState');
     if (json) {
       const state = JSON.parse(json);
       setElements(state.elements || demoElements);
       setTreeName(state.treeName || 'Untitled 1');
+      // Save zoom and pan in state variables
+      setZoom(state.zoom || 1);
+      setPan(state.pan || { x: 0, y: 0 });
     } else {
       // If no data in localStorage, use demo data
       setElements(demoElements);
+      setZoom(1);
+      setPan({ x: 0, y: 0 });
     }
   };
+  
 
   // Load from local storage once when the component mounts
   useEffect(() => {
@@ -150,15 +172,24 @@ function App() {
     );
   }, []);
 
-  const clearData = () => {
+  useEffect(() => {
+    if (cyRef && zoom !== null && pan !== null) {
+      cyRef.zoom(zoom);
+      cyRef.pan(pan);
+    }
+  }, [cyRef, zoom, pan]);
+
+  const clearGraphData = () => {
     localStorage.removeItem('graphState');
     setElements([]);
     setTreeName('Untitled 1');
   };
 
-  const loadDemoData = () => {
+  const loadDemoGraph = () => {
     setElements(demoElements);
     setTreeName('Demo Tree');
+    setZoom(3.5);
+    setPan({ x: 160, y: 272 });
     saveToLocalStorage();
   };
 
@@ -188,11 +219,11 @@ function App() {
         <div className="pointer-events-auto">
           <button onClick={addNode}>Add Skill</button>
           <button onClick={() => cyRef && cyRef.fit()}>Center Graph</button>
-          <button onClick={printElements}>Print Elements</button>
-          <button onClick={saveToJson}>Save</button>
+          <button onClick={printElements}>Console Log</button>
+          <button onClick={saveGraphToJSON}>Save</button>
           <button onClick={loadGraphFromJSON}>Load</button>
-          <button onClick={clearData}>Clear</button>
-          <button onClick={loadDemoData}>Demo</button>
+          <button onClick={clearGraphData}>Clear</button>
+          <button onClick={loadDemoGraph}>Demo</button>
         </div>
       </div>
       {/* Edit Input Field */}
