@@ -316,16 +316,22 @@ const handleEdgeDeselect = useCallback(
       (id) => id !== edgeId
     );
 
-    // if only 1 edge is selected, show the delete edge button
+    // if only 1 edge is selected, show the delete edge button over the currently selected edge
     if (selectedEdges.current.length === 1) {
+
+      // get the currently selected edge via looking through the elements list for a matching edge
+      const currentEdgeData = elements.find((el) => el.data.id === selectedEdges.current[0]);
+
+      // look up the edge itself in the cytoscape graph to get its source, position, etc.
+      const currentEdge = cyRef.getElementById(currentEdgeData.data.id);
 
       // Calculate the position for the delete button based on the edge's midpoint
       const midPointX =
-        (edge.source().position().x + edge.target().position().x) / 2;
+        (currentEdge.source().position().x + currentEdge.target().position().x) / 2;
       const midPointY =
-        (edge.source().position().y + edge.target().position().y) / 2;
+        (currentEdge.source().position().y + currentEdge.target().position().y) / 2;
 
-      const deleteEdgeButtonId = `delete-edge-${edge.id()}`;
+      const deleteEdgeButtonId = `delete-edge-${currentEdge.id()}`;
 
       // Create a temporary node for deleting the edge
       const deleteEdgeButton = {
