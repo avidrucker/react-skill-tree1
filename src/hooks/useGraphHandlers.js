@@ -18,7 +18,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
   const selectedEdges = useRef([]);
 
   // Counter for generating unique node IDs
-  const nodeIdCounter = useRef(elements.length + 1);
+  const nodeIdCounter = useRef(1);
 
   // References for selected nodes and double-click detection
   const selectedNodes = useRef([]);
@@ -180,9 +180,16 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
   const addNode = useCallback(() => {
     if (!cyRef) return;
 
-    const newId = `node-${nodeIdCounter.current}`;
-    const newLabel = `Skill ${nodeIdCounter.current}`;
-    nodeIdCounter.current += 1; // Increment the counter
+    let nextId = nodeIdCounter.current;
+    // if there is a node w/ the same id, increment the id
+    // we increase the id by 1 until we find an id that is not in the graph
+    while (cyRef.getElementById(`node-${nextId}`).length > 0) {
+      nextId += 1;
+    }
+
+    const newId = `node-${nextId}`;
+    const newLabel = `Skill ${nextId}`;
+    nodeIdCounter.current = 1; // Reset the counter back to 1
 
     // Calculate viewport center position to place the new node
     const zoom = cyRef.zoom();
