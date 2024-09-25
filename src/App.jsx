@@ -1,6 +1,7 @@
 // src/App.jsx
 import { useState, useEffect, useRef } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
+import FontFaceObserver from 'fontfaceobserver';
 
 import stylesheet from './graphStyles';
 import useGraphHandlers from './hooks/useGraphHandlers';
@@ -46,6 +47,9 @@ function App() {
 
   // Use a ref to track whether we've loaded from localStorage
   const hasLoadedFromLocalStorage = useRef(false);
+
+  // State to track if the font has loaded
+  const [isFontLoaded, setIsFontLoaded] = useState(false);
 
   const {
     isEditing,
@@ -130,6 +134,22 @@ function App() {
     saveToLocalStorage();
   }, [treeName, elements]);
 
+  // Load the custom font before rendering Cytoscape
+  useEffect(() => {
+    const font = new FontFaceObserver('UnifrakturMaguntia'); // Replace with your font's name
+
+    font.load().then(
+      () => {
+        console.log('Font has loaded');
+        setIsFontLoaded(true);
+      },
+      (err) => {
+        console.error('Font failed to load', err);
+        setIsFontLoaded(true); // Proceed anyway
+      }
+    );
+  }, []);
+
   const clearData = () => {
     localStorage.removeItem('graphState');
     setElements([]);
@@ -144,6 +164,7 @@ function App() {
 
   return (
     <div className="bg-black relative w-100 vh-100">
+      {isFontLoaded && (
       <CytoscapeComponent
         className="bg-dark-gray h-100 w-100 relative z-0 pa3"
         elements={elements}
@@ -151,6 +172,7 @@ function App() {
         layout={{ name: 'preset' }}
         cy={setCyRef}
       />
+      )}
       {/* Overlay UI Elements */}
       <div className="z-1 absolute top-0 left-0 pa3 pointer-events-none">
         <h1 className="ma0 user-select-none">
