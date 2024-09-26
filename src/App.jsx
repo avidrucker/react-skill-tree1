@@ -218,8 +218,8 @@ function App() {
         </h1>
         <div className="pointer-events-auto">
           <button onClick={addNode}>Add Skill</button>
-          <button onClick={() => cyRef && cyRef.fit()}>Center Graph</button>
-          <button onClick={printElements}>Console Log</button>
+          <button onClick={() => cyRef && cyRef.fit()}>Re-Center</button>
+          <button onClick={printElements}>Log</button>
           <button onClick={saveGraphToJSON}>Save</button>
           <button onClick={loadGraphFromJSON}>Load</button>
           <button onClick={clearGraphData}>Clear</button>
