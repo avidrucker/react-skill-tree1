@@ -1,5 +1,5 @@
 // src/hooks/useGraphHandlers.js
-import emptyIcon from '../assets/icons/empty.png';
+import blankIcon from '../assets/icons/blank.png';
 
 /**
  * Custom React hook for managing Cytoscape graph interactions.
@@ -202,7 +202,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon) => {
 
     const newNode = {
       group: 'nodes',
-      data: { id: newId, label: newLabel, image: emptyIcon },
+      data: { id: newId, label: newLabel, image: blankIcon },
       position: viewportCenter,
     };
 
