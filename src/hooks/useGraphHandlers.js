@@ -1,4 +1,5 @@
 // src/hooks/useGraphHandlers.js
+import emptyIcon from '../assets/icons/empty.png';
 
 /**
  * Custom React hook for managing Cytoscape graph interactions.
@@ -7,7 +8,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-const useGraphHandlers = (cyRef, elements, setElements) => {
+const useGraphHandlers = (cy, elements, setElements, onChangeIcon) => {
   // Refs for temporary action nodes (e.g., Edit, Delete buttons)
   const tempNodes = useRef([]);
   const tempEdgeNodes = useRef([]);
@@ -53,25 +54,25 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
    * Performs cleanup after an action is completed.
    */
   const cleanupAfterAction = useCallback(() => {
-    //// TODO: confirm that cyRef.current is helpful to check here
-    if (cyRef && cyRef.current) {
-      cyRef.current.$('node:selected').unselect();
-      cyRef.current.$('edge:selected').unselect();
+    //// TODO: confirm that cy is helpful to check here
+    if (cy) {
+      cy.$('node:selected').unselect();
+      cy.$('edge:selected').unselect();
     }
     
     selectedNodes.current = [];
     selectedEdges.current = [];
     setIsEditing(false);
     setEditNode(null);
-  }, [cyRef]);
+  }, [cy]);
 
   /**
    * Displays a temporary 'Connect' button between two selected nodes.
    */
   const showConnectButton = useCallback(() => {
     const [sourceId, targetId] = selectedNodes.current;
-    const sourceNode = cyRef.getElementById(sourceId);
-    const targetNode = cyRef.getElementById(targetId);
+    const sourceNode = cy.getElementById(sourceId);
+    const targetNode = cy.getElementById(targetId);
 
     // Validate that both nodes exist
     if (
@@ -83,7 +84,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
       return;
 
     // Check if an edge already exists between these nodes
-    const edgeExists = cyRef.edges().some((edge) => {
+    const edgeExists = cy.edges().some((edge) => {
       return (
         (edge.data('source') === sourceId &&
           edge.data('target') === targetId) ||
@@ -121,7 +122,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
 
     setElements((els) => [...els, connectNode]);
     tempEdgeNodes.current = [connectBtnId];
-  }, [cyRef, setElements]);
+  }, [cy, setElements]);
 
   /**
    * Handles the selection of a node.
@@ -178,12 +179,12 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
    * If a node is currently being edited, connects the new node to it.
    */
   const addNode = useCallback(() => {
-    if (!cyRef) return;
+    if (!cy) return;
 
     let nextId = nodeIdCounter.current;
     // if there is a node w/ the same id, increment the id
     // we increase the id by 1 until we find an id that is not in the graph
-    while (cyRef.getElementById(`node-${nextId}`).length > 0) {
+    while (cy.getElementById(`node-${nextId}`).length > 0) {
       nextId += 1;
     }
 
@@ -192,21 +193,23 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
     nodeIdCounter.current = 1; // Reset the counter back to 1
 
     // Calculate viewport center position to place the new node
-    const zoom = cyRef.zoom();
-    const pan = cyRef.pan();
+    const zoom = cy.zoom();
+    const pan = cy.pan();
     const viewportCenter = {
-      x: (cyRef.width() / 2 - pan.x) / zoom,
-      y: (cyRef.height() / 2 - pan.y) / zoom,
+      x: (cy.width() / 2 - pan.x) / zoom,
+      y: (cy.height() / 2 - pan.y) / zoom,
     };
 
     const newNode = {
-      data: { id: newId, label: newLabel },
+      group: 'nodes',
+      data: { id: newId, label: newLabel, image: emptyIcon },
       position: viewportCenter,
     };
 
     let newEdge = null;
     if (editNode) {
       newEdge = {
+        group: 'edges',
         data: {
           source: editNode.id(),
           target: newId,
@@ -216,7 +219,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
 
     // Add the new node (and edge if applicable) to the elements
     setElements((els) => (newEdge ? [...els, newNode, newEdge] : [...els, newNode]));
-  }, [cyRef, editNode, setElements]);
+  }, [cy, editNode, setElements]);
 
   /**
    * Handles double-clicking on a node.
@@ -228,24 +231,31 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
 
       const editNodeId = `edit-${node.id()}`;
       const deleteNodeId = `delete-${node.id()}`;
+      const changeIconNodeId = `change-icon-${node.id()}`;
 
       const offsetY = 55; // Distance above the original node
 
       const editNodeButton = {
         data: { id: editNodeId, label: 'Rename', parentNodeId: node.id() },
-        position: { x: nodePosition.x + 30, y: nodePosition.y - offsetY },
+        position: { x: nodePosition.x + 60, y: nodePosition.y - offsetY },
         classes: 'action-node',
       };
 
       const deleteNodeButton = {
         data: { id: deleteNodeId, label: 'Delete', parentNodeId: node.id() },
-        position: { x: nodePosition.x - 30, y: nodePosition.y - offsetY },
+        position: { x: nodePosition.x - 60, y: nodePosition.y - offsetY },
+        classes: 'action-node',
+      };
+
+      const changeIconNodeButton = {
+        data: { id: changeIconNodeId, label: 'Change Icon', parentNodeId: node.id() },
+        position: { x: nodePosition.x, y: nodePosition.y - offsetY },
         classes: 'action-node',
       };
 
       // Add the action buttons to the graph
-      setElements((els) => [...els, editNodeButton, deleteNodeButton]);
-      tempNodes.current = [editNodeId, deleteNodeId];
+      setElements((els) => [...els, editNodeButton, deleteNodeButton, changeIconNodeButton]);
+      tempNodes.current = [editNodeId, deleteNodeId, changeIconNodeId];
       setEditNode(node);
 
       // Set up position listener to move temporary nodes along with their parent
@@ -257,7 +267,7 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
               return {
                 ...el,
                 position: {
-                  x: updatedPosition.x + 30,
+                  x: updatedPosition.x + 60,
                   y: updatedPosition.y - offsetY,
                 },
               };
@@ -265,7 +275,15 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
               return {
                 ...el,
                 position: {
-                  x: updatedPosition.x - 30,
+                  x: updatedPosition.x - 60,
+                  y: updatedPosition.y - offsetY,
+                },
+              };
+            } else if (el.data.id === changeIconNodeId) {
+              return {
+                ...el,
+                position: {
+                  x: updatedPosition.x,
                   y: updatedPosition.y - offsetY,
                 },
               };
@@ -292,13 +310,13 @@ const useGraphHandlers = (cyRef, elements, setElements) => {
       );
 
       // Clear selected edges
-      if (cyRef && cyRef.current) {
-        cyRef.current.edges().unselect();
+      if (cy) {
+        cy.edges().unselect();
       }
       selectedEdges.current = [];
       removeTemporaryNodes();
     }
-  }, [setElements, cyRef, removeTemporaryNodes]);
+  }, [setElements, cy, removeTemporaryNodes]);
 
 
 //// TODO: make sure that the one temporary btn node are shown when only 1 edge is selected
@@ -323,7 +341,7 @@ const handleEdgeDeselect = useCallback(
       const currentEdgeData = elements.find((el) => el.data.id === selectedEdges.current[0]);
 
       // look up the edge itself in the cytoscape graph to get its source, position, etc.
-      const currentEdge = cyRef.getElementById(currentEdgeData.data.id);
+      const currentEdge = cy.getElementById(currentEdgeData.data.id);
 
       // Calculate the position for the delete button based on the edge's midpoint
       const midPointX =
@@ -361,7 +379,7 @@ const handleEdgeDeselect = useCallback(
       if (label === 'Rename') {
         // Begin editing the original node
         const parentNodeId = node.data('parentNodeId');
-        const parentNode = cyRef.getElementById(parentNodeId);
+        const parentNode = cy.getElementById(parentNodeId);
 
         setIsEditing(true);
         setEditNode(parentNode);
@@ -370,13 +388,6 @@ const handleEdgeDeselect = useCallback(
         // Remove the edge
         handleDeleteEdges();
         cleanupAfterAction();
-        // selectedNodes.current = [];
-
-        // // if selectedNodes has an nodes with the data.id containing "delete-edge", remove it
-        // selectedNodes.current = selectedNodes.current.filter(
-        //   (id) => !id.includes('delete-edge') && 
-        //           !id.includes('connect-node') && 
-        //           !id.includes('delete-node'));
       } else if (label === 'Delete') {
         // Delete the original node
         const parentNodeId = node.data('parentNodeId');
@@ -393,6 +404,14 @@ const handleEdgeDeselect = useCallback(
         );
 
         // remove action nodes
+        cleanupAfterAction();
+      } else if (label === 'Change Icon') {
+        // Begin icon changing process
+        const parentNodeId = node.data('parentNodeId');
+        // Trigger the callback to App component
+        if (onChangeIcon) {
+          onChangeIcon(parentNodeId);
+        }
         cleanupAfterAction();
       } else if (label === 'Connect') {
         // Handle connecting the two selected nodes
@@ -417,13 +436,14 @@ const handleEdgeDeselect = useCallback(
       setElements((els) => els.filter((el) => el.data.id !== node.id()));
     },
     [
-      cyRef,
+      cy,
       setElements,
       setIsEditing,
       setEditNode,
       setEditLabel,
       handleDeleteEdges,
-      cleanupAfterAction
+      cleanupAfterAction,
+      onChangeIcon,
     ]
   );
 
@@ -575,10 +595,11 @@ const handleEdgeDeselect = useCallback(
    * Updates the position of the input field when the graph changes.
    */
   useEffect(() => {
-    if (isEditing && editNode && cyRef) {
+    if (isEditing && editNode && cy) {
+
       const updatePosition = () => {
         const nodePosition = editNode.renderedPosition();
-        const container = cyRef.container();
+        const container = cy.container();
         const containerRect = container.getBoundingClientRect();
         const absolutePosition = {
           x: containerRect.left + nodePosition.x,
@@ -590,23 +611,21 @@ const handleEdgeDeselect = useCallback(
       updatePosition();
 
       const updateEvents = 'pan zoom resize';
-      cyRef.on(updateEvents, updatePosition);
+      cy.on(updateEvents, updatePosition);
       editNode.on('position', updatePosition);
 
       return () => {
-        cyRef.off(updateEvents, updatePosition);
+        cy.off(updateEvents, updatePosition);
         editNode.removeListener('position', updatePosition);
       };
     }
-  }, [isEditing, editNode, cyRef]);
+  }, [isEditing, editNode, cy]);
 
   /**
    * Sets up Cytoscape event handlers for node interactions.
    */
   useEffect(() => {
-    if (!cyRef) return;
-
-    const cy = cyRef;
+    if (!cy) return;
 
     // Handler for tapping on nodes
     const onTapNode = (evt) => {
@@ -642,7 +661,7 @@ const handleEdgeDeselect = useCallback(
         setIsEditing(false);
         setEditNode(null);
         // Clear selected nodes and remove connect button
-        cyRef.$('node:selected').unselect();
+        cy.$('node:selected').unselect();
         selectedNodes.current = [];
         // Remove temporary action nodes
         removeTemporaryNodes();
@@ -670,7 +689,7 @@ const handleEdgeDeselect = useCallback(
       document.removeEventListener('keydown', handleGlobalKeyDown);
     };
   }, [
-    cyRef,
+    cy,
     handleNodeDoubleClick,
     handleActionNodeClick,
     removeTemporaryNodes,
@@ -688,8 +707,7 @@ const handleEdgeDeselect = useCallback(
    * Sets up Cytoscape event handlers for edge interactions.
    */
   useEffect(() => {
-    if (!cyRef) return;
-    const cy = cyRef;
+    if (!cy) return;
 
     // Handler for edge selection
     cy.on('select', 'edge', handleEdgeSelect);
@@ -702,7 +720,7 @@ const handleEdgeDeselect = useCallback(
       cy.off('select', 'edge', handleEdgeSelect);
       cy.off('unselect', 'edge', handleEdgeDeselect);
     };
-  }, [cyRef, handleEdgeSelect, handleEdgeDeselect]);
+  }, [cy, handleEdgeSelect, handleEdgeDeselect]);
 
   return {
     isEditing,

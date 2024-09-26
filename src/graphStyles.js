@@ -1,5 +1,3 @@
-import nodeOutlineBg from './assets/node_outline_bg.png';
-
 // Add these styles in your graphStyles.js
 const stylesheet = [
     {
@@ -16,15 +14,6 @@ const stylesheet = [
         'font-family': "UnifrakturMaguntia",
         'font-size': 10,
         'border-width': 0,
-        'background-clip': 'none',
-        'background-image': nodeOutlineBg,
-        'background-fit': 'cover',
-        'background-image-opacity': 1,
-      },
-    },
-    {
-      selector: 'node[image]',       // Target nodes with an 'image' data attribute
-      style: {
         'background-clip': 'none',
         'background-image': 'data(image)',
         'background-fit': 'cover',
