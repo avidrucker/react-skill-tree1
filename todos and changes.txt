@@ -18,6 +18,9 @@
 - [x] fix bug where upon deselecting 1 of 2 selected edges that the button for the remaining selected egde is not put in the correct location
 
 - [ ] implement ability to select icon for a given node from a list of icons
+  - [ ] add change icon btn upon double click of a node
+  - [ ] add sidebar with visual icon list displayed
+  - [ ] implement selecting of a new node icon to close sidebar and update icon w/ new icon selection
 
 - [ ] fix async font loading issue so that the correct font is loaded consistently before the graph loads
 
