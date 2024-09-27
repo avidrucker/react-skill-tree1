@@ -1,4 +1,4 @@
-// Add these styles in your graphStyles.js
+// src/graphStyles.js
 const stylesheet = [
     {
       selector: 'node',
@@ -34,8 +34,6 @@ const stylesheet = [
         'background-image': 'none',
         'border-color': 'white',
         'border-width': 1,
-        // 'text-outline-width': 2,
-        // 'text-outline-color': '#007bff',
         'font-family': "sans-serif"
       },
     },
