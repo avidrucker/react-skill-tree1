@@ -69,7 +69,6 @@ function App() {
   // When switching from player mode to builder mode, temp states are set
   // from the current state of the nodes
   const initializePlayerDataForPlayerMode = () => {
-    console.log("Initializing player data for player mode...");
     setElements((els) =>
       els.map((el) => {
         if (el.group === 'nodes') {
@@ -88,7 +87,6 @@ function App() {
   };
 
   const initializePlayerDataForBuilderMode = () => {
-    console.log("Initializing player data for builder mode...");
     setElements((els) =>
       els.map((el) => {
         if (el.group === 'nodes') {
@@ -112,11 +110,10 @@ function App() {
     }
   }
 
+  // Save player progress by setting the temp state of each node
+  // to have the value of the current state of each node, and
+  // reset the current state of each node back to null
   const savePlayerProgress = () => {
-    // Save player progress by setting the temp state of each node
-    // to have the value of the current state of each node, and
-    // reset the current state of each node back to null
-    console.log("Saving player data...");
     setElements((els) =>
       els.map((el) => {
         if (el.group === 'nodes') {
@@ -134,11 +131,10 @@ function App() {
     );
   }
 
+  // Restore player progress by setting the current state of each node
+  // to have the value of the temp state of each node, and
+  // reset the temp state of each node back to null
   const restorePlayerProgress = () => {
-    // Restore player progress by setting the current state of each node
-    // to have the value of the temp state of each node, and
-    // reset the temp state of each node back to null
-    console.log("Restoring player data...");
     setElements((els) =>
       els.map((el) => {
         if (el.group === 'nodes') {
@@ -185,7 +181,6 @@ function App() {
   const onChangeIcon = (nodeId) => {
     setIconChangeNodeId(nodeId);
     setIsChangingIcon(true);
-    console.log("setting icon changing to true");
   };
 
   // Define the demo elements
