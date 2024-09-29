@@ -32,12 +32,11 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
   const lastTappedNode = useRef(null);
   const lastTapTime = useRef(0);
 
-  // TODO: debug why removeTemporaryNodes is called 3-4 times in a row
   /**
    * Removes temporary action nodes from the graph (e.g., Edit and Delete buttons).
    */
   const removeTemporaryNodes = useCallback(() => {
-    // console.log("removing temporary nodes...");
+    // console.count("removing temporary nodes...");
     setElements((els) =>
       els.filter(
         (el) =>
@@ -59,7 +58,6 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
    * Performs cleanup after an action is completed.
    */
   const cleanupAfterAction = useCallback(() => {
-    //// TODO: confirm that cy is helpful to check here
     if (cy) {
       cy.$('node:selected').unselect();
       cy.$('edge:selected').unselect();
@@ -99,7 +97,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
     });
 
     if (edgeExists) {
-      console.log('Edge already exists between these nodes');
+      // console.log('Edge already exists between these nodes');
       return;
     }
 
@@ -179,7 +177,6 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       // if the node clicked on is not a button node, we will set the edit node to the node clicked on
       if(!node.id().includes("btn")) {
         setEditNode(node);
-        // console.log("Setting edit node to: ", node.id());
       } else {
         // console.log("Node clicked on is a button node");
       }
@@ -248,9 +245,6 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       if (selectedNodes.current.length === 1) {
         // Show node buttons for this node
         handleNodeSingleClick(node);
-      } else {
-        // Hide node buttons
-        removeTemporaryNodes();
       }
 
       // Show 'Connect' button if exactly two nodes are selected
@@ -274,6 +268,8 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       selectedNodes.current = selectedNodes.current.filter((id) => id !== nodeId);
   
       // Remove any existing temporary nodes
+      // this is necessary for the case where a node is manually 
+      // directly deselected
       removeTemporaryNodes();
   
       if (selectedNodes.current.length === 1) {
@@ -281,9 +277,6 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         const remainingNodeId = selectedNodes.current[0];
         const remainingNode = cy.getElementById(remainingNodeId);
         handleNodeSingleClick(remainingNode);
-      } else {
-        // Hide node buttons
-        removeTemporaryNodes();
       }
   
       // Show 'Connect' button if exactly two nodes are selected
@@ -558,6 +551,8 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         tempEdgeNodes.current = [deleteEdgeButtonId];
       } else {
         // remove action nodes
+        // this is necessary specifically for the case where the 
+        // user clicks on an edge to manually deselect it
         removeTemporaryNodes();
         cleanupAfterAction();
       }
@@ -704,12 +699,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
   // handler that handles keydown events for deleting nodes or edges when they are selected via the delete key
   const handleGlobalKeyDown = useCallback(
     (e) => {
-      // console.log("------");
-      // console.log("key pressed: ", e.key);
-      // console.log("selectedNodes.current", selectedNodes.current);
-      // console.log("selectedEdge", selectedEdge);
-      // console.log("isEditing: ", isEditing);
-      // console.log("------");
+
       if (e.key === 'Delete' && !isEditing && selectedEdges.current.length > 0) {
         // Delete the selected nodes
         handleDeleteEdges();
@@ -740,7 +730,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         removeTemporaryNodes();
         cleanupAfterAction();
       }
-    }, [isEditing, handleDeleteEdges, cleanupAfterAction, setElements, cy, removeTemporaryNodes]);
+    }, [isEditing, handleDeleteEdges, cleanupAfterAction, setElements, cy, removeTemporaryNodes, setIsChangingIcon]);
 
   /**
    * Handles key down events for the input field when editing a node label.
@@ -820,11 +810,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       removeTemporaryNodes();
 
       // close the icon change modal if it is open
-      if (setIsChangingIcon) {
-        setIsChangingIcon(false);
-      } else {
-        console.log("setIsChangingIcon is not defined");
-      }
+      setIsChangingIcon(false);
 
       const edge = evt.target;
       const edgeId = edge.id();
@@ -856,8 +842,6 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         // Add the delete button to the graph
         setElements((els) => [...els, deleteEdgeButton]);
         tempEdgeNodes.current = [deleteEdgeButtonId];
-      } else {
-        removeTemporaryNodes();
       }
     },
     [setElements, removeTemporaryNodes, setIsChangingIcon]
@@ -902,11 +886,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
     // Handler for tapping on nodes "handleNodeTap"
     const onTapNode = (evt) => {
       // close the icon change modal if it is open
-      if (setIsChangingIcon) {
-        setIsChangingIcon(false);
-      } else {
-        console.log("setIsChangingIcon is not defined");
-      }
+      setIsChangingIcon(false);
 
       if (skillTreeMode === BUILDER_MODE) {
         // Existing builder mode logic
