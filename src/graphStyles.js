@@ -87,6 +87,12 @@ const stylesheet = [
         // 'opacity': 0.25,
       },
     },
+    {
+      selector: 'node.action-node[selectState = "not-selected"]',
+      style: {
+        'opacity': 0.5,
+      },
+    }
     
   ];
   
