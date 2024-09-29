@@ -41,16 +41,19 @@
 
 - [x] fix async font loading issue so that the correct font is loaded consistently before the graph loads
 
-- [ ] feat newly created nodes in builder mode are set to hidden by default
-- [ ] feat toggling of nodes in builder mode between 'activated', 'available', and 'hidden'
+- [ ] decide how to handle selection of 1 node and 1 edge: should the buttons for the node show, for the edge show, neither, or both?
+
+- [x] feat newly created nodes in builder mode are set to hidden by default
+- [x] feat toggling of nodes in builder mode between 'activated', 'available', and 'hidden'
 - [ ] feat locking of nodes in place upon switching to player mode
 - [ ] feat optional locking of nodes in place in builder mode w/ lock icon buttons
 
-- [o] add keydown handler to delete selected nodes and edges via the delete key
+- [x] add keydown handler to delete selected nodes and edges via the delete key
   - [x] feat multi-node deletion via keyboard
   - [x] feat multi-edge deletion via keyboard and mouse
     - [x] feat correct multi-edge selection
-  - [ ] feat deselect/quit of nodes, edges, and icon select menu with the escape key 
+  - [x] feat deselect of nodes and edges with the escape key
+  - [x] feat quit of icon select menu with the escape key
 - [x] add keydown handler to escape from node edit mode via escape key
 
 - [x] fix connect node button so that it appears centered vertically as well as horizontally between the two nodes that it is to connect
