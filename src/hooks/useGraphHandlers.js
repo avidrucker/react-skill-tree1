@@ -37,7 +37,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
    * Removes temporary action nodes from the graph (e.g., Edit and Delete buttons).
    */
   const removeTemporaryNodes = useCallback(() => {
-    console.log("removing temporary nodes...");
+    // console.log("removing temporary nodes...");
     setElements((els) =>
       els.filter(
         (el) =>
@@ -47,12 +47,9 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       )
     );
 
-    // if selectedNodes has an nodes with the data.id containing "delete-edge", remove it
+    // remove all temporary nodes by looking for 'btn' in the id
     selectedNodes.current = selectedNodes.current.filter(
-      (id) => !id.includes('delete-edge') &&
-        !id.includes('connect-node') &&
-        !id.includes('delete-node') &&
-        !id.includes('change-icon'));
+      (id) => !id.includes('btn-'));
 
     tempNodes.current = [];
     tempEdgeNodes.current = [];
@@ -138,7 +135,6 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
   const handleNodeSingleClick = useCallback((node) => {
     if (skillTreeMode === BUILDER_MODE) {
 
-      //////
       if (selectedNodes.current.length !== 1) {
         return; // Do not show node buttons if not exactly one node selected
       }
@@ -148,9 +144,9 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       const nodePosition = node.position();
       const offsetY = 55; // Distance above the original node
 
-      const activatedNodeId = `activated-${nodeId}`;
-      const availableNodeId = `available-${nodeId}`;
-      const hiddenNodeId = `hidden-${nodeId}`;
+      const activatedNodeId = `btn-activated-${nodeId}`;
+      const availableNodeId = `btn-available-${nodeId}`;
+      const hiddenNodeId = `btn-hidden-${nodeId}`;
 
       // get node initial state
       const nodeState = nodeData.initialState;
@@ -179,7 +175,14 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       // Add the action buttons to the graph
       setElements((els) => [...els, activatedNodeButton, availableNodeButton, hiddenNodeButton]);
       tempNodes.current = [activatedNodeId, availableNodeId, hiddenNodeId];
-      setEditNode(node);
+      
+      // if the node clicked on is not a button node, we will set the edit node to the node clicked on
+      if(!node.id().includes("btn")) {
+        setEditNode(node);
+        // console.log("Setting edit node to: ", node.id());
+      } else {
+        // console.log("Node clicked on is a button node");
+      }
 
       // Set up position listener to move temporary nodes along with their parent
       const moveActionNodes = () => {
@@ -357,15 +360,16 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
 
         const nodePosition = node.position();
 
-        const editNodeId = `edit-${node.id()}`;
-        const deleteNodeId = `delete-${node.id()}`;
-        const changeIconNodeId = `change-icon-${node.id()}`;
+        const editNodeId = `btn-edit-${node.id()}`;
+        const deleteNodeId = `btn-delete-${node.id()}`;
+        const changeIconNodeId = `btn-change-icon-${node.id()}`;
 
         const offsetY = 55; // Distance above the original node
 
         const editNodeButton = {
           data: { id: editNodeId, label: 'Rename', parentNodeId: node.id() },
           position: { x: nodePosition.x + 60, y: nodePosition.y - offsetY },
+          selectable: false,
           classes: "action-node",
         };
 
@@ -428,8 +432,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         return () => node.removeListener('position', moveActionNodes);
 
       } else {
-        //// TODO: implement logic here to toggle node activation
-
+        // toggle node state activation
         const nodeData = node.data();
 
         if (nodeData.state === AVAIL_STATE) {
@@ -625,9 +628,9 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         // Clear selection and remove temp nodes
         cleanupAfterAction();
       } else if (label === 'Activated') {
-        // Set the current node's initial state to 'activated'
+        // Set the current node's initial state and temp state to 'activated'
         const parentNodeId = node.data('parentNodeId');
-        //// TODO: verify that this logic is sound
+        
         setElements((els) =>
           els.map((el) => {
             if (el.data.id === parentNodeId) {
@@ -644,7 +647,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
           })
         );
       } else if (label === 'Available') {
-        // Set the current node's initial state to 'available'
+        // Set the current node's initial state and temp state to 'available'
         const parentNodeId = node.data('parentNodeId');
 
         setElements((els) =>
@@ -663,7 +666,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
           })
         );
       } else if (label === 'Hidden') {
-        // Set the current node's initial state to 'hidden'
+        // Set the current node's initial state and temp state to 'hidden'
         const parentNodeId = node.data('parentNodeId');
 
         setElements((els) =>
@@ -725,17 +728,29 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
           );
         });
 
-        // remove action nodes
+        cleanupAfterAction();
+      } else if (e.key === 'Escape') {
+        // deselect all nodes and edges as if the background had been clicked
+        // also quit from icon changing mode
+        cy.$('node:selected').unselect();
+        cy.$('edge:selected').unselect();
+        selectedNodes.current = [];
+        selectedEdges.current = [];
+        setIsChangingIcon(false);
+        removeTemporaryNodes();
         cleanupAfterAction();
       }
-    }, [isEditing, handleDeleteEdges, cleanupAfterAction, setElements]);
+    }, [isEditing, handleDeleteEdges, cleanupAfterAction, setElements, cy, removeTemporaryNodes]);
 
   /**
    * Handles key down events for the input field when editing a node label.
    * Saves the label when 'Enter' is pressed.
+   * Quits label editing operation when 'Escape' is pressed.
+   * Note: For 'global' (non-input field specific) keypress events, handleGlobalKeyDown is used.
    */
   const handleKeyDown = useCallback(
     (e) => {
+
       if (e.key === 'Enter' && editNode) {
         // Update the node label in Cytoscape
         editNode.data('label', editLabel);
@@ -771,12 +786,10 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
    * Saves the label when the input loses focus.
    */
   const handleBlur = useCallback(() => {
-    console.log("blurring...")
+
     if (editNode) {
       // Update the node label in Cytoscape
       editNode.data('label', editLabel);
-
-      console.log("updating label...");
 
       // Update elements state to reflect the change
       setElements((els) =>
@@ -916,9 +929,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
             lastTappedNode.current = null;
             lastTapTime.current = 0;
           } else {
-            //// Single tap
-            // removeTemporaryNodes();
-            // handleNodeSingleClick(tappedNode);
+            // Single tap
             lastTappedNode.current = tappedNode;
             lastTapTime.current = currentTime;
           }
@@ -948,11 +959,14 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
     };
 
     // Handler for tapping on the background
+    // Note: onTapBackground fires anytime anywhere on the cytoscape canvas
+    // is clicked, including nodes, edges, buttons, and the background
     const onTapBackground = (event) => {
       if (skillTreeMode === BUILDER_MODE) {
         // Existing builder mode logic
 
-        // the following condition verifies that the background was clicked directly
+        // the following condition verifies that only the background 
+        // was clicked on directly
         if (event.target === cy) {
           // Clicked on background
           setIsEditing(false);
@@ -964,11 +978,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
           removeTemporaryNodes();
           cleanupAfterAction();
           // close the icon change modal if it is open
-          if (setIsChangingIcon) {
-            setIsChangingIcon(false);
-          } else {
-            console.log("setIsChangingIcon is not defined");
-          }
+          setIsChangingIcon(false);
         }
 
       } else if (skillTreeMode === PLAYER_MODE) {
