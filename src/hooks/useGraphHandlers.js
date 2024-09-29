@@ -1042,7 +1042,8 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
     handleBlur,
     setIsEditing,
     setEditNode,
-    setEditLabel
+    setEditLabel,
+    removeTemporaryNodes
   };
 };
 

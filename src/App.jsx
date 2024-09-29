@@ -40,28 +40,31 @@ function App() {
   const [skillTreeMode, setSkillTreeMode] = useState(BUILDER_MODE); // 'builder' or 'player'
 
   const validateSkillTree = () => {
-    // Validate the skill tree
-    //// TODO: implement validation logic
-    console.log('Validating skill tree... PLACEHOLDER');
-    return true;
-  }
-  // const validateSkillTree = () => {
-  //   // Logic to check if every connected component has at least one node set as 'available'
-  //   const cyElements = cy.elements();
+
+    removeTemporaryNodes();
+
+    // Logic to check if every connected component has at least one node set as 'available'
+    const cyElements = cy.elements();
   
-  //   const components = cyElements.components(); // Get connected components
-  //   for (let i = 0; i < components.length; i++) {
-  //     const component = components[i];
-  //     const hasAvailableNode = component.nodes().some((node) => {
-  //       return node.data('initialState') === 'available';
-  //     });
-  //     if (!hasAvailableNode) {
-  //       // Highlight the component or inform the user
-  //       return false;
-  //     }
-  //   }
-  //   return true;
-  // };  
+    const components = cyElements.components(); // Get connected components
+    for (let i = 0; i < components.length; i++) {
+      const component = components[i];
+
+      // skip checking current component if it is a button node
+      if(component.data().id.includes("btn")) {
+        continue;
+      };
+
+      const hasAvailableNode = component.nodes().some((node) => {
+        return node.data('initialState') === 'available';
+      });
+      if (!hasAvailableNode) {
+        // Highlight the component or inform the user
+        return false;
+      }
+    }
+    return true;
+  };  
 
   // Initialize player progress data
   // Function which sets the current state of a node to its initial state
@@ -237,6 +240,7 @@ function App() {
     handleKeyDown,
     handleBlur,
     setEditLabel,
+    removeTemporaryNodes
   } = useGraphHandlers(cy, elements, setElements, onChangeIcon, skillTreeMode, setIsChangingIcon);
 
   // Handle icon selection
@@ -467,7 +471,7 @@ function App() {
           autoFocus
         />
       )}
-      {/* Icon Selection Sidebar //// */}
+      {/* Icon Selection Sidebar */}
       {isChangingIcon && (
         <div className="icon-sidebar bg-blue overflow-y-auto h-100 z-999 absolute top-0 right-0">
           <div className="icon-list flex flex-column pa3">
