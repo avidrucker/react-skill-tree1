@@ -29,6 +29,8 @@
 - [x] find and resolve bug where rename button sometimes does not disappear when it should
 - [x] fix bug where initial demo does not render correctly immediately after load upon entering player mode
 - [ ] fix bug where single tap on two nodes one after the other doesn't correctly show initial state toggle buttons on second node in builder mode
+- [ ] fix bug where clicking on two nodes shows initial state toggle buttons for 2nd node when there should be only 1 button showing max which is the connect button inbetween two unconnected nodes
+- [ ] fix bug where edges can be deleted by the delete key but not by clicking on the delete button
 
 - [x] implement ability to select icon for a given node from a list of icons
   - [x] add change icon btn upon double click of a node
