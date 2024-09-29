@@ -38,6 +38,9 @@
 
 - [x] fix async font loading issue so that the correct font is loaded consistently before the graph loads
 
+- [ ] feat newly created nodes in builder mode are set to hidden by default
+- [ ] feat toggling of nodes in builder mode between 'activated', 'available', and 'hidden'
+
 - [o] add keydown handler to delete selected nodes and edges via the delete key
   - [x] feat multi-node deletion via keyboard
   - [x] feat multi-edge deletion via keyboard and mouse
