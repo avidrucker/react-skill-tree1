@@ -37,6 +37,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
    * Removes temporary action nodes from the graph (e.g., Edit and Delete buttons).
    */
   const removeTemporaryNodes = useCallback(() => {
+    console.log("removing temporary nodes...");
     setElements((els) =>
       els.filter(
         (el) =>
@@ -48,10 +49,10 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
 
     // if selectedNodes has an nodes with the data.id containing "delete-edge", remove it
     selectedNodes.current = selectedNodes.current.filter(
-      (id) => !id.includes('delete-edge') && 
-              !id.includes('connect-node') && 
-              !id.includes('delete-node') &&
-              !id.includes('change-icon'));
+      (id) => !id.includes('delete-edge') &&
+        !id.includes('connect-node') &&
+        !id.includes('delete-node') &&
+        !id.includes('change-icon'));
 
     tempNodes.current = [];
     tempEdgeNodes.current = [];
@@ -66,7 +67,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       cy.$('node:selected').unselect();
       cy.$('edge:selected').unselect();
     }
-    
+
     selectedNodes.current = [];
     selectedEdges.current = [];
     setIsEditing(false);
@@ -137,29 +138,21 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
    */
   const handleNodeSelect = useCallback(
     (evt) => {
+
       const node = evt.target;
       const nodeId = node.id();
 
-      removeTemporaryNodes();
-
-      console.log("selected nodes 1: ", selectedNodes.current);
-
       // Add node to selectedNodes if not already there
       if (!selectedNodes.current.includes(nodeId)) {
-        // if the nodeId does not contain "delete-node", "connect-node", or "delete-edge", add it to selectedNodes
-        //// if (!nodeId.includes('delete-node') && !nodeId.includes('connect-node') && !nodeId.includes('delete-edge')) {
-          selectedNodes.current.push(nodeId);
-        //// }
+        selectedNodes.current.push(nodeId);
       }
-
-      console.log("selected nodes 2: ", selectedNodes.current);
 
       // Show 'Connect' button if exactly two nodes are selected
       if (selectedNodes.current.length === 2) {
         showConnectButton();
       }
     },
-    [showConnectButton, removeTemporaryNodes]
+    [showConnectButton]
   );
 
   /**
@@ -174,15 +167,12 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       // Update the list of selected nodes by removing the deselected node
       selectedNodes.current = selectedNodes.current.filter((id) => id !== nodeId);
 
-      // Remove all temporary nodes immediately
-      removeTemporaryNodes();
-
       // If exactly two nodes are still selected, potentially show the 'Connect' button
       if (selectedNodes.current.length === 2) {
         showConnectButton();
       }
     },
-    [removeTemporaryNodes, showConnectButton]
+    [showConnectButton]
   );
 
   /**
@@ -239,9 +229,8 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
    */
   const handleNodeDoubleClick = useCallback(
     (node) => {
-      if(skillTreeMode === BUILDER_MODE) {
-
-        console.log("Builder mode: node double-clicked");
+      if (skillTreeMode === BUILDER_MODE) {
+        removeTemporaryNodes();
 
         const nodePosition = node.position();
 
@@ -254,7 +243,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         const editNodeButton = {
           data: { id: editNodeId, label: 'Rename', parentNodeId: node.id() },
           position: { x: nodePosition.x + 60, y: nodePosition.y - offsetY },
-          classes: 'action-node',
+          classes: "action-node",
         };
 
         const deleteNodeButton = {
@@ -314,71 +303,152 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         return () => node.removeListener('position', moveActionNodes);
 
       } else {
-        console.log("Player mode: node double-clicked");
         //// TODO: implement logic here to toggle node activation
 
-  const nodeData = node.data();
+        const nodeData = node.data();
 
-  if (nodeData.state === AVAIL_STATE) {
-    // Activate the node
-    setElements((els) =>
-      els.map((el) => {
-        if (el.data.id === nodeData.id) {
-          return {
-            ...el,
-            data: {
-              ...el.data,
-              state: ACTIVE_STATE,
-            },
-          };
+        if (nodeData.state === AVAIL_STATE) {
+          // Activate the node
+          setElements((els) =>
+            els.map((el) => {
+              if (el.data.id === nodeData.id) {
+                return {
+                  ...el,
+                  data: {
+                    ...el.data,
+                    state: ACTIVE_STATE,
+                  },
+                };
+              }
+              return el;
+            })
+          );
+
+          // Unlock adjacent hidden nodes
+          const adjacentNodes = node.connectedEdges().connectedNodes().difference(node);
+          adjacentNodes.forEach((adjNode) => {
+            const adjNodeData = adjNode.data();
+            if (adjNodeData.state === HIDDEN_STATE) {
+              setElements((els) =>
+                els.map((el) => {
+                  if (el.data.id === adjNodeData.id) {
+                    return {
+                      ...el,
+                      data: {
+                        ...el.data,
+                        state: AVAIL_STATE,
+                      },
+                    };
+                  }
+                  return el;
+                })
+              );
+            }
+          });
+        } else if (nodeData.state === ACTIVE_STATE) {
+          // Deactivate the node
+          setElements((els) =>
+            els.map((el) => {
+              if (el.data.id === nodeData.id) {
+                return {
+                  ...el,
+                  data: {
+                    ...el.data,
+                    state: AVAIL_STATE,
+                  },
+                };
+              }
+              return el;
+            })
+          );
         }
-        return el;
-      })
-    );
+      }
 
-    // Unlock adjacent hidden nodes
-    const adjacentNodes = node.connectedEdges().connectedNodes().difference(node);
-    adjacentNodes.forEach((adjNode) => {
-      const adjNodeData = adjNode.data();
-      if (adjNodeData.state === HIDDEN_STATE) {
+    },
+    [setElements, setEditNode, skillTreeMode, removeTemporaryNodes]
+  );
+
+  // function which displays three buttons to toggle between the three states of a node
+  // to enable the user to select the default initial state of the node
+  const handleNodeSingleClick = useCallback((node) => {
+    if (skillTreeMode === BUILDER_MODE) {
+      const nodeData = node.data();
+      const nodeId = nodeData.id;
+      const nodePosition = node.position();
+      const offsetY = 55; // Distance above the original node
+
+      const activatedNodeId = `activated-${nodeId}`;
+      const availableNodeId = `available-${nodeId}`;
+      const hiddenNodeId = `hidden-${nodeId}`;
+
+      // get node initial state
+      const nodeState = nodeData.initialState;
+
+      const activatedNodeButton = {
+        data: { id: activatedNodeId, label: 'Activated', parentNodeId: nodeId, selectState: nodeState === ACTIVE_STATE ? 'selected' : 'not-selected' },
+        position: { x: nodePosition.x - 60, y: nodePosition.y - offsetY },
+        classes: `action-node`,
+      };
+
+      const availableNodeButton = {
+        data: { id: availableNodeId, label: 'Available', parentNodeId: nodeId, selectState: nodeState === AVAIL_STATE ? 'selected' : 'not-selected' },
+        position: { x: nodePosition.x, y: nodePosition.y - offsetY },
+        classes: `action-node`,
+      };
+
+      const hiddenNodeButton = {
+        data: { id: hiddenNodeId, label: 'Hidden', parentNodeId: nodeId, selectState: nodeState === HIDDEN_STATE ? 'selected' : 'not-selected' },
+        position: { x: nodePosition.x + 60, y: nodePosition.y - offsetY },
+        classes: `action-node`,
+      };
+
+      // Add the action buttons to the graph
+      setElements((els) => [...els, activatedNodeButton, availableNodeButton, hiddenNodeButton]);
+      tempNodes.current = [activatedNodeId, availableNodeId, hiddenNodeId];
+      setEditNode(node);
+
+      // Set up position listener to move temporary nodes along with their parent
+      const moveActionNodes = () => {
+        const updatedPosition = node.position();
         setElements((els) =>
           els.map((el) => {
-            if (el.data.id === adjNodeData.id) {
+            if (el.data.id === activatedNodeId) {
               return {
                 ...el,
-                data: {
-                  ...el.data,
-                  state: AVAIL_STATE,
+                position: {
+                  x: updatedPosition.x - 60,
+                  y: updatedPosition.y - offsetY,
+                },
+              };
+            } else if (el.data.id === availableNodeId) {
+              return {
+                ...el,
+                position: {
+                  x: updatedPosition.x,
+                  y: updatedPosition.y - offsetY,
+                },
+              };
+            } else if (el.data.id === hiddenNodeId) {
+              return {
+                ...el,
+                position: {
+                  x: updatedPosition.x + 60,
+                  y: updatedPosition.y - offsetY,
                 },
               };
             }
             return el;
           })
         );
-      }
-    });
-  } else if (nodeData.state === ACTIVE_STATE) {
-    // Deactivate the node
-    setElements((els) =>
-      els.map((el) => {
-        if (el.data.id === nodeData.id) {
-          return {
-            ...el,
-            data: {
-              ...el.data,
-              state: AVAIL_STATE,
-            },
-          };
-        }
-        return el;
-      })
-    );
-  }
-      }
-      
-    },
-    [setElements, setEditNode, skillTreeMode]
-  );
+      };
+
+      node.on('position', moveActionNodes);
+
+      // Clean up listener when nodes are removed or deselected
+      return () => node.removeListener('position', moveActionNodes);
+
+    }
+  }, [setElements, skillTreeMode]);
 
   /**
    * Deletes the currently selected edges from the graph.
@@ -399,54 +469,55 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
   }, [setElements, cy, removeTemporaryNodes]);
 
 
-//// TODO: make sure that the one temporary btn node are shown when only 1 edge is selected
-/**
-   * Handles the unselection of an edge.
-   * Removes the edge from the selected edges list.
-   */
-const handleEdgeDeselect = useCallback(
-  (evt) => {
-    const edge = evt.target;
-    const edgeId = edge.id();
+  /**
+     * Handles the unselection of an edge.
+     * Removes the edge from the selected edges list.
+     */
+  const handleEdgeDeselect = useCallback(
+    (evt) => {
+      const edge = evt.target;
+      const edgeId = edge.id();
 
-    // Update the list of selected edges by removing the deselected edge
-    selectedEdges.current = selectedEdges.current.filter(
-      (id) => id !== edgeId
-    );
+      // Update the list of selected edges by removing the deselected edge
+      selectedEdges.current = selectedEdges.current.filter(
+        (id) => id !== edgeId
+      );
 
-    // if only 1 edge is selected, show the delete edge button over the currently selected edge
-    if (selectedEdges.current.length === 1) {
+      // if only 1 edge is selected, show the delete edge button over the currently selected edge
+      if (selectedEdges.current.length === 1) {
 
-      // get the currently selected edge via looking through the elements list for a matching edge
-      const currentEdgeData = elements.find((el) => el.data.id === selectedEdges.current[0]);
+        // get the currently selected edge via looking through the elements list for a matching edge
+        const currentEdgeData = elements.find((el) => el.data.id === selectedEdges.current[0]);
 
-      // look up the edge itself in the cytoscape graph to get its source, position, etc.
-      const currentEdge = cy.getElementById(currentEdgeData.data.id);
+        // look up the edge itself in the cytoscape graph to get its source, position, etc.
+        const currentEdge = cy.getElementById(currentEdgeData.data.id);
 
-      // Calculate the position for the delete button based on the edge's midpoint
-      const midPointX =
-        (currentEdge.source().position().x + currentEdge.target().position().x) / 2;
-      const midPointY =
-        (currentEdge.source().position().y + currentEdge.target().position().y) / 2;
+        // Calculate the position for the delete button based on the edge's midpoint
+        const midPointX =
+          (currentEdge.source().position().x + currentEdge.target().position().x) / 2;
+        const midPointY =
+          (currentEdge.source().position().y + currentEdge.target().position().y) / 2;
 
-      const deleteEdgeButtonId = `delete-edge-${currentEdge.id()}`;
+        const deleteEdgeButtonId = `delete-edge-${currentEdge.id()}`;
 
-      // Create a temporary node for deleting the edge
-      const deleteEdgeButton = {
-        data: { id: deleteEdgeButtonId, label: 'Delete Edge' },
-        position: { x: midPointX, y: midPointY - 20 },
-        classes: 'delete-edge-button action-node',
-      };
+        // Create a temporary node for deleting the edge
+        const deleteEdgeButton = {
+          data: { id: deleteEdgeButtonId, label: 'Delete Edge' },
+          position: { x: midPointX, y: midPointY - 20 },
+          classes: 'delete-edge-button action-node',
+        };
 
-      // Add the delete button to the graph
-      setElements((els) => [...els, deleteEdgeButton]);
-      tempEdgeNodes.current = [deleteEdgeButtonId];
-    } else {
-      removeTemporaryNodes();
-    }
-  },
-  [removeTemporaryNodes, setElements, cy, elements]
-);
+        // Add the delete button to the graph
+        setElements((els) => [...els, deleteEdgeButton]);
+        tempEdgeNodes.current = [deleteEdgeButtonId];
+      } else {
+        // remove action nodes
+        removeTemporaryNodes();
+        cleanupAfterAction();
+      }
+    },
+    [setElements, cy, elements, removeTemporaryNodes, cleanupAfterAction]
+  );
 
   /**
    * Handles clicking on a temporary action node (e.g., 'Edit', 'Delete', 'Connect').
@@ -493,8 +564,6 @@ const handleEdgeDeselect = useCallback(
           onChangeIcon(parentNodeId);
         }
         cleanupAfterAction();
-        //// TODO: resolve bug where connect button is not shown 
-        //// immediately after changing icon as it should
       } else if (label === 'Connect') {
         // Handle connecting the two selected nodes
         const sourceId = node.data('sourceId');
@@ -512,6 +581,63 @@ const handleEdgeDeselect = useCallback(
 
         // Clear selection and remove temp nodes
         cleanupAfterAction();
+      } else if (label === 'Activated') {
+        // Set the current node's initial state to 'activated'
+        const parentNodeId = node.data('parentNodeId');
+        //// TODO: verify that this logic is sound
+        setElements((els) =>
+          els.map((el) => {
+            if (el.data.id === parentNodeId) {
+              return {
+                ...el,
+                data: {
+                  ...el.data,
+                  initialState: ACTIVE_STATE,
+                  tempState: ACTIVE_STATE,
+                },
+              };
+            }
+            return el;
+          })
+        );
+      } else if (label === 'Available') {
+        // Set the current node's initial state to 'available'
+        const parentNodeId = node.data('parentNodeId');
+
+        setElements((els) =>
+          els.map((el) => {
+            if (el.data.id === parentNodeId) {
+              return {
+                ...el,
+                data: {
+                  ...el.data,
+                  initialState: AVAIL_STATE,
+                  tempState: AVAIL_STATE
+                },
+              };
+            }
+            return el;
+          })
+        );
+      } else if (label === 'Hidden') {
+        // Set the current node's initial state to 'hidden'
+        const parentNodeId = node.data('parentNodeId');
+
+        setElements((els) =>
+          els.map((el) => {
+            if (el.data.id === parentNodeId) {
+              return {
+                ...el,
+                data: {
+                  ...el.data,
+                  initialState: HIDDEN_STATE,
+                  tempState: HIDDEN_STATE,
+                },
+              };
+            }
+            return el;
+          })
+        );
       }
 
       // Remove the action node that was clicked
@@ -540,13 +666,11 @@ const handleEdgeDeselect = useCallback(
       // console.log("------");
       if (e.key === 'Delete' && !isEditing && selectedEdges.current.length > 0) {
         // Delete the selected nodes
-        // console.log("deleting currently selected edge");
         handleDeleteEdges();
         // remove action nodes
         cleanupAfterAction();
       } else if (e.key === 'Delete' && !isEditing && selectedNodes.current.length > 0) {
         // Delete the selected nodes
-        // console.log("deleting currently selected nodes");
         selectedNodes.current.forEach((nodeId) => {
           setElements((els) =>
             els.filter(
@@ -628,16 +752,16 @@ const handleEdgeDeselect = useCallback(
     }
   }, [editNode, editLabel, setElements, cleanupAfterAction]);
 
-  //// TODO: implement multi-edge selection, multi-edge deletion
   /**
    * Handles the selection of an edge.
    * Displays a temporary 'Delete Edge' button near the edge.
    */
   const handleEdgeSelect = useCallback(
     (evt) => {
+      removeTemporaryNodes();
 
       // close the icon change modal if it is open
-      if(setIsChangingIcon) {
+      if (setIsChangingIcon) {
         setIsChangingIcon(false);
       } else {
         console.log("setIsChangingIcon is not defined");
@@ -648,37 +772,35 @@ const handleEdgeDeselect = useCallback(
 
       // Add edge to selectedEdges if not already there
       if (!selectedEdges.current.includes(edgeId)) {
-        //// if (!edgeId.includes('delete-edge')) {
-          selectedEdges.current.push(edgeId);
-        //// }
+        selectedEdges.current.push(edgeId);
       }
 
       // if only 1 edge is selected, show the delete edge button
       if (selectedEdges.current.length === 1) {
 
-      // Calculate the position for the delete button based on the edge's midpoint
-      const midPointX =
-        (edge.source().position().x + edge.target().position().x) / 2;
-      const midPointY =
-        (edge.source().position().y + edge.target().position().y) / 2;
+        // Calculate the position for the delete button based on the edge's midpoint
+        const midPointX =
+          (edge.source().position().x + edge.target().position().x) / 2;
+        const midPointY =
+          (edge.source().position().y + edge.target().position().y) / 2;
 
-      const deleteEdgeButtonId = `delete-edge-${edge.id()}`;
+        const deleteEdgeButtonId = `delete-edge-${edge.id()}`;
 
-      // Create a temporary node for deleting the edge
-      const deleteEdgeButton = {
-        data: { id: deleteEdgeButtonId, label: 'Delete Edge' },
-        position: { x: midPointX, y: midPointY - 20 },
-        classes: 'delete-edge-button action-node',
-      };
+        // Create a temporary node for deleting the edge
+        const deleteEdgeButton = {
+          data: { id: deleteEdgeButtonId, label: 'Delete Edge' },
+          position: { x: midPointX, y: midPointY - 20 },
+          classes: 'delete-edge-button action-node',
+        };
 
-      // Add the delete button to the graph
-      setElements((els) => [...els, deleteEdgeButton]);
-      tempEdgeNodes.current = [deleteEdgeButtonId];
-    } else {
-      removeTemporaryNodes();
-    }
+        // Add the delete button to the graph
+        setElements((els) => [...els, deleteEdgeButton]);
+        tempEdgeNodes.current = [deleteEdgeButtonId];
+      } else {
+        removeTemporaryNodes();
+      }
     },
-    [setElements, removeTemporaryNodes]
+    [setElements, removeTemporaryNodes, setIsChangingIcon]
   );
 
   /**
@@ -719,9 +841,8 @@ const handleEdgeDeselect = useCallback(
 
     // Handler for tapping on nodes "handleNodeTap"
     const onTapNode = (evt) => {
-
       // close the icon change modal if it is open
-      if(setIsChangingIcon) {
+      if (setIsChangingIcon) {
         setIsChangingIcon(false);
       } else {
         console.log("setIsChangingIcon is not defined");
@@ -729,14 +850,13 @@ const handleEdgeDeselect = useCallback(
 
       if (skillTreeMode === BUILDER_MODE) {
         // Existing builder mode logic
-        console.log("builder node tapping");
-
         const tappedNode = evt.target;
         const currentTime = new Date().getTime();
 
         if (tappedNode.hasClass('action-node')) {
           // Clicked on a temporary action node (e.g., 'Rename', 'Delete', 'Connect')
           handleActionNodeClick(tappedNode);
+          removeTemporaryNodes();
         } else {
           // Handle double-click detection for editing/deleting nodes
           if (
@@ -745,11 +865,14 @@ const handleEdgeDeselect = useCallback(
             currentTime - lastTapTime.current < 300
           ) {
             // Double-click detected
+            removeTemporaryNodes();
             handleNodeDoubleClick(tappedNode);
             lastTappedNode.current = null;
             lastTapTime.current = 0;
           } else {
             // Single tap
+            removeTemporaryNodes();
+            handleNodeSingleClick(tappedNode);
             lastTappedNode.current = tappedNode;
             lastTapTime.current = currentTime;
           }
@@ -766,11 +889,11 @@ const handleEdgeDeselect = useCallback(
           currentTime - lastTapTime.current < 300
         ) {
           // Double-click detected
-          handleNodeDoubleClick(tappedNode); ////
+          handleNodeDoubleClick(tappedNode);
           lastTappedNode.current = null;
           lastTapTime.current = 0;
         } else {
-          // Single tap
+          // Single tap in player mode does not trigger any action
           lastTappedNode.current = tappedNode;
           lastTapTime.current = currentTime;
         }
@@ -780,10 +903,10 @@ const handleEdgeDeselect = useCallback(
 
     // Handler for tapping on the background
     const onTapBackground = (event) => {
-      
       if (skillTreeMode === BUILDER_MODE) {
         // Existing builder mode logic
 
+        // the following condition verifies that the background was clicked directly
         if (event.target === cy) {
           // Clicked on background
           setIsEditing(false);
@@ -795,7 +918,7 @@ const handleEdgeDeselect = useCallback(
           removeTemporaryNodes();
           cleanupAfterAction();
           // close the icon change modal if it is open
-          if(setIsChangingIcon) {
+          if (setIsChangingIcon) {
             setIsChangingIcon(false);
           } else {
             console.log("setIsChangingIcon is not defined");
@@ -803,15 +926,17 @@ const handleEdgeDeselect = useCallback(
         }
 
       } else if (skillTreeMode === PLAYER_MODE) {
+        // Note: node selection will be useful in player mode for
+        // displaying more information about a given selected node
         // Player mode logic for deselecting all nodes
-        if(event.target === cy) {
+        if (event.target === cy) {
           // Clicked on background
           // Clear selected nodes
           cy.$('node:selected').unselect();
           selectedNodes.current = [];
         }
       }
-      
+
     };
 
     // Bind event handlers
@@ -846,7 +971,9 @@ const handleEdgeDeselect = useCallback(
     lastTapTime,
     cleanupAfterAction,
     handleGlobalKeyDown,
-    skillTreeMode
+    skillTreeMode,
+    setIsChangingIcon,
+    handleNodeSingleClick
   ]);
 
   /**
