@@ -125,12 +125,104 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         targetId,
       },
       position: connectNodePosition,
+      selectable: false,
       classes: 'action-node',
     };
 
     setElements((els) => [...els, connectNode]);
     tempEdgeNodes.current = [connectBtnId];
   }, [cy, setElements]);
+
+  // function which displays three buttons to toggle between the three states of a node
+  // to enable the user to select the default initial state of the node
+  const handleNodeSingleClick = useCallback((node) => {
+    if (skillTreeMode === BUILDER_MODE) {
+
+      //////
+      if (selectedNodes.current.length !== 1) {
+        return; // Do not show node buttons if not exactly one node selected
+      }
+
+      const nodeData = node.data();
+      const nodeId = nodeData.id;
+      const nodePosition = node.position();
+      const offsetY = 55; // Distance above the original node
+
+      const activatedNodeId = `activated-${nodeId}`;
+      const availableNodeId = `available-${nodeId}`;
+      const hiddenNodeId = `hidden-${nodeId}`;
+
+      // get node initial state
+      const nodeState = nodeData.initialState;
+
+      const activatedNodeButton = {
+        data: { id: activatedNodeId, label: 'Activated', parentNodeId: nodeId, selectState: nodeState === ACTIVE_STATE ? 'selected' : 'not-selected' },
+        position: { x: nodePosition.x - 60, y: nodePosition.y - offsetY },
+        selectable: false,
+        classes: `action-node`,
+      };
+
+      const availableNodeButton = {
+        data: { id: availableNodeId, label: 'Available', parentNodeId: nodeId, selectState: nodeState === AVAIL_STATE ? 'selected' : 'not-selected' },
+        position: { x: nodePosition.x, y: nodePosition.y - offsetY },
+        selectable: false,
+        classes: `action-node`,
+      };
+
+      const hiddenNodeButton = {
+        data: { id: hiddenNodeId, label: 'Hidden', parentNodeId: nodeId, selectState: nodeState === HIDDEN_STATE ? 'selected' : 'not-selected' },
+        position: { x: nodePosition.x + 60, y: nodePosition.y - offsetY },
+        selectable: false,
+        classes: `action-node`,
+      };
+
+      // Add the action buttons to the graph
+      setElements((els) => [...els, activatedNodeButton, availableNodeButton, hiddenNodeButton]);
+      tempNodes.current = [activatedNodeId, availableNodeId, hiddenNodeId];
+      setEditNode(node);
+
+      // Set up position listener to move temporary nodes along with their parent
+      const moveActionNodes = () => {
+        const updatedPosition = node.position();
+        setElements((els) =>
+          els.map((el) => {
+            if (el.data.id === activatedNodeId) {
+              return {
+                ...el,
+                position: {
+                  x: updatedPosition.x - 60,
+                  y: updatedPosition.y - offsetY,
+                },
+              };
+            } else if (el.data.id === availableNodeId) {
+              return {
+                ...el,
+                position: {
+                  x: updatedPosition.x,
+                  y: updatedPosition.y - offsetY,
+                },
+              };
+            } else if (el.data.id === hiddenNodeId) {
+              return {
+                ...el,
+                position: {
+                  x: updatedPosition.x + 60,
+                  y: updatedPosition.y - offsetY,
+                },
+              };
+            }
+            return el;
+          })
+        );
+      };
+
+      node.on('position', moveActionNodes);
+
+      // Clean up listener when nodes are removed or deselected
+      return () => node.removeListener('position', moveActionNodes);
+
+    }
+  }, [setElements, skillTreeMode]);
 
   /**
    * Handles the selection of a node.
@@ -147,12 +239,23 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         selectedNodes.current.push(nodeId);
       }
 
+      // Remove any existing temporary nodes
+      removeTemporaryNodes();
+
+      if (selectedNodes.current.length === 1) {
+        // Show node buttons for this node
+        handleNodeSingleClick(node);
+      } else {
+        // Hide node buttons
+        removeTemporaryNodes();
+      }
+
       // Show 'Connect' button if exactly two nodes are selected
       if (selectedNodes.current.length === 2) {
         showConnectButton();
       }
     },
-    [showConnectButton]
+    [showConnectButton, handleNodeSingleClick, removeTemporaryNodes]
   );
 
   /**
@@ -163,17 +266,30 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
     (evt) => {
       const node = evt.target;
       const nodeId = node.id();
-
-      // Update the list of selected nodes by removing the deselected node
+  
+      // Remove the node from selectedNodes
       selectedNodes.current = selectedNodes.current.filter((id) => id !== nodeId);
-
-      // If exactly two nodes are still selected, potentially show the 'Connect' button
+  
+      // Remove any existing temporary nodes
+      removeTemporaryNodes();
+  
+      if (selectedNodes.current.length === 1) {
+        // Show node buttons for the remaining node
+        const remainingNodeId = selectedNodes.current[0];
+        const remainingNode = cy.getElementById(remainingNodeId);
+        handleNodeSingleClick(remainingNode);
+      } else {
+        // Hide node buttons
+        removeTemporaryNodes();
+      }
+  
+      // Show 'Connect' button if exactly two nodes are selected
       if (selectedNodes.current.length === 2) {
         showConnectButton();
       }
     },
-    [showConnectButton]
-  );
+    [removeTemporaryNodes, handleNodeSingleClick, showConnectButton, cy]
+  );  
 
   /**
    * Adds a new node to the graph at the center of the viewport.
@@ -249,12 +365,14 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         const deleteNodeButton = {
           data: { id: deleteNodeId, label: 'Delete', parentNodeId: node.id() },
           position: { x: nodePosition.x - 60, y: nodePosition.y - offsetY },
+          selectable: false,
           classes: 'action-node',
         };
 
         const changeIconNodeButton = {
           data: { id: changeIconNodeId, label: 'Change Icon', parentNodeId: node.id() },
           position: { x: nodePosition.x, y: nodePosition.y - offsetY },
+          selectable: false,
           classes: 'action-node',
         };
 
@@ -367,88 +485,6 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
     },
     [setElements, setEditNode, skillTreeMode, removeTemporaryNodes]
   );
-
-  // function which displays three buttons to toggle between the three states of a node
-  // to enable the user to select the default initial state of the node
-  const handleNodeSingleClick = useCallback((node) => {
-    if (skillTreeMode === BUILDER_MODE) {
-      const nodeData = node.data();
-      const nodeId = nodeData.id;
-      const nodePosition = node.position();
-      const offsetY = 55; // Distance above the original node
-
-      const activatedNodeId = `activated-${nodeId}`;
-      const availableNodeId = `available-${nodeId}`;
-      const hiddenNodeId = `hidden-${nodeId}`;
-
-      // get node initial state
-      const nodeState = nodeData.initialState;
-
-      const activatedNodeButton = {
-        data: { id: activatedNodeId, label: 'Activated', parentNodeId: nodeId, selectState: nodeState === ACTIVE_STATE ? 'selected' : 'not-selected' },
-        position: { x: nodePosition.x - 60, y: nodePosition.y - offsetY },
-        classes: `action-node`,
-      };
-
-      const availableNodeButton = {
-        data: { id: availableNodeId, label: 'Available', parentNodeId: nodeId, selectState: nodeState === AVAIL_STATE ? 'selected' : 'not-selected' },
-        position: { x: nodePosition.x, y: nodePosition.y - offsetY },
-        classes: `action-node`,
-      };
-
-      const hiddenNodeButton = {
-        data: { id: hiddenNodeId, label: 'Hidden', parentNodeId: nodeId, selectState: nodeState === HIDDEN_STATE ? 'selected' : 'not-selected' },
-        position: { x: nodePosition.x + 60, y: nodePosition.y - offsetY },
-        classes: `action-node`,
-      };
-
-      // Add the action buttons to the graph
-      setElements((els) => [...els, activatedNodeButton, availableNodeButton, hiddenNodeButton]);
-      tempNodes.current = [activatedNodeId, availableNodeId, hiddenNodeId];
-      setEditNode(node);
-
-      // Set up position listener to move temporary nodes along with their parent
-      const moveActionNodes = () => {
-        const updatedPosition = node.position();
-        setElements((els) =>
-          els.map((el) => {
-            if (el.data.id === activatedNodeId) {
-              return {
-                ...el,
-                position: {
-                  x: updatedPosition.x - 60,
-                  y: updatedPosition.y - offsetY,
-                },
-              };
-            } else if (el.data.id === availableNodeId) {
-              return {
-                ...el,
-                position: {
-                  x: updatedPosition.x,
-                  y: updatedPosition.y - offsetY,
-                },
-              };
-            } else if (el.data.id === hiddenNodeId) {
-              return {
-                ...el,
-                position: {
-                  x: updatedPosition.x + 60,
-                  y: updatedPosition.y - offsetY,
-                },
-              };
-            }
-            return el;
-          })
-        );
-      };
-
-      node.on('position', moveActionNodes);
-
-      // Clean up listener when nodes are removed or deselected
-      return () => node.removeListener('position', moveActionNodes);
-
-    }
-  }, [setElements, skillTreeMode]);
 
   /**
    * Deletes the currently selected edges from the graph.
@@ -870,9 +906,9 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
             lastTappedNode.current = null;
             lastTapTime.current = 0;
           } else {
-            // Single tap
-            removeTemporaryNodes();
-            handleNodeSingleClick(tappedNode);
+            //// Single tap
+            // removeTemporaryNodes();
+            // handleNodeSingleClick(tappedNode);
             lastTappedNode.current = tappedNode;
             lastTapTime.current = currentTime;
           }
