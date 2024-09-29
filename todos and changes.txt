@@ -58,6 +58,8 @@
 
 - [x] fix connect node button so that it appears centered vertically as well as horizontally between the two nodes that it is to connect
 
+- [ ] fix bug where loading a tree saved in player mode directly into builder mode does not reset state and tempState for all nodes: this can be resolved by toggling the state and tempState for all nodes prior to saving and/or by checking upon loading
+
 - [ ] modify text input so that it is located where the node text is
 
 - [ ] fix button popups so that they always appear visually on the canvas, so, in other words, if the selected node to edit is at the top of the screen, the buttons will appear below it. if the selected node is at the right-most edge of the canvas, then the buttons will be offset to the left so that they are both visible
