@@ -849,6 +849,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         const deleteEdgeButton = {
           data: { id: deleteEdgeButtonId, label: 'Delete Edge' },
           position: { x: midPointX, y: midPointY - 20 },
+          selectable: false,
           classes: 'delete-edge-button action-node',
         };
 
