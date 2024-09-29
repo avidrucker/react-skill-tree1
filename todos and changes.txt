@@ -17,17 +17,32 @@
 
 - [x] fix bug where upon deselecting 1 of 2 selected edges that the button for the remaining selected egde is not put in the correct location
 
-- [ ] implement ability to select icon for a given node from a list of icons
-  - [ ] add change icon btn upon double click of a node
-  - [ ] add sidebar with visual icon list displayed
-  - [ ] implement selecting of a new node icon to close sidebar and update icon w/ new icon selection
+- [x] feat hiding of hidden nodes only in player mode
+- [x] feat storing of player node state data as tempState in builder mode
 
-- [ ] fix async font loading issue so that the correct font is loaded consistently before the graph loads
+- [ ] feat skill tree node info paragraph text
+  - [ ] feat text input for a given node upon double click of new btn
+  - [ ] feat show more info about a node upon single click
+
+- [x] find and resolve bug where connect button sometimes does not appear when it should
+  - Found it: It happens just immediately after changing an icon
+- [x] find and resolve bug where rename button sometimes does not disappear when it should
+- [x] fix bug where initial demo does not render correctly immediately after load upon entering player mode
+
+- [x] implement ability to select icon for a given node from a list of icons
+  - [x] add change icon btn upon double click of a node
+  - [x] add sidebar with visual icon list displayed
+  - [x] implement selecting of a new node icon to close sidebar and update icon w/ new icon selection
+  - [x] make sidebar close upon clicking on a node, edge, or bg
+  - [ ] make sidebar horizontal in the bottom right of the screen
+
+- [x] fix async font loading issue so that the correct font is loaded consistently before the graph loads
 
 - [o] add keydown handler to delete selected nodes and edges via the delete key
   - [x] feat multi-node deletion via keyboard
-  - [ ] feat multi-edge deletion via keyboard and mouse
-    - [ ] feat correct multi-edge selection
+  - [x] feat multi-edge deletion via keyboard and mouse
+    - [x] feat correct multi-edge selection
+  - [ ] feat deselect/quit of nodes, edges, and icon select menu with the escape key 
 - [x] add keydown handler to escape from node edit mode via escape key
 
 - [x] fix connect node button so that it appears centered vertically as well as horizontally between the two nodes that it is to connect
