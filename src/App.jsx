@@ -459,8 +459,9 @@ function App() {
           onBlur={handleBlur}
           style={{
             position: 'absolute',
-            left: editNodePosition.x - 85, // Adjust based on input width
+            left: editNodePosition.x - 80, // Adjust based on input width
             top: editNodePosition.y - 115, // Adjust to position over the node
+            width: '200px',
             zIndex: 2,
           }}
           autoFocus
