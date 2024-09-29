@@ -319,7 +319,14 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
 
     const newNode = {
       group: 'nodes',
-      data: { id: newId, label: newLabel, image: blankIcon },
+      data: { 
+        id: newId, 
+        label: newLabel, 
+        image: blankIcon, 
+        initialState: HIDDEN_STATE,
+        state: null,
+        tempState: HIDDEN_STATE
+      },
       position: viewportCenter,
     };
 
@@ -764,9 +771,12 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
    * Saves the label when the input loses focus.
    */
   const handleBlur = useCallback(() => {
+    console.log("blurring...")
     if (editNode) {
       // Update the node label in Cytoscape
       editNode.data('label', editLabel);
+
+      console.log("updating label...");
 
       // Update elements state to reflect the change
       setElements((els) =>
