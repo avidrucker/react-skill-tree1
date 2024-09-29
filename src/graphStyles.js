@@ -68,6 +68,26 @@ const stylesheet = [
         'width': 2,
       },
     },
+    {
+      selector: 'node[state = "activated"]',
+      style: {
+        'opacity': 1,
+      },
+    },
+    {
+      selector: 'node[state = "available"]',
+      style: {
+        'opacity': 0.5,
+      },
+    },
+    {
+      selector: 'node[state = "hidden"]',
+      style: {
+        'display': 'none',
+        // 'opacity': 0.25,
+      },
+    },
+    
   ];
   
   export default stylesheet;

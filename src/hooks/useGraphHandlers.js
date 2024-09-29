@@ -8,7 +8,13 @@ import blankIcon from '../assets/icons/blank.png';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-const useGraphHandlers = (cy, elements, setElements, onChangeIcon) => {
+const PLAYER_MODE = 'player';
+const BUILDER_MODE = 'builder';
+const ACTIVE_STATE = 'activated';
+const AVAIL_STATE = 'available';
+const HIDDEN_STATE = 'hidden';
+
+const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode, setIsChangingIcon) => {
   // Refs for temporary action nodes (e.g., Edit, Delete buttons)
   const tempNodes = useRef([]);
   const tempEdgeNodes = useRef([]);
@@ -44,7 +50,8 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon) => {
     selectedNodes.current = selectedNodes.current.filter(
       (id) => !id.includes('delete-edge') && 
               !id.includes('connect-node') && 
-              !id.includes('delete-node'));
+              !id.includes('delete-node') &&
+              !id.includes('change-icon'));
 
     tempNodes.current = [];
     tempEdgeNodes.current = [];
@@ -135,13 +142,17 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon) => {
 
       removeTemporaryNodes();
 
+      console.log("selected nodes 1: ", selectedNodes.current);
+
       // Add node to selectedNodes if not already there
       if (!selectedNodes.current.includes(nodeId)) {
         // if the nodeId does not contain "delete-node", "connect-node", or "delete-edge", add it to selectedNodes
-        if (!nodeId.includes('delete-node') && !nodeId.includes('connect-node') && !nodeId.includes('delete-edge')) {
+        //// if (!nodeId.includes('delete-node') && !nodeId.includes('connect-node') && !nodeId.includes('delete-edge')) {
           selectedNodes.current.push(nodeId);
-        }
+        //// }
       }
+
+      console.log("selected nodes 2: ", selectedNodes.current);
 
       // Show 'Connect' button if exactly two nodes are selected
       if (selectedNodes.current.length === 2) {
@@ -223,81 +234,150 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon) => {
 
   /**
    * Handles double-clicking on a node.
-   * Displays temporary 'Rename' and 'Delete' action buttons near the node.
+   * Displays temporary 'Delete', 'Change Icon', and 'Rename' action buttons 
+   * near the node.
    */
   const handleNodeDoubleClick = useCallback(
     (node) => {
-      const nodePosition = node.position();
+      if(skillTreeMode === BUILDER_MODE) {
 
-      const editNodeId = `edit-${node.id()}`;
-      const deleteNodeId = `delete-${node.id()}`;
-      const changeIconNodeId = `change-icon-${node.id()}`;
+        console.log("Builder mode: node double-clicked");
 
-      const offsetY = 55; // Distance above the original node
+        const nodePosition = node.position();
 
-      const editNodeButton = {
-        data: { id: editNodeId, label: 'Rename', parentNodeId: node.id() },
-        position: { x: nodePosition.x + 60, y: nodePosition.y - offsetY },
-        classes: 'action-node',
-      };
+        const editNodeId = `edit-${node.id()}`;
+        const deleteNodeId = `delete-${node.id()}`;
+        const changeIconNodeId = `change-icon-${node.id()}`;
 
-      const deleteNodeButton = {
-        data: { id: deleteNodeId, label: 'Delete', parentNodeId: node.id() },
-        position: { x: nodePosition.x - 60, y: nodePosition.y - offsetY },
-        classes: 'action-node',
-      };
+        const offsetY = 55; // Distance above the original node
 
-      const changeIconNodeButton = {
-        data: { id: changeIconNodeId, label: 'Change Icon', parentNodeId: node.id() },
-        position: { x: nodePosition.x, y: nodePosition.y - offsetY },
-        classes: 'action-node',
-      };
+        const editNodeButton = {
+          data: { id: editNodeId, label: 'Rename', parentNodeId: node.id() },
+          position: { x: nodePosition.x + 60, y: nodePosition.y - offsetY },
+          classes: 'action-node',
+        };
 
-      // Add the action buttons to the graph
-      setElements((els) => [...els, editNodeButton, deleteNodeButton, changeIconNodeButton]);
-      tempNodes.current = [editNodeId, deleteNodeId, changeIconNodeId];
-      setEditNode(node);
+        const deleteNodeButton = {
+          data: { id: deleteNodeId, label: 'Delete', parentNodeId: node.id() },
+          position: { x: nodePosition.x - 60, y: nodePosition.y - offsetY },
+          classes: 'action-node',
+        };
 
-      // Set up position listener to move temporary nodes along with their parent
-      const moveActionNodes = () => {
-        const updatedPosition = node.position();
+        const changeIconNodeButton = {
+          data: { id: changeIconNodeId, label: 'Change Icon', parentNodeId: node.id() },
+          position: { x: nodePosition.x, y: nodePosition.y - offsetY },
+          classes: 'action-node',
+        };
+
+        // Add the action buttons to the graph
+        setElements((els) => [...els, editNodeButton, deleteNodeButton, changeIconNodeButton]);
+        tempNodes.current = [editNodeId, deleteNodeId, changeIconNodeId];
+        setEditNode(node);
+
+        // Set up position listener to move temporary nodes along with their parent
+        const moveActionNodes = () => {
+          const updatedPosition = node.position();
+          setElements((els) =>
+            els.map((el) => {
+              if (el.data.id === editNodeId) {
+                return {
+                  ...el,
+                  position: {
+                    x: updatedPosition.x + 60,
+                    y: updatedPosition.y - offsetY,
+                  },
+                };
+              } else if (el.data.id === deleteNodeId) {
+                return {
+                  ...el,
+                  position: {
+                    x: updatedPosition.x - 60,
+                    y: updatedPosition.y - offsetY,
+                  },
+                };
+              } else if (el.data.id === changeIconNodeId) {
+                return {
+                  ...el,
+                  position: {
+                    x: updatedPosition.x,
+                    y: updatedPosition.y - offsetY,
+                  },
+                };
+              }
+              return el;
+            })
+          );
+        };
+        node.on('position', moveActionNodes);
+
+        // Clean up listener when nodes are removed or deselected
+        return () => node.removeListener('position', moveActionNodes);
+
+      } else {
+        console.log("Player mode: node double-clicked");
+        //// TODO: implement logic here to toggle node activation
+
+  const nodeData = node.data();
+
+  if (nodeData.state === AVAIL_STATE) {
+    // Activate the node
+    setElements((els) =>
+      els.map((el) => {
+        if (el.data.id === nodeData.id) {
+          return {
+            ...el,
+            data: {
+              ...el.data,
+              state: ACTIVE_STATE,
+            },
+          };
+        }
+        return el;
+      })
+    );
+
+    // Unlock adjacent hidden nodes
+    const adjacentNodes = node.connectedEdges().connectedNodes().difference(node);
+    adjacentNodes.forEach((adjNode) => {
+      const adjNodeData = adjNode.data();
+      if (adjNodeData.state === HIDDEN_STATE) {
         setElements((els) =>
           els.map((el) => {
-            if (el.data.id === editNodeId) {
+            if (el.data.id === adjNodeData.id) {
               return {
                 ...el,
-                position: {
-                  x: updatedPosition.x + 60,
-                  y: updatedPosition.y - offsetY,
-                },
-              };
-            } else if (el.data.id === deleteNodeId) {
-              return {
-                ...el,
-                position: {
-                  x: updatedPosition.x - 60,
-                  y: updatedPosition.y - offsetY,
-                },
-              };
-            } else if (el.data.id === changeIconNodeId) {
-              return {
-                ...el,
-                position: {
-                  x: updatedPosition.x,
-                  y: updatedPosition.y - offsetY,
+                data: {
+                  ...el.data,
+                  state: AVAIL_STATE,
                 },
               };
             }
             return el;
           })
         );
-      };
-      node.on('position', moveActionNodes);
-
-      // Clean up listener when nodes are removed or deselected
-      return () => node.removeListener('position', moveActionNodes);
+      }
+    });
+  } else if (nodeData.state === ACTIVE_STATE) {
+    // Deactivate the node
+    setElements((els) =>
+      els.map((el) => {
+        if (el.data.id === nodeData.id) {
+          return {
+            ...el,
+            data: {
+              ...el.data,
+              state: AVAIL_STATE,
+            },
+          };
+        }
+        return el;
+      })
+    );
+  }
+      }
+      
     },
-    [setElements, setEditNode]
+    [setElements, setEditNode, skillTreeMode]
   );
 
   /**
@@ -365,7 +445,7 @@ const handleEdgeDeselect = useCallback(
       removeTemporaryNodes();
     }
   },
-  [removeTemporaryNodes, setElements]
+  [removeTemporaryNodes, setElements, cy, elements]
 );
 
   /**
@@ -413,6 +493,8 @@ const handleEdgeDeselect = useCallback(
           onChangeIcon(parentNodeId);
         }
         cleanupAfterAction();
+        //// TODO: resolve bug where connect button is not shown 
+        //// immediately after changing icon as it should
       } else if (label === 'Connect') {
         // Handle connecting the two selected nodes
         const sourceId = node.data('sourceId');
@@ -553,14 +635,22 @@ const handleEdgeDeselect = useCallback(
    */
   const handleEdgeSelect = useCallback(
     (evt) => {
+
+      // close the icon change modal if it is open
+      if(setIsChangingIcon) {
+        setIsChangingIcon(false);
+      } else {
+        console.log("setIsChangingIcon is not defined");
+      }
+
       const edge = evt.target;
       const edgeId = edge.id();
 
       // Add edge to selectedEdges if not already there
       if (!selectedEdges.current.includes(edgeId)) {
-        if (!edgeId.includes('delete-edge')) {
+        //// if (!edgeId.includes('delete-edge')) {
           selectedEdges.current.push(edgeId);
-        }
+        //// }
       }
 
       // if only 1 edge is selected, show the delete edge button
@@ -627,23 +717,56 @@ const handleEdgeDeselect = useCallback(
   useEffect(() => {
     if (!cy) return;
 
-    // Handler for tapping on nodes
+    // Handler for tapping on nodes "handleNodeTap"
     const onTapNode = (evt) => {
-      const tappedNode = evt.target;
-      const currentTime = new Date().getTime();
 
-      if (tappedNode.hasClass('action-node')) {
-        // Clicked on a temporary action node (e.g., 'Rename', 'Delete', 'Connect')
-        handleActionNodeClick(tappedNode);
+      // close the icon change modal if it is open
+      if(setIsChangingIcon) {
+        setIsChangingIcon(false);
       } else {
-        // Handle double-click detection for editing/deleting nodes
+        console.log("setIsChangingIcon is not defined");
+      }
+
+      if (skillTreeMode === BUILDER_MODE) {
+        // Existing builder mode logic
+        console.log("builder node tapping");
+
+        const tappedNode = evt.target;
+        const currentTime = new Date().getTime();
+
+        if (tappedNode.hasClass('action-node')) {
+          // Clicked on a temporary action node (e.g., 'Rename', 'Delete', 'Connect')
+          handleActionNodeClick(tappedNode);
+        } else {
+          // Handle double-click detection for editing/deleting nodes
+          if (
+            lastTappedNode.current &&
+            lastTappedNode.current.id() === tappedNode.id() &&
+            currentTime - lastTapTime.current < 300
+          ) {
+            // Double-click detected
+            handleNodeDoubleClick(tappedNode);
+            lastTappedNode.current = null;
+            lastTapTime.current = 0;
+          } else {
+            // Single tap
+            lastTappedNode.current = tappedNode;
+            lastTapTime.current = currentTime;
+          }
+        }
+
+      } else if (skillTreeMode === PLAYER_MODE) {
+        // Player mode logic for activating/deactivating nodes
+        const tappedNode = evt.target;
+        const currentTime = new Date().getTime();
+
         if (
           lastTappedNode.current &&
           lastTappedNode.current.id() === tappedNode.id() &&
           currentTime - lastTapTime.current < 300
         ) {
           // Double-click detected
-          handleNodeDoubleClick(tappedNode);
+          handleNodeDoubleClick(tappedNode); ////
           lastTappedNode.current = null;
           lastTapTime.current = 0;
         } else {
@@ -652,21 +775,43 @@ const handleEdgeDeselect = useCallback(
           lastTapTime.current = currentTime;
         }
       }
+
     };
 
     // Handler for tapping on the background
     const onTapBackground = (event) => {
-      if (event.target === cy) {
-        // Clicked on background
-        setIsEditing(false);
-        setEditNode(null);
-        // Clear selected nodes and remove connect button
-        cy.$('node:selected').unselect();
-        selectedNodes.current = [];
-        // Remove temporary action nodes
-        removeTemporaryNodes();
-        cleanupAfterAction();
+      
+      if (skillTreeMode === BUILDER_MODE) {
+        // Existing builder mode logic
+
+        if (event.target === cy) {
+          // Clicked on background
+          setIsEditing(false);
+          setEditNode(null);
+          // Clear selected nodes and remove connect button
+          cy.$('node:selected').unselect();
+          selectedNodes.current = [];
+          // Remove temporary action nodes
+          removeTemporaryNodes();
+          cleanupAfterAction();
+          // close the icon change modal if it is open
+          if(setIsChangingIcon) {
+            setIsChangingIcon(false);
+          } else {
+            console.log("setIsChangingIcon is not defined");
+          }
+        }
+
+      } else if (skillTreeMode === PLAYER_MODE) {
+        // Player mode logic for deselecting all nodes
+        if(event.target === cy) {
+          // Clicked on background
+          // Clear selected nodes
+          cy.$('node:selected').unselect();
+          selectedNodes.current = [];
+        }
       }
+      
     };
 
     // Bind event handlers
@@ -700,7 +845,8 @@ const handleEdgeDeselect = useCallback(
     lastTappedNode,
     lastTapTime,
     cleanupAfterAction,
-    handleGlobalKeyDown
+    handleGlobalKeyDown,
+    skillTreeMode
   ]);
 
   /**

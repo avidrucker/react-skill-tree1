@@ -6,6 +6,12 @@ import FontFaceObserver from 'fontfaceobserver';
 import stylesheet from './graphStyles';
 import useGraphHandlers from './hooks/useGraphHandlers';
 
+const PLAYER_MODE = 'player';
+const BUILDER_MODE = 'builder';
+// const ACTIVE_STATE = 'activated';
+const AVAIL_STATE = 'available';
+const HIDDEN_STATE = 'hidden';
+
 // Function to load all icons from assets/icons/
 function loadIcons() {
   // Automatically import all files in the specified folder
@@ -31,26 +37,172 @@ function App() {
   const [isChangingIcon, setIsChangingIcon] = useState(false);
   const [iconChangeNodeId, setIconChangeNodeId] = useState(null);
 
+  const [skillTreeMode, setSkillTreeMode] = useState(BUILDER_MODE); // 'builder' or 'player'
+
+  const validateSkillTree = () => {
+    // Validate the skill tree
+    //// TODO: implement validation logic
+    console.log('Validating skill tree... PLACEHOLDER');
+    return true;
+  }
+  // const validateSkillTree = () => {
+  //   // Logic to check if every connected component has at least one node set as 'available'
+  //   const cyElements = cy.elements();
+  
+  //   const components = cyElements.components(); // Get connected components
+  //   for (let i = 0; i < components.length; i++) {
+  //     const component = components[i];
+  //     const hasAvailableNode = component.nodes().some((node) => {
+  //       return node.data('initialState') === 'available';
+  //     });
+  //     if (!hasAvailableNode) {
+  //       // Highlight the component or inform the user
+  //       return false;
+  //     }
+  //   }
+  //   return true;
+  // };  
+
+  // Initialize player progress data
+  // Function which sets the current state of a node to its initial state
+  // when in building mode, node states are not to be set (they should be null)
+  // When switching from player mode to builder mode, temp states are set
+  // from the current state of the nodes
+  const initializePlayerDataForPlayerMode = () => {
+    console.log("Initializing player data for player mode...");
+    setElements((els) =>
+      els.map((el) => {
+        if (el.group === 'nodes') {
+          return {
+            ...el,
+            data: {
+              ...el.data,
+              state: el.data.initialState,
+              tempState: null
+            },
+          };
+        }
+        return el;
+      })
+    );
+  };
+
+  const initializePlayerDataForBuilderMode = () => {
+    console.log("Initializing player data for builder mode...");
+    setElements((els) =>
+      els.map((el) => {
+        if (el.group === 'nodes') {
+          return {
+            ...el,
+            data: {
+              ...el.data,
+              state: null,
+              tempState: el.data.initialState
+            },
+          };
+        }
+        return el;
+      })
+    );
+  }
+
+  const resetSkillTreeProgress = () => {
+    if (window.confirm('Are you sure you want to reset the skill tree?')) {
+      initializePlayerDataForPlayerMode();
+    }
+  }
+
+  const savePlayerProgress = () => {
+    // Save player progress by setting the temp state of each node
+    // to have the value of the current state of each node, and
+    // reset the current state of each node back to null
+    console.log("Saving player data...");
+    setElements((els) =>
+      els.map((el) => {
+        if (el.group === 'nodes') {
+          return {
+            ...el,
+            data: {
+              ...el.data,
+              tempState: el.data.state,
+              state: null,
+            },
+          };
+        }
+        return el;
+      })
+    );
+  }
+
+  const restorePlayerProgress = () => {
+    // Restore player progress by setting the current state of each node
+    // to have the value of the temp state of each node, and
+    // reset the temp state of each node back to null
+    console.log("Restoring player data...");
+    setElements((els) =>
+      els.map((el) => {
+        if (el.group === 'nodes') {
+          return {
+            ...el,
+            data: {
+              ...el.data,
+              state: el.data.tempState,
+              tempState: null,
+            },
+          };
+        }
+        return el;
+      })
+    );
+  }
+
+  const skillTreeHasTempStates = () => {
+    // Check if the skill tree has any temp states set
+    return elements.some((el) => el.group === 'nodes' && el.data.tempState !== null);
+  }
+
+  // Function to toggle modes
+  const toggleMode = () => {
+    if (skillTreeMode === BUILDER_MODE) {
+      // Validate the skill tree before switching
+      if (validateSkillTree()) {
+        if(skillTreeHasTempStates()) {
+          restorePlayerProgress();
+        } else {
+          initializePlayerDataForBuilderMode();
+        }
+        setSkillTreeMode(PLAYER_MODE);
+      } else {
+        alert('Skill tree is not valid. Please fix the errors before switching to Player Mode.');
+      }
+    } else {
+      // Save player progress
+      savePlayerProgress();
+      setSkillTreeMode(BUILDER_MODE);
+    }
+  };
+
   const onChangeIcon = (nodeId) => {
     setIconChangeNodeId(nodeId);
     setIsChangingIcon(true);
+    console.log("setting icon changing to true");
   };
 
   // Define the demo elements
   const demoElements = useMemo(() => [
     {
       group: 'nodes',
-      data: { id: 'node-1', label: 'Insight', image: icons['eye'] },
+      data: { id: 'node-1', label: 'Insight', image: icons['eye'], initialState: AVAIL_STATE },
       position: { x: 0, y: 0 },
     },
     {
       group: 'nodes',
-      data: { id: 'node-2', label: 'Leaf Shield', image: icons['leaf'] },
+      data: { id: 'node-2', label: 'Leaf Shield', image: icons['leaf'], initialState: HIDDEN_STATE },
       position: { x: 100, y: 0 },
     },
     {
       group: 'nodes',
-      data: { id: 'node-3', label: 'Air Strike Shield', image: icons['wind'] },
+      data: { id: 'node-3', label: 'Air Strike Shield', image: icons['wind'], initialState: HIDDEN_STATE },
       position: { x: 200, y: 0 },
     },
     {
@@ -90,7 +242,7 @@ function App() {
     handleKeyDown,
     handleBlur,
     setEditLabel,
-  } = useGraphHandlers(cy, elements, setElements, onChangeIcon);
+  } = useGraphHandlers(cy, elements, setElements, onChangeIcon, skillTreeMode, setIsChangingIcon);
 
   // Handle icon selection
   const handleIconSelect = (iconName) => {
@@ -142,16 +294,18 @@ function App() {
   
   const saveToLocalStorage = useCallback(() => {
     if (cyRef && cyRef.current) {
-      const elementsData = cyRef.current.elements().jsons(); // Get elements with positions
+      const elementsData = cyRef.current.elements().jsons(); // Includes node states
       const json = JSON.stringify({
         elements: elementsData,
         treeName,
         zoom: cyRef.current.zoom(),
         pan: cyRef.current.pan(),
+        playerProgress: skillTreeMode === PLAYER_MODE ? elementsData : null,
       });
       localStorage.setItem('graphState', json);
     }
-  }, [cyRef, treeName]);
+  }, [cyRef, treeName, skillTreeMode]);
+  
 
   const loadFromJSON = (event) => {
     const file = event.target.files[0];
@@ -177,22 +331,41 @@ function App() {
     fileInput.click();
   };
   
+  const loadDemoGraph = useCallback(() =>{
+    setElements(demoElements);
+    setTreeName('Demo Tree');
+    setZoom(3.5);
+    setPan({ x: 160, y: 272 });
+    saveToLocalStorage();
+    if(skillTreeMode === PLAYER_MODE) {
+      initializePlayerDataForPlayerMode();
+    } else {
+      initializePlayerDataForBuilderMode();
+    }
+  }, [demoElements, saveToLocalStorage, skillTreeMode]);
+
   const loadFromLocalStorage = useCallback(() => {
     const json = localStorage.getItem('graphState');
     if (json) {
       const state = JSON.parse(json);
       setElements(state.elements || demoElements);
       setTreeName(state.treeName || 'Untitled 1');
-      // Save zoom and pan in state variables
       setZoom(state.zoom || 1);
       setPan(state.pan || { x: 0, y: 0 });
+      //// TODO: confirm that player mode is relevant to whether or not player progress should be loaded
+      if (state.playerProgress && skillTreeMode === PLAYER_MODE) {
+        // Load player progress
+        setElements(state.playerProgress);
+      }
     } else {
-      // If no data in localStorage, use demo data
-      setElements(demoElements);
-      setZoom(1);
-      setPan({ x: 0, y: 0 });
+      // Use demo data
+      loadDemoGraph();
+      // setElements(demoElements);
+      // setZoom(1);
+      // setPan({ x: 0, y: 0 });
     }
-  }, [demoElements]);
+  }, [demoElements, skillTreeMode, loadDemoGraph]);
+  
   
 
   // Load from local storage once when the component mounts
@@ -237,14 +410,6 @@ function App() {
     setTreeName('Untitled 1');
   };
 
-  const loadDemoGraph = () => {
-    setElements(demoElements);
-    setTreeName('Demo Tree');
-    setZoom(3.5);
-    setPan({ x: 160, y: 272 });
-    saveToLocalStorage();
-  };
-
   return (
     <div className="bg-black relative w-100 vh-100">
       {isFontLoaded && (
@@ -271,14 +436,21 @@ function App() {
             onChange={(e) => setTreeName(e.target.value)}
           />
         </h1>
-        <div className="pointer-events-auto">
-          <button onClick={addNode}>Add Skill</button>
-          <button onClick={() => cyRef && cyRef.current && cyRef.current.fit()}>Re-Center</button>
-          <button onClick={printElements}>Log</button>
-          <button onClick={saveGraphToJSON}>Save</button>
-          <button onClick={loadGraphFromJSON}>Load</button>
-          <button onClick={clearGraphData}>Clear</button>
-          <button onClick={loadDemoGraph}>Demo</button>
+        <div className="pointer-events-none">
+          {skillTreeMode === BUILDER_MODE &&
+          <button className="pointer-events-auto" onClick={addNode}>Add Skill</button>}
+          <button className="pointer-events-auto" onClick={() => cyRef && cyRef.current && cyRef.current.fit()}>Re-Center</button>
+          <button className="pointer-events-auto" onClick={printElements}>Log</button>
+          <button className="pointer-events-auto" onClick={saveGraphToJSON}>Save</button>
+          <button className="pointer-events-auto" onClick={loadGraphFromJSON}>Load</button>
+          <button className="pointer-events-auto" onClick={loadDemoGraph}>Demo</button>
+          {skillTreeMode === BUILDER_MODE &&
+          <button className="pointer-events-auto" onClick={clearGraphData}>Clear</button>}
+          {skillTreeMode === PLAYER_MODE &&
+            <button className="pointer-events-auto" onClick={resetSkillTreeProgress}>Reset</button>}
+          <button className="pointer-events-auto" onClick={toggleMode}>
+            Switch to {skillTreeMode === BUILDER_MODE ? 'Player' : 'Builder'} Mode
+          </button>
         </div>
       </div>
       {/* Edit Input Field */}
