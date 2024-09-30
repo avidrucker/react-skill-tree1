@@ -11,7 +11,7 @@ const stylesheet = [
         'width': 50,
         color: '#fff',
         'text-wrap': 'wrap',
-        'font-family': "UnifrakturMaguntia",
+        'font-family': "Old English Text MT",
         'font-size': 10,
         'border-width': 0,
         'background-clip': 'none',

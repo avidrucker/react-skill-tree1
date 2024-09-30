@@ -382,7 +382,7 @@ function App() {
 
   // Load the custom font before rendering Cytoscape
   useEffect(() => {
-    const font = new FontFaceObserver('UnifrakturMaguntia'); // Replace with your font's name
+    const font = new FontFaceObserver('Old English Text MT'); // Replace with your font's name
 
     font.load().then(
       () => {
