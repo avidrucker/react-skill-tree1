@@ -5,9 +5,24 @@
 - [ ] add helpful readme to build and run project
 - [ ] add how to contribute doc for open source contributions
 
+- [ ] feat offline mode
+
 - [x] make border thinner
 - [x] make node text smaller
-- [ ] change node text font to Old English Text MT
+- [x] change node text font to Old English Text MT
+
+- [ ] add design flourish above each node's text
+
+- [ ] add node icons
+  - [ ] A-Z in Old English Text MT font
+  - [ ] egg
+  - [ ] tree
+  - [ ] pill
+  - [ ] bird 
+  - [ ] dragon
+  - [ ] bird & egg
+  - [ ] dragon & egg
+  - [ ] mushroom
 
 - [x] move text to above node
 - [x] put image inside of 1 node
@@ -32,12 +47,14 @@
 - [x] fix bug where clicking on two nodes shows initial state toggle buttons for 2nd node when there should be only 1 button showing max which is the connect button inbetween two unconnected nodes
 - [x] fix bug where edges can be deleted by the delete key but not by clicking on the delete button
 
+- [ ] feat hidden nodes showing with "hidden" icon, no text label, and no flourish
+
 - [x] implement ability to select icon for a given node from a list of icons
   - [x] add change icon btn upon double click of a node
   - [x] add sidebar with visual icon list displayed
   - [x] implement selecting of a new node icon to close sidebar and update icon w/ new icon selection
   - [x] make sidebar close upon clicking on a node, edge, or bg
-  - [ ] make sidebar horizontal in the bottom right of the screen
+  - [ ] make sidebar a horizontal carousel in the bottom right of the screen
 
 - [x] fix async font loading issue so that the correct font is loaded consistently before the graph loads
 
@@ -47,6 +64,7 @@
 - [x] feat toggling of nodes in builder mode between 'activated', 'available', and 'hidden'
 - [ ] feat locking of nodes in place upon switching to player mode
 - [ ] feat optional locking of nodes in place in builder mode w/ lock icon buttons
+- [ ] feat no node deletion allowed in player mode
 
 - [x] add keydown handler to delete selected nodes and edges via the delete key
   - [x] feat multi-node deletion via keyboard
