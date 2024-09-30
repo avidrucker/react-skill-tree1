@@ -1,3 +1,5 @@
+import flourish from './assets/flourish.png'
+
 // src/graphStyles.js
 const stylesheet = [
     {
@@ -6,7 +8,7 @@ const stylesheet = [
         'background-opacity': 0,
         label: 'data(label)',
         'text-valign': 'top',
-        'text-margin-y': 0,
+        'text-margin-y': -2.5,
         'height': 50,
         'width': 50,
         color: '#fff',
@@ -34,6 +36,7 @@ const stylesheet = [
         'background-image': 'none',
         'border-color': 'white',
         'border-width': 1,
+        'text-margin-y': 0,
         'font-family': "sans-serif"
       },
     },
@@ -92,7 +95,41 @@ const stylesheet = [
       style: {
         'opacity': 0.5,
       },
-    }
+    },
+    {
+      selector: 'node.flourish-node',
+      style: {
+        'background-image': `url(${flourish})`,
+        'background-fit': 'contain',
+        'background-opacity': 0,
+        'background-color': 'transparent',
+        'border-width': 0,
+        width: 30,
+        height: 30,
+        'z-index': -1, // Ensure it's behind other nodes
+      },
+    },
+    // Styles for flourish nodes based on state
+  {
+    selector: 'node.flourish-node[state = "activated"]',
+    style: {
+      'display': 'element',
+      'opacity': 1,
+    },
+  },
+  {
+    selector: 'node.flourish-node[state = "available"]',
+    style: {
+      'display': 'element',
+      'opacity': 0.5,
+    },
+  },
+  {
+    selector: 'node.flourish-node[state = "hidden"]',
+    style: {
+      'display': 'none',
+    },
+  },
     
   ];
   

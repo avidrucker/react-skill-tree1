@@ -14,6 +14,8 @@ const ACTIVE_STATE = 'activated';
 const AVAIL_STATE = 'available';
 const HIDDEN_STATE = 'hidden';
 
+const flourishOffsetY = 45;
+
 const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode, setIsChangingIcon) => {
   // Refs for temporary action nodes (e.g., Edit, Delete buttons)
   const tempNodes = useRef([]);
@@ -224,6 +226,53 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
     }
   }, [setElements, skillTreeMode]);
 
+  // Function to synchronize flourish node positions with their parent nodes
+  const synchronizeFlourishNode = useCallback(
+    (parentNode) => {
+      const parentId = parentNode.id();
+      const flourishNodeId = `flourish-${parentId}`;
+      const parentPosition = parentNode.position();
+
+      // Update the position of the flourish node
+      setElements((els) =>
+        els.map((el) => {
+          if (el.data.id === flourishNodeId) {
+            return {
+              ...el,
+              position: {
+                x: parentPosition.x,
+                y: parentPosition.y - flourishOffsetY, // Adjust as needed
+              },
+            };
+          }
+          return el;
+        })
+      );
+    },
+    [setElements]
+  );
+
+  useEffect(() => {
+    if (!cy) return;
+  
+    // Handler for node position changes
+    const onNodePosition = (evt) => {
+      const node = evt.target;
+      // Only handle main nodes (exclude action nodes and flourish nodes)
+      if (!node.hasClass('action-node') && !node.hasClass('flourish-node')) {
+        synchronizeFlourishNode(node);
+      }
+    };
+  
+    // Attach the position event listener
+    cy.on('position', 'node', onNodePosition);
+  
+    // Cleanup on unmount
+    return () => {
+      cy.off('position', 'node', onNodePosition);
+    };
+  }, [cy, synchronizeFlourishNode]);
+
   /**
    * Handles the selection of a node.
    * Adds the node to the selected nodes list and shows the 'Connect' button if two nodes are selected.
@@ -326,6 +375,24 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       position: viewportCenter,
     };
 
+    // Create the flourish node
+  const flourishNodeId = `flourish-${newId}`;
+  const flourishNode = {
+    group: 'nodes',
+    data: {
+      id: flourishNodeId,
+      parentId: newId, // Link to parent node
+      state: HIDDEN_STATE,
+    },
+    position: {
+      x: viewportCenter.x,
+      y: viewportCenter.y - flourishOffsetY, // Position above the parent node
+    },
+    selectable: false,
+    grabbable: false,
+    classes: 'flourish-node',
+  };
+
     let newEdge = null;
     if (editNode) {
       newEdge = {
@@ -337,8 +404,10 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       };
     }
 
-    // Add the new node (and edge if applicable) to the elements
-    setElements((els) => (newEdge ? [...els, newNode, newEdge] : [...els, newNode]));
+    // Add the new node, flourish node, and edge (if applicable) to the elements
+    setElements((els) =>
+      newEdge ? [...els, newNode, flourishNode, newEdge] : [...els, newNode, flourishNode]
+    );
   }, [cy, editNode, setElements]);
 
   /**
@@ -427,12 +496,13 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       } else {
         // toggle node state activation
         const nodeData = node.data();
+        const flourishNodeId = `flourish-${nodeData.id}`;
 
         if (nodeData.state === AVAIL_STATE) {
-          // Activate the node
-          setElements((els) =>
+            // Activate the node and its flourish node
+            setElements((els) =>
             els.map((el) => {
-              if (el.data.id === nodeData.id) {
+              if (el.data.id === nodeData.id || el.data.id === flourishNodeId) {
                 return {
                   ...el,
                   data: {
@@ -449,10 +519,11 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
           const adjacentNodes = node.connectedEdges().connectedNodes().difference(node);
           adjacentNodes.forEach((adjNode) => {
             const adjNodeData = adjNode.data();
+            const adjFlourishNodeId = `flourish-${adjNodeData.id}`;
             if (adjNodeData.state === HIDDEN_STATE) {
               setElements((els) =>
                 els.map((el) => {
-                  if (el.data.id === adjNodeData.id) {
+                  if (el.data.id === adjNodeData.id || el.data.id === adjFlourishNodeId) {
                     return {
                       ...el,
                       data: {
@@ -470,7 +541,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
           // Deactivate the node
           setElements((els) =>
             els.map((el) => {
-              if (el.data.id === nodeData.id) {
+              if (el.data.id === nodeData.id || el.data.id === flourishNodeId) {
                 return {
                   ...el,
                   data: {
@@ -584,12 +655,14 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         // Delete the original node
         const parentNodeId = node.data('parentNodeId');
         const nodeId = parentNodeId;
+        const flourishNodeId = `flourish-${nodeId}`;
 
         // Update elements state to remove the node and its edges
         setElements((els) =>
           els.filter(
             (el) =>
               el.data.id !== nodeId &&
+              el.data.id !== flourishNodeId &&
               el.data.source !== nodeId &&
               el.data.target !== nodeId
           )
@@ -625,10 +698,11 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       } else if (label === 'Activated') {
         // Set the current node's initial state and temp state to 'activated'
         const parentNodeId = node.data('parentNodeId');
+        const flourishNodeId = `flourish-${parentNodeId}`;
         
         setElements((els) =>
           els.map((el) => {
-            if (el.data.id === parentNodeId) {
+            if ((el.data.id === parentNodeId || el.data.id === flourishNodeId)) {
               return {
                 ...el,
                 data: {
@@ -644,16 +718,17 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       } else if (label === 'Available') {
         // Set the current node's initial state and temp state to 'available'
         const parentNodeId = node.data('parentNodeId');
+        const flourishNodeId = `flourish-${parentNodeId}`;
 
         setElements((els) =>
           els.map((el) => {
-            if (el.data.id === parentNodeId) {
+            if (el.data.id === parentNodeId || el.data.id === flourishNodeId) {
               return {
                 ...el,
                 data: {
                   ...el.data,
                   initialState: AVAIL_STATE,
-                  tempState: AVAIL_STATE
+                  tempState: AVAIL_STATE,
                 },
               };
             }
@@ -663,10 +738,11 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       } else if (label === 'Hidden') {
         // Set the current node's initial state and temp state to 'hidden'
         const parentNodeId = node.data('parentNodeId');
+        const flourishNodeId = `flourish-${parentNodeId}`;
 
         setElements((els) =>
           els.map((el) => {
-            if (el.data.id === parentNodeId) {
+            if (el.data.id === parentNodeId || el.data.id === flourishNodeId) {
               return {
                 ...el,
                 data: {
@@ -708,10 +784,12 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       } else if (e.key === 'Delete' && !isEditing && selectedNodes.current.length > 0) {
         // Delete the selected nodes
         selectedNodes.current.forEach((nodeId) => {
+          const flourishNodeId = `flourish-${nodeId}`;
           setElements((els) =>
             els.filter(
               (el) =>
                 el.data.id !== nodeId &&
+                el.data.id !== flourishNodeId &&
                 el.data.source !== nodeId &&
                 el.data.target !== nodeId
             )
@@ -731,6 +809,41 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         cleanupAfterAction();
       }
     }, [isEditing, handleDeleteEdges, cleanupAfterAction, setElements, cy, removeTemporaryNodes, setIsChangingIcon]);
+
+    useEffect(() => {
+      if (!cy) return;
+    
+      // For each main node, ensure it has a flourish node
+      const mainNodes = cy.nodes().filter((node) => {
+        return !node.hasClass('action-node') && !node.hasClass('flourish-node');
+      });
+    
+      mainNodes.forEach((node) => {
+        const nodeId = node.id();
+        const nodeData = node.data();
+        const flourishNodeId = `flourish-${nodeId}`;
+        if (cy.getElementById(flourishNodeId).empty()) {
+          // Create and add the flourish node
+          const nodePosition = node.position();
+          const flourishNode = {
+            group: 'nodes',
+            data: {
+              id: flourishNodeId,
+              parentId: nodeId,
+              state: nodeData.state || nodeData.initialState || HIDDEN_STATE, // Set state to match parent
+            },
+            position: {
+              x: nodePosition.x,
+              y: nodePosition.y - flourishOffsetY,
+            },
+            selectable: false,
+            grabbable: false,
+            classes: 'flourish-node',
+          };
+          setElements((els) => [...els, flourishNode]);
+        }
+      });
+    }, [cy, elements, setElements]);
 
   /**
    * Handles key down events for the input field when editing a node label.
