@@ -8,7 +8,7 @@ import useGraphHandlers from './hooks/useGraphHandlers';
 
 const PLAYER_MODE = 'player';
 const BUILDER_MODE = 'builder';
-// const ACTIVE_STATE = 'activated';
+const ACTIVE_STATE = 'activated';
 const AVAIL_STATE = 'available';
 const HIDDEN_STATE = 'hidden';
 
@@ -50,13 +50,18 @@ function App() {
     for (let i = 0; i < components.length; i++) {
       const component = components[i];
 
+      // skip flourish nodes
+      if(component.classes() && component.classes()[0] && component.classes()[0].includes("flourish")) {
+        continue;
+      }
+
       // skip checking current component if it is a button node
       if(component.data().id.includes("btn")) {
         continue;
       };
 
       const hasAvailableNode = component.nodes().some((node) => {
-        return node.data('initialState') === 'available';
+        return node.data('initialState') === AVAIL_STATE || node.data('initialState' === ACTIVE_STATE);
       });
       if (!hasAvailableNode) {
         // Highlight the component or inform the user
