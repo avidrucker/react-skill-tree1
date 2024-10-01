@@ -15,6 +15,8 @@
 
 - [ ] fix bug where double-clicking an icon node, waiting a second, and then single clicking the same node does not change buttons back to state selection buttons
 
+- [ ] Question: How else might skills get unlocked besides proximity to other unlocked/activated/available skill nodes?
+
 - [x] fix bug where new flourishes are not automatically hidden upon new node creation
 - [x] feat show hidden node icon instead of actually hiding nodes
 - [x] fix remove flourish and text from hidden nodes
@@ -56,7 +58,7 @@
 - [x] fix bug where clicking on two nodes shows initial state toggle buttons for 2nd node when there should be only 1 button showing max which is the connect button inbetween two unconnected nodes
 - [x] fix bug where edges can be deleted by the delete key but not by clicking on the delete button
 
-- [ ] feat hidden nodes showing with "hidden" icon, no text label, and no flourish
+- [x] feat hidden nodes showing with "hidden" icon, no text label, and no flourish
 
 - [x] implement ability to select icon for a given node from a list of icons
   - [x] add change icon btn upon double click of a node
@@ -85,7 +87,7 @@
 
 - [x] fix connect node button so that it appears centered vertically as well as horizontally between the two nodes that it is to connect
 
-- [ ] fix bug where loading a tree saved in player mode directly into builder mode does not reset state and tempState for all nodes: this can be resolved by toggling the state and tempState for all nodes prior to saving and/or by checking upon loading
+- [ ] fix bug where loading a tree saved in player mode directly into builder mode does not reset state and tempState for all nodes: this can be resolved by toggling the state and tempState for all nodes prior to saving and/or by checking upon loading, as well as by saving what mode the skill tree was saved in (though I'd prefer to simply always save in builder mode)
 
 - [ ] modify text input so that it is located where the node text is
 
@@ -106,3 +108,7 @@ useGraphHandlers.js:51 Uncaught TypeError: Cannot read properties of undefined (
     at Element2.<anonymous> 
 """
 the suggested fix is to, upon deleting a node, clear the selected nodes list
+
+- [ ] build out shield hero skill tree & save to JSON
+  - [ ] include shield hero skill tree as hidden bonus content
+    - [ ] include rage shield skills as hidden bonus content within bonus content
