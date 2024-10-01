@@ -13,7 +13,9 @@
 
 - [ ] remove connect button and delete buttons in player mode
 
-- [ ] fix bug where new flourishes are not automatically hidden upon new node creation
+- [x] fix bug where new flourishes are not automatically hidden upon new node creation
+- [ ] feat show hidden node icon instead of actually hiding nodes
+- [ ] fix remove flourish and text from hidden nodes
 
 - [x] add design flourish above each node's text
 
