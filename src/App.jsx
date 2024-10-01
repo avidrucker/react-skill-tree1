@@ -468,10 +468,10 @@ function App() {
       )}
       {/* Overlay UI Elements */}
       <div className="z-1 absolute top-0 left-0 pa3 pointer-events-none">
-        <h1 className="ma0 user-select-none">
-          <span className="f2 mr2">Skill Tree:</span>
+        <h1 className="ma0 user-select-none dib">
+          <span className="f3 mr2">Skill Tree:</span>
           <input
-            className="f2 pointer-events-auto"
+            className="f3 pointer-events-auto w5"
             type="text"
             value={treeName}
             onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
