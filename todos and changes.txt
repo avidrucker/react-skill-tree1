@@ -26,11 +26,11 @@
 
 - [ ] add node icons
   - [ ] A-Z in Old English Text MT font
-  - [ ] egg
-  - [ ] tree
+  - [x] egg
+  - [x] tree
   - [ ] pill
   - [ ] bird 
-  - [ ] dragon
+  - [x] dragon
   - [ ] bird & egg
   - [ ] dragon & egg
   - [ ] mushroom
@@ -66,6 +66,7 @@
   - [x] implement selecting of a new node icon to close sidebar and update icon w/ new icon selection
   - [x] make sidebar close upon clicking on a node, edge, or bg
   - [ ] make sidebar a horizontal carousel in the bottom right of the screen
+  - [ ] display name text of each icon alongside it
 
 - [x] fix async font loading issue so that the correct font is loaded consistently before the graph loads
 
