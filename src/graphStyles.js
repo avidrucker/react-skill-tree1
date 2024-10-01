@@ -1,5 +1,5 @@
 import flourish from './assets/flourish.png'
-
+import hiddenIcon from './assets/icons/hidden.png'
 // src/graphStyles.js
 const stylesheet = [
     {
@@ -68,8 +68,8 @@ const stylesheet = [
     {
       selector: 'edge:selected',
       style: {
-        'line-color': '#ff6347', // Highlight color for selected edge
-        'target-arrow-color': '#ff6347',
+        'line-color': '#FFD700', // Highlight color for selected edge
+        'target-arrow-color': '#FFD700',
         'width': 2,
       },
     },
@@ -86,10 +86,10 @@ const stylesheet = [
       },
     },
     {
-      selector: 'node[state = "hidden"]',
+      selector: 'node.icon-node[state = "hidden"]',
       style: {
-        'display': 'none',
-        // 'opacity': 0.25,
+        // 'display': 'none',
+        'opacity': 0.5,
       },
     },
     {
@@ -132,6 +132,13 @@ const stylesheet = [
       'display': 'none',
     },
   },
+  {
+    selector: 'node.icon-node[state = "hidden"]',
+    style: {
+      'background-image': `url(${hiddenIcon})`,
+      'label': ''
+    }
+  }
     
   ];
   
