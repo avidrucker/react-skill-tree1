@@ -13,9 +13,12 @@
 
 - [ ] remove connect button and delete buttons in player mode
 
+- [ ] fix bug where double-clicking an icon node, waiting a second, and then single clicking the same node does not change buttons back to state selection buttons
+
 - [x] fix bug where new flourishes are not automatically hidden upon new node creation
-- [ ] feat show hidden node icon instead of actually hiding nodes
-- [ ] fix remove flourish and text from hidden nodes
+- [x] feat show hidden node icon instead of actually hiding nodes
+- [x] fix remove flourish and text from hidden nodes
+- [ ] feat dotted line for edges that are connected to hidden nodes
 
 - [x] add design flourish above each node's text
 
