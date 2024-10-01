@@ -275,6 +275,8 @@ function App() {
 
   const printElements = () => {
     console.log('Current elements:', elements);
+    console.log('Current zoom level:', cyRef.current.zoom());
+    console.log('Current pan position:', cyRef.current.pan());
   };
 
   const saveGraphToJSON = () => {
