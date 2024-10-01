@@ -60,6 +60,8 @@
 
 - [x] feat hidden nodes showing with "hidden" icon, no text label, and no flourish
 
+- [ ] add confirmation step to 'Clear Skill Tree' action so as to prevent accidental skill tree deletions
+
 - [x] make top of screen UI smaller and less obstructive
 
 - [x] implement ability to select icon for a given node from a list of icons
