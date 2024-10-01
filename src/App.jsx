@@ -30,8 +30,8 @@ const icons = loadIcons();
 function App() {
   const [treeName, setTreeName] = useState('Demo Tree');
 
-  const [zoom, setZoom] = useState(3.5);
-  const [pan, setPan] = useState({ x: 160, y: 272 });
+  const [zoom, setZoom] = useState(2.2);
+  const [pan, setPan] = useState({ x: 85, y: 315 });
 
   // State variables for changing icon
   const [isChangingIcon, setIsChangingIcon] = useState(false);
@@ -195,16 +195,19 @@ function App() {
   const demoElements = useMemo(() => [
     {
       group: 'nodes',
+      classes: 'icon-node',
       data: { id: 'node-1', label: 'Insight', image: icons['eye'], initialState: AVAIL_STATE },
       position: { x: 0, y: 0 },
     },
     {
       group: 'nodes',
+      classes: 'icon-node',
       data: { id: 'node-2', label: 'Leaf Shield', image: icons['leaf'], initialState: HIDDEN_STATE },
       position: { x: 100, y: 0 },
     },
     {
       group: 'nodes',
+      classes: 'icon-node',
       data: { id: 'node-3', label: 'Air Strike Shield', image: icons['wind'], initialState: HIDDEN_STATE },
       position: { x: 200, y: 0 },
     },
@@ -224,6 +227,39 @@ function App() {
         target: 'node-3',
       },
     },
+    {
+      classes: "flourish-node",
+      data: { id: "flourish-node-1", 
+        initialState: "available", 
+        parentId: "node-1",
+        state: null,
+        tempState: "available"
+      },
+      group: "nodes",
+      position: {x: 0, y: -45}
+    },
+    {
+      classes: "flourish-node",
+      data: { id: "flourish-node-2", 
+        initialState: "hidden", 
+        parentId: "node-2",
+        state: null,
+        tempState: "hidden"
+      },
+      group: "nodes",
+      position: {x: 100, y: -45}
+    },
+    {
+      classes: "flourish-node",
+      data: { id: "flourish-node-3", 
+        initialState: "hidden", 
+        parentId: "node-3",
+        state: null,
+        tempState: "hidden"
+      },
+      group: "nodes",
+      position: {x: 200, y: -45}
+    }
   ], []);
 
   const [elements, setElements] = useState(demoElements);
@@ -340,8 +376,8 @@ function App() {
   const loadDemoGraph = useCallback(() =>{
     setElements(demoElements);
     setTreeName('Demo Tree');
-    setZoom(3.5);
-    setPan({ x: 160, y: 272 });
+    setZoom(2.2);
+    setPan({ x: 85, y: 315 });
     saveToLocalStorage();
     if(skillTreeMode === PLAYER_MODE) {
       initializePlayerDataForPlayerMode();
