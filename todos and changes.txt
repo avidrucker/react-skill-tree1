@@ -33,7 +33,7 @@
   - [x] dragon
   - [ ] bird & egg
   - [ ] dragon & egg
-  - [ ] mushroom
+  - [x] mushroom
 
 - [x] move text to above node
 - [x] put image inside of 1 node
@@ -59,6 +59,8 @@
 - [x] fix bug where edges can be deleted by the delete key but not by clicking on the delete button
 
 - [x] feat hidden nodes showing with "hidden" icon, no text label, and no flourish
+
+- [x] make top of screen UI smaller and less obstructive
 
 - [x] implement ability to select icon for a given node from a list of icons
   - [x] add change icon btn upon double click of a node
