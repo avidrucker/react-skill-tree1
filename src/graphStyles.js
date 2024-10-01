@@ -3,7 +3,7 @@ import flourish from './assets/flourish.png'
 // src/graphStyles.js
 const stylesheet = [
     {
-      selector: 'node',
+      selector: 'node.icon-node',
       style: {
         'background-opacity': 0,
         label: 'data(label)',
@@ -25,7 +25,8 @@ const stylesheet = [
     {
       selector: 'node.action-node',
       style: {
-        'background-color': '#007bff',
+        'background-opacity': 0,
+        label: 'data(label)',
         shape: 'round-rectangle',
         width: 50,
         height: 30,
