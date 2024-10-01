@@ -5,7 +5,8 @@ const stylesheet = [
     {
       selector: 'node.icon-node',
       style: {
-        'background-opacity': 0,
+        'background-opacity': 0.25,
+        'background-color': 'black',
         label: 'data(label)',
         'text-valign': 'top',
         'text-margin-y': -2.5,
