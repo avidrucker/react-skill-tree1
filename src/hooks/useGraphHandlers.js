@@ -376,7 +376,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       position: viewportCenter,
     };
 
-    // Create the flourish node ////
+    // Create the flourish node
   const flourishNodeId = `flourish-${newId}`;
   const flourishNode = {
     group: 'nodes',
