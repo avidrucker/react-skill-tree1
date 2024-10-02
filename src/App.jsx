@@ -51,7 +51,7 @@ function App() {
       const component = components[i];
 
       // skip flourish nodes
-      if(component.classes() && component.classes()[0] && component.classes()[0].includes("flourish")) {
+      if(component.data().id.includes("flourish")) {
         continue;
       }
 
@@ -60,10 +60,10 @@ function App() {
         continue;
       };
 
-      const hasAvailableNode = component.nodes().some((node) => {
-        return node.data('initialState') === AVAIL_STATE || node.data('initialState' === ACTIVE_STATE);
+      const hasAvailableOrActivatedNode = component.nodes().some((node) => {
+        return node.data('initialState') === AVAIL_STATE || node.data('initialState') === ACTIVE_STATE;
       });
-      if (!hasAvailableNode) {
+      if (!hasAvailableOrActivatedNode) {
         // Highlight the component or inform the user
         return false;
       }
