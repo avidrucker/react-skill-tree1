@@ -376,7 +376,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       position: viewportCenter,
     };
 
-    // Create the flourish node
+    // Create the flourish node ////
   const flourishNodeId = `flourish-${newId}`;
   const flourishNode = {
     group: 'nodes',
@@ -384,7 +384,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       id: flourishNodeId,
       parentId: newId, // Link to parent node
       tempState: HIDDEN_STATE,
-      state: null
+      state: null,
     },
     position: {
       x: viewportCenter.x,
@@ -419,7 +419,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
    */
   const handleNodeDoubleClick = useCallback(
     (node) => {
-      if (skillTreeMode === BUILDER_MODE) {
+      if (skillTreeMode === BUILDER_MODE && node.classes().includes('icon-node')) {
         removeTemporaryNodes();
 
         const nodePosition = node.position();
@@ -495,7 +495,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         // Clean up listener when nodes are removed or deselected
         return () => node.removeListener('position', moveActionNodes);
 
-      } else {
+      } else if (skillTreeMode === PLAYER_MODE && node.classes().includes('icon-node')) {
         // toggle node state activation
         const nodeData = node.data();
         const flourishNodeId = `flourish-${nodeData.id}`;
