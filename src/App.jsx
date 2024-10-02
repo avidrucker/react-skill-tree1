@@ -366,11 +366,13 @@ function App() {
   };
 
   const loadGraphFromJSON = () => {
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'application/json';
-    fileInput.onchange = loadFromJSON;
-    fileInput.click();
+    if(elements.length === 0 || window.confirm('Before loading a new skill tree, are you sure you want to overwrite the current skill tree data?')) {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'application/json';
+      fileInput.onchange = loadFromJSON;
+      fileInput.click();
+    }
   };
   
   const loadDemoGraph = useCallback(() =>{
