@@ -113,7 +113,7 @@ function App() {
   }
 
   const resetSkillTreeProgress = () => {
-    if (window.confirm('Are you sure you want to reset the skill tree?')) {
+    if (window.confirm('Are you sure you want to reset the skill tree progress back to its initial state?')) {
       initializePlayerDataForPlayerMode();
     }
   }
@@ -374,17 +374,19 @@ function App() {
   };
   
   const loadDemoGraph = useCallback(() =>{
-    setElements(demoElements);
-    setTreeName('Demo Tree');
-    setZoom(2.2);
-    setPan({ x: 85, y: 315 });
-    saveToLocalStorage();
-    if(skillTreeMode === PLAYER_MODE) {
-      initializePlayerDataForPlayerMode();
-    } else {
-      initializePlayerDataForBuilderMode();
+    if (elements.length === 0 || window.confirm('Before loading the demo tree, are you sure you want to overwrite the current skill tree data?')) {
+      setElements(demoElements);
+      setTreeName('Demo Tree');
+      setZoom(2.2);
+      setPan({ x: 85, y: 315 });
+      saveToLocalStorage();
+      if(skillTreeMode === PLAYER_MODE) {
+        initializePlayerDataForPlayerMode();
+      } else {
+        initializePlayerDataForBuilderMode();
+      }
     }
-  }, [demoElements, saveToLocalStorage, skillTreeMode]);
+  }, [demoElements, saveToLocalStorage, skillTreeMode, elements]);
 
   const loadFromLocalStorage = useCallback(() => {
     const json = localStorage.getItem('graphState');
@@ -401,10 +403,8 @@ function App() {
       }
     } else {
       // Use demo data
+      console.log("Loading demo data because local storage data is not available");
       loadDemoGraph();
-      // setElements(demoElements);
-      // setZoom(1);
-      // setPan({ x: 0, y: 0 });
     }
   }, [demoElements, skillTreeMode, loadDemoGraph]);
   
@@ -447,9 +447,11 @@ function App() {
   }, [cyRef, zoom, pan]);
 
   const clearGraphData = () => {
-    localStorage.removeItem('graphState');
-    setElements([]);
-    setTreeName('Untitled 1');
+    if (window.confirm('Are you sure delete the current skill tree?')) {
+      localStorage.removeItem('graphState');
+      setElements([]);
+      setTreeName('Untitled 1');
+    }
   };
 
   return (
