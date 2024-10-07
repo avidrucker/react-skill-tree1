@@ -383,8 +383,9 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
     data: {
       id: flourishNodeId,
       parentId: newId, // Link to parent node
-      tempState: HIDDEN_STATE,
+      initialState: HIDDEN_STATE,
       state: null,
+      tempState: HIDDEN_STATE
     },
     position: {
       x: viewportCenter.x,
