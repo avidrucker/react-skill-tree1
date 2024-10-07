@@ -77,6 +77,7 @@ function App() {
   // When switching from player mode to builder mode, temp states are set
   // from the current state of the nodes
   const initializePlayerDataForPlayerMode = () => {
+    // console.log("initializing player data for player mode...");
     setElements((els) =>
       els.map((el) => {
         if (el.group === 'nodes') {
@@ -87,6 +88,7 @@ function App() {
               state: el.data.initialState,
               tempState: null
             },
+            locked: true
           };
         }
         return el;
@@ -95,7 +97,7 @@ function App() {
   };
 
   const initializePlayerDataForBuilderMode = () => {
-    // console.log("initializing player data for builder mode");
+    // console.log("initializing player data for builder mode...");
     setElements((els) =>
       els.map((el) => {
         if (el.group === 'nodes') {
@@ -106,6 +108,7 @@ function App() {
               state: null,
               tempState: el.data.initialState
             },
+            locked: false
           };
         }
         return el;
@@ -123,6 +126,7 @@ function App() {
   // to have the value of the current state of each node, and
   // reset the current state of each node back to null
   const savePlayerProgress = () => {
+    // console.log("saving player progress to temp states...");
     setElements((els) =>
       els.map((el) => {
         if (el.group === 'nodes') {
@@ -131,8 +135,9 @@ function App() {
             data: {
               ...el.data,
               tempState: el.data.state,
-              state: null,
+              state: null
             },
+            locked: false
           };
         }
         return el;
@@ -144,7 +149,7 @@ function App() {
   // to have the value of the temp state of each node, and
   // reset the temp state of each node back to null
   const restorePlayerProgress = () => {
-    // console.log("restoring player progres from temp states");
+    // console.log("restoring player progress from temp states...");
     setElements((els) =>
       els.map((el) => {
         if (el.group === 'nodes') {
@@ -155,6 +160,7 @@ function App() {
               state: el.data.tempState,
               tempState: null,
             },
+            locked: true
           };
         }
         return el;
