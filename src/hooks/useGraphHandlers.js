@@ -392,6 +392,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       y: viewportCenter.y - flourishOffsetY, // Position above the parent node
     },
     selectable: false,
+    pannable: true,
     grabbable: false,
     classes: 'flourish-node',
   };
@@ -840,6 +841,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
               y: nodePosition.y - flourishOffsetY,
             },
             selectable: false,
+            pannable: true,
             grabbable: false,
             classes: 'flourish-node',
           };
