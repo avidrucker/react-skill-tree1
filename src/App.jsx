@@ -95,6 +95,7 @@ function App() {
   };
 
   const initializePlayerDataForBuilderMode = () => {
+    // console.log("initializing player data for builder mode");
     setElements((els) =>
       els.map((el) => {
         if (el.group === 'nodes') {
@@ -143,6 +144,7 @@ function App() {
   // to have the value of the temp state of each node, and
   // reset the temp state of each node back to null
   const restorePlayerProgress = () => {
+    // console.log("restoring player progres from temp states");
     setElements((els) =>
       els.map((el) => {
         if (el.group === 'nodes') {
