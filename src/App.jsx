@@ -457,7 +457,7 @@ function App() {
   }, [cyRef, zoom, pan]);
 
   const clearGraphData = () => {
-    if (window.confirm('Are you sure delete the current skill tree?')) {
+    if (window.confirm('Are you sure you want to delete the current skill tree?')) {
       localStorage.removeItem('graphState');
       setElements([]);
       setTreeName('Untitled 1');
