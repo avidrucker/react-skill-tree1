@@ -39,6 +39,20 @@ function App() {
 
   const [skillTreeMode, setSkillTreeMode] = useState(BUILDER_MODE); // 'builder' or 'player'
 
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [isMenuFocused, setIsMenuFocused] = useState(false);
+  const [menuHoverState, setMenuHoverState] = useState("");
+  const hideMenuTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (hideMenuTimerRef.current) {
+        clearTimeout(hideMenuTimerRef.current);
+      }
+    };
+  }, []);
+  
+
   const validateSkillTree = () => {
 
     removeTemporaryNodes();
@@ -467,45 +481,135 @@ function App() {
   return (
     <div className="bg-black relative w-100 vh-100">
       {isFontLoaded && (
-      <CytoscapeComponent
-        className="bg-dark-gray h-100 w-100 relative z-0 pa3"
-        elements={elements}
-        stylesheet={stylesheet}
-        layout={{ name: 'preset' }}
-        cy={(cyInstance) => {
-          cyRef.current = cyInstance;
-          setCy(cyInstance); // Set the cy state variable
-        }}
-      />
+        <CytoscapeComponent
+          className="bg-dark-gray h-100 w-100 relative z-0 pa3"
+          elements={elements}
+          stylesheet={stylesheet}
+          layout={{ name: 'preset' }}
+          cy={(cyInstance) => {
+            cyRef.current = cyInstance;
+            setCy(cyInstance); // Set the cy state variable
+          }}
+        />
       )}
       {/* Overlay UI Elements */}
-      <div className="z-1 absolute top-0 left-0 pa3 pointer-events-none">
-        <h1 className="ma0 user-select-none dib">
-          <span className="f3 mr2">Skill Tree:</span>
-          <input
-            className="f3 pointer-events-auto w5"
-            type="text"
-            value={treeName}
-            onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
-            onChange={(e) => setTreeName(e.target.value)}
-          />
-        </h1>
-        <div className="pointer-events-none">
-          {skillTreeMode === BUILDER_MODE &&
-          <button className="pointer-events-auto" onClick={addNode}>Add Skill</button>}
-          <button className="pointer-events-auto" onClick={() => cyRef && cyRef.current && cyRef.current.fit()}>Re-Center</button>
-          <button className="pointer-events-auto" onClick={printElements}>Log</button>
-          <button className="pointer-events-auto" onClick={saveGraphToJSON}>Save</button>
-          <button className="pointer-events-auto" onClick={loadGraphFromJSON}>Load</button>
-          <button className="pointer-events-auto" onClick={loadDemoGraph}>Demo</button>
-          {skillTreeMode === BUILDER_MODE &&
-          <button className="pointer-events-auto" onClick={clearGraphData}>Clear</button>}
-          {skillTreeMode === PLAYER_MODE &&
-            <button className="pointer-events-auto" onClick={resetSkillTreeProgress}>Reset</button>}
-          <button className="pointer-events-auto" onClick={toggleMode}>
-            Switch to {skillTreeMode === BUILDER_MODE ? 'Player' : 'Builder'} Mode
-          </button>
+      <div className="z-1 absolute top-0 left-0 pa3 pointer-events-none flex items-start">
+        {/* Menu Button */}
+        <div
+          className={`menu-button relative top-0 left-0 pointer-events-auto ba bw1 b--white br4 pa2 ph3 dib ${menuHoverState === "focused" ? ' bg-white-20 ' : menuHoverState === "hovered" ? ' bg-white-10 ' : ' bg-transparent '}`}
+          onMouseEnter={() => {
+            setIsMenuVisible(true);
+            if (hideMenuTimerRef.current) {
+              clearTimeout(hideMenuTimerRef.current);
+              hideMenuTimerRef.current = null;
+            }
+            if(!isMenuFocused) {
+              setMenuHoverState("hovered");
+            }
+          }}
+          onMouseLeave={() => {
+            if (!isMenuFocused) {
+              setMenuHoverState("");
+              hideMenuTimerRef.current = setTimeout(() => {
+                setIsMenuVisible(false);
+                hideMenuTimerRef.current = null;
+              }, 1000);
+            }
+          }}
+          onFocus={() => {
+            setIsMenuFocused(true);
+            setIsMenuVisible(true);
+            setMenuHoverState("focused");
+            if (hideMenuTimerRef.current) {
+              clearTimeout(hideMenuTimerRef.current);
+              hideMenuTimerRef.current = null;
+            }
+          }}
+          onBlur={() => {
+            setIsMenuFocused(false);
+            setMenuHoverState("");
+            hideMenuTimerRef.current = setTimeout(() => {
+              setIsMenuVisible(false);
+              hideMenuTimerRef.current = null;
+            }, 1000);
+          }}
+          tabIndex="0" // Makes the div focusable
+        >
+          Menu
         </div>
+        {/* Menu Content */}
+        {isMenuVisible && (
+          <div
+            className="menu-content pointer-events-auto ph3 dib"
+            onMouseEnter={() => {
+              setIsMenuVisible(true);
+              if (hideMenuTimerRef.current) {
+                clearTimeout(hideMenuTimerRef.current);
+                hideMenuTimerRef.current = null;
+              }
+            }}
+            onMouseLeave={() => {
+              if (!isMenuFocused) {
+                hideMenuTimerRef.current = setTimeout(() => {
+                  setIsMenuVisible(false);
+                  hideMenuTimerRef.current = null;
+                }, 1000);
+              }
+            }}
+          >
+            <h1 className="ma0 user-select-none dib flex">
+              <span className="f2 mr2 w5 tc">Skill Tree:</span>
+              <input
+                className="f3 pointer-events-auto w-100"
+                type="text"
+                value={treeName}
+                onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
+                onChange={(e) => setTreeName(e.target.value)}
+              />
+            </h1>
+            <div className="pointer-events-auto mt3">
+              {skillTreeMode === BUILDER_MODE && (
+                <button className="pointer-events-auto" onClick={addNode}>
+                  Add Skill
+                </button>
+              )}
+              <button
+                className="pointer-events-auto"
+                onClick={() => cyRef && cyRef.current && cyRef.current.fit()}
+              >
+                Re-Center
+              </button>
+              <button className="pointer-events-auto" onClick={printElements}>
+                Log
+              </button>
+              <button className="pointer-events-auto" onClick={saveGraphToJSON}>
+                Save
+              </button>
+              <button className="pointer-events-auto" onClick={loadGraphFromJSON}>
+                Load
+              </button>
+              <button className="pointer-events-auto" onClick={loadDemoGraph}>
+                Demo
+              </button>
+              {skillTreeMode === BUILDER_MODE && (
+                <button className="pointer-events-auto" onClick={clearGraphData}>
+                  Clear
+                </button>
+              )}
+              {skillTreeMode === PLAYER_MODE && (
+                <button
+                  className="pointer-events-auto"
+                  onClick={resetSkillTreeProgress}
+                >
+                  Reset
+                </button>
+              )}
+              <button className="pointer-events-auto" onClick={toggleMode}>
+                Switch to {skillTreeMode === BUILDER_MODE ? 'Player' : 'Builder'} Mode
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       {/* Edit Input Field */}
       {isEditing && editNode && editNodePosition && (
