@@ -175,9 +175,9 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       // Add the action buttons to the graph
       setElements((els) => [...els, activatedNodeButton, availableNodeButton, hiddenNodeButton]);
       tempNodes.current = [activatedNodeId, availableNodeId, hiddenNodeId];
-      
+
       // if the node clicked on is not a button node, we will set the edit node to the node clicked on
-      if(!node.id().includes("btn")) {
+      if (!node.id().includes("btn")) {
         setEditNode(node);
       } else {
         // console.log("Node clicked on is a button node");
@@ -254,7 +254,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
 
   useEffect(() => {
     if (!cy) return;
-  
+
     // Handler for node position changes
     const onNodePosition = (evt) => {
       const node = evt.target;
@@ -263,10 +263,10 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         synchronizeFlourishNode(node);
       }
     };
-  
+
     // Attach the position event listener
     cy.on('position', 'node', onNodePosition);
-  
+
     // Cleanup on unmount
     return () => {
       cy.off('position', 'node', onNodePosition);
@@ -312,29 +312,29 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
     (evt) => {
       const node = evt.target;
       const nodeId = node.id();
-  
+
       // Remove the node from selectedNodes
       selectedNodes.current = selectedNodes.current.filter((id) => id !== nodeId);
-  
+
       // Remove any existing temporary nodes
       // this is necessary for the case where a node is manually 
       // directly deselected
       removeTemporaryNodes();
-  
+
       if (selectedNodes.current.length === 1) {
         // Show node buttons for the remaining node
         const remainingNodeId = selectedNodes.current[0];
         const remainingNode = cy.getElementById(remainingNodeId);
         handleNodeSingleClick(remainingNode);
       }
-  
+
       // Show 'Connect' button if exactly two nodes are selected
       if (selectedNodes.current.length === 2) {
         showConnectButton();
       }
     },
     [removeTemporaryNodes, handleNodeSingleClick, showConnectButton, cy]
-  );  
+  );
 
   /**
    * Adds a new node to the graph at the center of the viewport.
@@ -364,10 +364,10 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
 
     const newNode = {
       group: 'nodes',
-      data: { 
-        id: newId, 
-        label: newLabel, 
-        image: blankIcon, 
+      data: {
+        id: newId,
+        label: newLabel,
+        image: blankIcon,
         initialState: HIDDEN_STATE,
         state: null,
         tempState: HIDDEN_STATE
@@ -377,25 +377,25 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
     };
 
     // Create the flourish node
-  const flourishNodeId = `flourish-${newId}`;
-  const flourishNode = {
-    group: 'nodes',
-    data: {
-      id: flourishNodeId,
-      parentId: newId, // Link to parent node
-      initialState: HIDDEN_STATE,
-      state: null,
-      tempState: HIDDEN_STATE
-    },
-    position: {
-      x: viewportCenter.x,
-      y: viewportCenter.y - flourishOffsetY, // Position above the parent node
-    },
-    selectable: false,
-    pannable: true,
-    grabbable: false,
-    classes: 'flourish-node',
-  };
+    const flourishNodeId = `flourish-${newId}`;
+    const flourishNode = {
+      group: 'nodes',
+      data: {
+        id: flourishNodeId,
+        parentId: newId, // Link to parent node
+        initialState: HIDDEN_STATE,
+        state: null,
+        tempState: HIDDEN_STATE
+      },
+      position: {
+        x: viewportCenter.x,
+        y: viewportCenter.y - flourishOffsetY, // Position above the parent node
+      },
+      selectable: false,
+      pannable: true,
+      grabbable: false,
+      classes: 'flourish-node',
+    };
 
     let newEdge = null;
     if (editNode) {
@@ -503,44 +503,63 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         const flourishNodeId = `flourish-${nodeData.id}`;
 
         if (nodeData.state === AVAIL_STATE) {
-            // Activate the node and its flourish node
-            setElements((els) =>
-            els.map((el) => {
-              if (el.data.id === nodeData.id || el.data.id === flourishNodeId) {
-                return {
-                  ...el,
-                  data: {
-                    ...el.data,
-                    state: ACTIVE_STATE,
-                  },
-                };
-              }
-              return el;
-            })
-          );
+          // Activate the node and its flourish node
+        let nodesToUpdate = [nodeData.id, flourishNodeId];
+        let nodesToSetAvailable = [];
 
-          // Unlock adjacent hidden nodes
-          const adjacentNodes = node.connectedEdges().connectedNodes().difference(node);
-          adjacentNodes.forEach((adjNode) => {
-            const adjNodeData = adjNode.data();
-            const adjFlourishNodeId = `flourish-${adjNodeData.id}`;
-            if (adjNodeData.state === HIDDEN_STATE) {
-              setElements((els) =>
-                els.map((el) => {
-                  if (el.data.id === adjNodeData.id || el.data.id === adjFlourishNodeId) {
-                    return {
-                      ...el,
-                      data: {
-                        ...el.data,
-                        state: AVAIL_STATE,
-                      },
-                    };
-                  }
-                  return el;
-                })
-              );
+        // For each target node of this node's outgoing edges
+        const outgoingEdges = node.outgoers('edge');
+        const targetNodes = outgoingEdges.targets();
+
+        targetNodes.forEach((targetNode) => {
+          // Get the source nodes of the target node
+          const incomingEdges = targetNode.incomers('edge');
+          const sourceNodes = incomingEdges.sources();
+
+          // Check if all source nodes are activated
+          const allSourcesActivated = sourceNodes.every((sourceNode) => {
+            if (sourceNode.id() === nodeData.id) {
+              // The current node is being activated; consider it activated
+              return true;
             }
+            return sourceNode.data('state') === ACTIVE_STATE;
           });
+
+          if (allSourcesActivated) {
+            // Set the target node's state to 'available' if it was 'hidden'
+            const targetNodeData = targetNode.data();
+
+            if (targetNodeData.state === HIDDEN_STATE) {
+              nodesToSetAvailable.push(targetNodeData.id);
+              const targetFlourishNodeId = `flourish-${targetNodeData.id}`;
+              nodesToSetAvailable.push(targetFlourishNodeId);
+            }
+          }
+        });
+
+        // Now update elements
+        setElements((els) =>
+          els.map((el) => {
+            if (nodesToUpdate.includes(el.data.id)) {
+              return {
+                ...el,
+                data: {
+                  ...el.data,
+                  state: ACTIVE_STATE,
+                },
+              };
+            } else if (nodesToSetAvailable.includes(el.data.id)) {
+              return {
+                ...el,
+                data: {
+                  ...el.data,
+                  state: AVAIL_STATE,
+                },
+              };
+            }
+            return el;
+          })
+        );
         } else if (nodeData.state === ACTIVE_STATE) {
           // Deactivate the node
           setElements((els) =>
@@ -703,7 +722,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         // Set the current node's initial state and temp state to 'activated'
         const parentNodeId = node.data('parentNodeId');
         const flourishNodeId = `flourish-${parentNodeId}`;
-        
+
         setElements((els) =>
           els.map((el) => {
             if ((el.data.id === parentNodeId || el.data.id === flourishNodeId)) {
@@ -814,41 +833,41 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       }
     }, [isEditing, handleDeleteEdges, cleanupAfterAction, setElements, cy, removeTemporaryNodes, setIsChangingIcon]);
 
-    useEffect(() => {
-      if (!cy) return;
-    
-      // For each main node, ensure it has a flourish node
-      const mainNodes = cy.nodes().filter((node) => {
-        return !node.hasClass('action-node') && !node.hasClass('flourish-node');
-      });
-    
-      mainNodes.forEach((node) => {
-        const nodeId = node.id();
-        const nodeData = node.data();
-        const flourishNodeId = `flourish-${nodeId}`;
-        if (cy.getElementById(flourishNodeId).empty()) {
-          // Create and add the flourish node
-          const nodePosition = node.position();
-          const flourishNode = {
-            group: 'nodes',
-            data: {
-              id: flourishNodeId,
-              parentId: nodeId,
-              state: nodeData.state || nodeData.initialState || HIDDEN_STATE, // Set state to match parent
-            },
-            position: {
-              x: nodePosition.x,
-              y: nodePosition.y - flourishOffsetY,
-            },
-            selectable: false,
-            pannable: true,
-            grabbable: false,
-            classes: 'flourish-node',
-          };
-          setElements((els) => [...els, flourishNode]);
-        }
-      });
-    }, [cy, elements, setElements]);
+  useEffect(() => {
+    if (!cy) return;
+
+    // For each main node, ensure it has a flourish node
+    const mainNodes = cy.nodes().filter((node) => {
+      return !node.hasClass('action-node') && !node.hasClass('flourish-node');
+    });
+
+    mainNodes.forEach((node) => {
+      const nodeId = node.id();
+      const nodeData = node.data();
+      const flourishNodeId = `flourish-${nodeId}`;
+      if (cy.getElementById(flourishNodeId).empty()) {
+        // Create and add the flourish node
+        const nodePosition = node.position();
+        const flourishNode = {
+          group: 'nodes',
+          data: {
+            id: flourishNodeId,
+            parentId: nodeId,
+            state: nodeData.state || nodeData.initialState || HIDDEN_STATE, // Set state to match parent
+          },
+          position: {
+            x: nodePosition.x,
+            y: nodePosition.y - flourishOffsetY,
+          },
+          selectable: false,
+          pannable: true,
+          grabbable: false,
+          classes: 'flourish-node',
+        };
+        setElements((els) => [...els, flourishNode]);
+      }
+    });
+  }, [cy, elements, setElements]);
 
   /**
    * Handles key down events for the input field when editing a node label.
