@@ -123,6 +123,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       },
       position: connectNodePosition,
       selectable: false,
+      grabbable: false,
       classes: 'action-node',
     };
 
@@ -155,6 +156,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         data: { id: activatedNodeId, label: 'Activated', parentNodeId: nodeId, selectState: nodeState === ACTIVE_STATE ? 'selected' : 'not-selected' },
         position: { x: nodePosition.x - 60, y: nodePosition.y - offsetY },
         selectable: false,
+        grabbable: false,
         classes: `action-node`,
       };
 
@@ -162,6 +164,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         data: { id: availableNodeId, label: 'Available', parentNodeId: nodeId, selectState: nodeState === AVAIL_STATE ? 'selected' : 'not-selected' },
         position: { x: nodePosition.x, y: nodePosition.y - offsetY },
         selectable: false,
+        grabbable: false,
         classes: `action-node`,
       };
 
@@ -169,6 +172,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         data: { id: hiddenNodeId, label: 'Hidden', parentNodeId: nodeId, selectState: nodeState === HIDDEN_STATE ? 'selected' : 'not-selected' },
         position: { x: nodePosition.x + 60, y: nodePosition.y - offsetY },
         selectable: false,
+        grabbable: false,
         classes: `action-node`,
       };
 
@@ -436,6 +440,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
           data: { id: editNodeId, label: 'Rename', parentNodeId: node.id() },
           position: { x: nodePosition.x + 60, y: nodePosition.y - offsetY },
           selectable: false,
+          grabbable: false,
           classes: "action-node",
         };
 
@@ -443,6 +448,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
           data: { id: deleteNodeId, label: 'Delete', parentNodeId: node.id() },
           position: { x: nodePosition.x - 60, y: nodePosition.y - offsetY },
           selectable: false,
+          grabbable: false,
           classes: 'action-node',
         };
 
@@ -450,6 +456,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
           data: { id: changeIconNodeId, label: 'Change Icon', parentNodeId: node.id() },
           position: { x: nodePosition.x, y: nodePosition.y - offsetY },
           selectable: false,
+          grabbable: false,
           classes: 'action-node',
         };
 
@@ -973,6 +980,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
           data: { id: deleteEdgeButtonId, label: 'Delete Edge' },
           position: { x: midPointX, y: midPointY - 20 },
           selectable: false,
+          grabbable: false,
           classes: 'delete-edge-button action-node',
         };
 
