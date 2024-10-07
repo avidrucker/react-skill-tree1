@@ -16,6 +16,8 @@
 - [ ] fix bug where double-clicking an icon node, waiting a second, and then single clicking the same node does not change buttons back to state selection buttons
 - [x] fix bug where initial node creation does not correctly initialize flourishes of hidden nodes as hidden
 
+- [ ] fix bug where edges are selectable in player mode which makes the delete button show (but it shouldn't)
+
 - [ ] implement multiple prereq nodes, such that, for nodes A and B that both point to node C, that node C will not become available until both nodes A and B are activated
 
 - [ ] feat more descriptive error message for when skill tree is in an invalid format for switching from builder mode into player mode, such as "Invalid skill tree state: Please make that, of the following nodes, there is at least one node that is available or activated."
