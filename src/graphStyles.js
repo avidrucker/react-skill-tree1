@@ -61,7 +61,7 @@ const stylesheet = [
         width: 1,
         'line-color': 'white',
         'target-arrow-color': '#ccc',
-        'target-arrow-shape': 'none',
+        'target-arrow-shape': 'triangle',
         'curve-style': 'bezier',
       },
     },
