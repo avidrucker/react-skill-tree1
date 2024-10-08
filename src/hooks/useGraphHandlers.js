@@ -301,11 +301,11 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       }
 
       // Show 'Connect' button if exactly two nodes are selected
-      if (selectedNodes.current.length === 2) {
+      if (skillTreeMode === BUILDER_MODE && selectedNodes.current.length === 2) {
         showConnectButton();
       }
     },
-    [showConnectButton, handleNodeSingleClick, removeTemporaryNodes]
+    [showConnectButton, handleNodeSingleClick, removeTemporaryNodes, skillTreeMode]
   );
 
   /**
@@ -333,11 +333,11 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       }
 
       // Show 'Connect' button if exactly two nodes are selected
-      if (selectedNodes.current.length === 2) {
+      if (skillTreeMode === BUILDER_MODE && selectedNodes.current.length === 2) {
         showConnectButton();
       }
     },
-    [removeTemporaryNodes, handleNodeSingleClick, showConnectButton, cy]
+    [removeTemporaryNodes, handleNodeSingleClick, showConnectButton, cy, skillTreeMode]
   );
 
   /**
