@@ -28,6 +28,12 @@
 
 - [x] implement multiple prereq nodes, such that, for nodes A and B that both point to node C, that node C will not become available until both nodes A and B are activated
 
+- [ ] fix bug where loading of a skill tree from JSON does not respect which mode the app is currently in (idea: switch to the mode that the skill tree was saved in)
+
+- [ ] explicitly test for and handle cases where unknown image icons are referenced in a loaded skill tree
+
+- [ ] implement 1 action undo, such as undo delete, undo add, undo rename, etc. by preserving the previous/last state of the graph and restoring it
+
 - [ ] feat addition of 'Add Node' button to double click button menu to enable menu click free node adding
 - [ ] feat double click on background to summon 'Add Node' button and 'Recenter' buttons to enable menu free skill tree interactions
 
@@ -67,8 +73,12 @@
 - [x] feat storing of player node state data as tempState in builder mode
 
 - [ ] feat skill tree node info paragraph text
-  - [ ] feat text input for a given node upon double click of new btn
-  - [ ] feat show more info about a node upon single click
+  - [ ] feat text input for a given node upon click of new btn in builder mode
+  - [ ] feat show more info about a node upon single click in player mode
+  - [ ] hide display or show ??? display instead of actual node information when in player mode and the currently selected node is hidden
+
+- [ ] create custom favicon
+- [ ] install custom favicon to replace current placeholder favicon
 
 - [x] find and resolve bug where connect button sometimes does not appear when it should
   - Found it: It happens just immediately after changing an icon
