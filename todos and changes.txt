@@ -17,7 +17,9 @@
 
 - [ ] prevent keyboard deletions of nodes and edges in player mode
 
-- [ ] add arrows back to edges for now to show directionality
+- [x] add arrows back to edges for now to show directionality
+
+- [ ] rewrite checking of skill tree validity function to ensure that all nodes that have zero pre-reqs are either activated or available by default, rather than what is currently the case which is to ensure that simply at least 1 node of a component cluster of nodes is available/activated. this is to prevent skill trees from being create that have nodes that are impossible to activate
 
 - [ ] experiment with adding animated alpha masks using an alpha texture and CSS transitions to make the edges
 
@@ -147,3 +149,5 @@ the suggested fix is to, upon deleting a node, clear the selected nodes list
 - [ ] build out shield hero skill tree & save to JSON
   - [ ] include shield hero skill tree as hidden bonus content
     - [ ] include rage shield skills as hidden bonus content within bonus content
+
+- [x] build out dungeons and developers skill tree & save to JSON
