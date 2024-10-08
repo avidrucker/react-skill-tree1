@@ -624,7 +624,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       );
 
       // if only 1 edge is selected, show the delete edge button over the currently selected edge
-      if (selectedEdges.current.length === 1) {
+      if (skillTreeMode === BUILDER_MODE && selectedEdges.current.length === 1) {
 
         // get the currently selected edge via looking through the elements list for a matching edge
         const currentEdgeData = elements.find((el) => el.data.id === selectedEdges.current[0]);
@@ -650,15 +650,17 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         // Add the delete button to the graph
         setElements((els) => [...els, deleteEdgeButton]);
         tempEdgeNodes.current = [deleteEdgeButtonId];
-      } else {
-        // remove action nodes
-        // this is necessary specifically for the case where the 
-        // user clicks on an edge to manually deselect it
+      } 
+      
+      // remove action nodes
+      // this is necessary specifically for the case where the 
+      // user clicks on an edge to manually deselect it
+      if(selectedEdges.current.length === 0) {
         removeTemporaryNodes();
         cleanupAfterAction();
       }
     },
-    [setElements, cy, elements, removeTemporaryNodes, cleanupAfterAction]
+    [setElements, cy, elements, removeTemporaryNodes, cleanupAfterAction, skillTreeMode]
   );
 
   /**
@@ -965,7 +967,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       }
 
       // if only 1 edge is selected, show the delete edge button
-      if (selectedEdges.current.length === 1) {
+      if (skillTreeMode === BUILDER_MODE && selectedEdges.current.length === 1) {
 
         // Calculate the position for the delete button based on the edge's midpoint
         const midPointX =
@@ -989,7 +991,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         tempEdgeNodes.current = [deleteEdgeButtonId];
       }
     },
-    [setElements, removeTemporaryNodes, setIsChangingIcon]
+    [setElements, removeTemporaryNodes, setIsChangingIcon, skillTreeMode]
   );
 
   /**
