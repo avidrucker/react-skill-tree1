@@ -560,7 +560,7 @@ function App() {
             <h1 className="ma0 user-select-none dib flex">
               <span className="f2 mr2 w5 tc">Skill Tree:</span>
               <input
-                className="f3 pointer-events-auto w-100"
+                className="f3 ph2 pointer-events-auto w-100"
                 type="text"
                 value={treeName}
                 onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
