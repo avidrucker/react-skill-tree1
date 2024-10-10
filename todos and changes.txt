@@ -13,7 +13,7 @@
 
 - [x] remove connect button and delete buttons in player mode
 
-- [ ] add padding to text input for skill tree title
+- [x] add padding to text input for skill tree title
 
 - [ ] prevent keyboard deletions of nodes and edges in player mode
 
