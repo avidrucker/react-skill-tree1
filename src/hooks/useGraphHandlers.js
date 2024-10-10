@@ -810,12 +810,12 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
   const handleGlobalKeyDown = useCallback(
     (e) => {
 
-      if (e.key === 'Delete' && !isEditing && selectedEdges.current.length > 0) {
+      if (skillTreeMode === BUILDER_MODE && e.key === 'Delete' && !isEditing && selectedEdges.current.length > 0) {
         // Delete the selected nodes
         handleDeleteEdges();
         // remove action nodes
         cleanupAfterAction();
-      } else if (e.key === 'Delete' && !isEditing && selectedNodes.current.length > 0) {
+      } else if (skillTreeMode === BUILDER_MODE && e.key === 'Delete' && !isEditing && selectedNodes.current.length > 0) {
         // Delete the selected nodes
         selectedNodes.current.forEach((nodeId) => {
           const flourishNodeId = `flourish-${nodeId}`;
@@ -842,7 +842,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         removeTemporaryNodes();
         cleanupAfterAction();
       }
-    }, [isEditing, handleDeleteEdges, cleanupAfterAction, setElements, cy, removeTemporaryNodes, setIsChangingIcon]);
+    }, [isEditing, handleDeleteEdges, cleanupAfterAction, setElements, cy, removeTemporaryNodes, setIsChangingIcon, skillTreeMode]);
 
   useEffect(() => {
     if (!cy) return;
