@@ -27,6 +27,58 @@ function loadIcons() {
 // Load icons
 const icons = loadIcons();
 
+function mapZoomToFontSize(zoom) {
+    const zoomMin = 0.9;
+    const zoomMax = 10;
+    const fontSizeMin = 0.4; // in rem
+    const fontSizeMax = 5.5; // in rem
+
+    // Calculate the mapped font size using linear interpolation
+    const fontSize = fontSizeMin + ((zoom - zoomMin) / (zoomMax - zoomMin)) * (fontSizeMax - fontSizeMin);
+
+    // Ensure the font size is within the desired range
+    return Math.min(Math.max(fontSize, fontSizeMin), fontSizeMax);
+  }
+
+function mapZoomToLabelWidth(zoom) {
+  const zoomMin = 0.9;
+  const zoomMax = 10;
+  const labelWidthMin = 100; // in px
+  const labelWidthMax = 600; // in px
+
+  // Calculate the mapped label width using linear interpolation
+  const labelWidth = labelWidthMin + ((zoom - zoomMin) / (zoomMax - zoomMin)) * (labelWidthMax - labelWidthMin);
+
+  // Ensure the label width is within the desired range
+  return Math.min(Math.max(labelWidth, labelWidthMin), labelWidthMax);
+}
+
+function mapZoomToYOffset(zoom) {
+  const zoomMin = 0.9;
+  const zoomMax = 10;
+  const yOffsetMin = 20; // in px
+  const yOffsetMax = 370; // in px
+
+  // Calculate the mapped y offset using linear interpolation
+  const yOffset = yOffsetMin + ((zoom - zoomMin) / (zoomMax - zoomMin)) * (yOffsetMax - yOffsetMin);
+
+  // Ensure the y offset is within the desired range
+  return Math.min(Math.max(yOffset, yOffsetMin), yOffsetMax);
+}
+
+function mapZoomToXOffset(zoom) {
+  const zoomMin = 0.9;
+  const zoomMax = 10;
+  const xOffsetMin = 35; // in px
+  const xOffsetMax = 270; // in px
+
+  // Calculate the mapped x offset using linear interpolation
+  const xOffset = xOffsetMin + ((zoom - zoomMin) / (zoomMax - zoomMin)) * (xOffsetMax - xOffsetMin);
+
+  // Ensure the x offset is within the desired range
+  return Math.min(Math.max(xOffset, xOffsetMin), xOffsetMax);
+}
+
 function App() {
   const [treeName, setTreeName] = useState('Demo Tree');
 
@@ -622,9 +674,10 @@ function App() {
           onBlur={handleBlur}
           style={{
             position: 'absolute',
-            left: editNodePosition.x - 80, // Adjust based on input width
-            top: editNodePosition.y - 115, // Adjust to position over the node
-            width: '200px',
+            left: editNodePosition.x - mapZoomToXOffset(cyRef.current.zoom()), // Adjust based on input width
+            top: editNodePosition.y - mapZoomToYOffset(cyRef.current.zoom()), // Adjust to position over the node
+            fontSize: `${mapZoomToFontSize(cyRef.current.zoom())}rem`,
+            width: `${mapZoomToLabelWidth(cyRef.current.zoom())}px`,
             zIndex: 2,
           }}
           autoFocus
