@@ -93,8 +93,9 @@ const stylesheet = [
   {
     selector: 'node.icon-node[state = "hidden"]',
     style: {
-      // 'display': 'none',
       'opacity': 0.5,
+      'background-image': `url(${hiddenIcon})`,
+      'label': ''
     },
   },
   {
@@ -136,13 +137,6 @@ const stylesheet = [
     style: {
       'display': 'none',
     },
-  },
-  {
-    selector: 'node.icon-node[state = "hidden"]',
-    style: {
-      'background-image': `url(${hiddenIcon})`,
-      'label': ''
-    }
   }
 ];
 
