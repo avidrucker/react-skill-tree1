@@ -43,6 +43,8 @@
 
 - [ ] feat more descriptive error message for when skill tree is in an invalid format for switching from builder mode into player mode, such as "Invalid skill tree state: Please make that, of the following nodes, there is at least one node that is available or activated."
 
+- [ ] feat check to prevent invalid root node states (i.e. root nodes must not have an initial state of 'hidden') so as to prevent skill trees from becoming "locked out" and unable to "complete" their skill tree
+
 - [ ] Question: How else might skills get unlocked besides proximity to other unlocked/activated/available skill nodes?
 
 - [x] fix bug where new flourishes are not automatically hidden upon new node creation
@@ -110,9 +112,9 @@
 
 - [x] feat newly created nodes in builder mode are set to hidden by default
 - [x] feat toggling of nodes in builder mode between 'activated', 'available', and 'hidden'
-- [ ] feat locking of nodes in place upon switching to player mode
+- [x] feat locking of nodes in place upon switching to player mode
 - [ ] feat optional locking of nodes in place in builder mode w/ lock icon buttons
-- [ ] feat no node deletion allowed in player mode
+- [x] feat no node deletion allowed in player mode
 
 - [x] add keydown handler to delete selected nodes and edges via the delete key
   - [x] feat multi-node deletion via keyboard
@@ -126,7 +128,7 @@
 
 - [ ] fix bug where loading a tree saved in player mode directly into builder mode does not reset state and tempState for all nodes: this can be resolved by toggling the state and tempState for all nodes prior to saving and/or by checking upon loading, as well as by saving what mode the skill tree was saved in (though I'd prefer to simply always save in builder mode)
 
-- [ ] modify text input so that it is located where the node text is
+- [x] modify text input so that it is located where the node text is
 
 - [ ] fix button popups so that they always appear visually on the canvas, so, in other words, if the selected node to edit is at the top of the screen, the buttons will appear below it. if the selected node is at the right-most edge of the canvas, then the buttons will be offset to the left so that they are both visible
 
