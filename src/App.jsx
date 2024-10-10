@@ -30,8 +30,8 @@ const icons = loadIcons();
 function mapZoomToFontSize(zoom) {
     const zoomMin = 0.9;
     const zoomMax = 10;
-    const fontSizeMin = 0.4; // in rem
-    const fontSizeMax = 5.5; // in rem
+    const fontSizeMin = 0.6; // in rem
+    const fontSizeMax = 5.75; // in rem
 
     // Calculate the mapped font size using linear interpolation
     const fontSize = fontSizeMin + ((zoom - zoomMin) / (zoomMax - zoomMin)) * (fontSizeMax - fontSizeMin);
@@ -44,7 +44,7 @@ function mapZoomToLabelWidth(zoom) {
   const zoomMin = 0.9;
   const zoomMax = 10;
   const labelWidthMin = 100; // in px
-  const labelWidthMax = 600; // in px
+  const labelWidthMax = 650; // in px
 
   // Calculate the mapped label width using linear interpolation
   const labelWidth = labelWidthMin + ((zoom - zoomMin) / (zoomMax - zoomMin)) * (labelWidthMax - labelWidthMin);
@@ -57,7 +57,7 @@ function mapZoomToYOffset(zoom) {
   const zoomMin = 0.9;
   const zoomMax = 10;
   const yOffsetMin = 20; // in px
-  const yOffsetMax = 370; // in px
+  const yOffsetMax = 375; // in px
 
   // Calculate the mapped y offset using linear interpolation
   const yOffset = yOffsetMin + ((zoom - zoomMin) / (zoomMax - zoomMin)) * (yOffsetMax - yOffsetMin);
@@ -70,7 +70,7 @@ function mapZoomToXOffset(zoom) {
   const zoomMin = 0.9;
   const zoomMax = 10;
   const xOffsetMin = 35; // in px
-  const xOffsetMax = 270; // in px
+  const xOffsetMax = 310; // in px
 
   // Calculate the mapped x offset using linear interpolation
   const xOffset = xOffsetMin + ((zoom - zoomMin) / (zoomMax - zoomMin)) * (xOffsetMax - xOffsetMin);
@@ -666,19 +666,17 @@ function App() {
       {/* Edit Input Field */}
       {isEditing && editNode && editNodePosition && (
         <input
-          className="f3"
+          className="f3 absolute z-2 tc"
           type="text"
           value={editLabel}
           onChange={(e) => setEditLabel(e.target.value)}
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}
           style={{
-            position: 'absolute',
             left: editNodePosition.x - mapZoomToXOffset(cyRef.current.zoom()), // Adjust based on input width
             top: editNodePosition.y - mapZoomToYOffset(cyRef.current.zoom()), // Adjust to position over the node
             fontSize: `${mapZoomToFontSize(cyRef.current.zoom())}rem`,
-            width: `${mapZoomToLabelWidth(cyRef.current.zoom())}px`,
-            zIndex: 2,
+            width: `${mapZoomToLabelWidth(cyRef.current.zoom())}px`
           }}
           autoFocus
         />
