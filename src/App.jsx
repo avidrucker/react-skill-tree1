@@ -27,31 +27,34 @@ function loadIcons() {
 // Load icons
 const icons = loadIcons();
 
+const ZOOM_MIN = 0.9;
+const ZOOM_MAX = 12;
+
 const zoomToFontRem = {
-  zoomMin: 0.9,
-  zoomMax: 12,
+  zoomMin: ZOOM_MIN,
+  zoomMax: ZOOM_MAX,
   outMin: 0.55, // in rem
   outMax: 7, // in rem
 };
 
 
 const zoomToLabelWdith = {
-  zoomMin: 0.9,
-  zoomMax: 12,
+  zoomMin: ZOOM_MIN,
+  zoomMax: ZOOM_MAX,
   outMin: 120, // in px
   outMax: 800, // in px
 }
 
 const zoomToYOffset = {
-  zoomMin: 0.9,
-  zoomMax: 12,
+  zoomMin: ZOOM_MIN,
+  zoomMax: ZOOM_MAX,
   outMin: 20, // in px
   outMax: 450, // in px
 }
 
 const zoomToXOffset = {
-  zoomMin: 0.9,
-  zoomMax: 12,
+  zoomMin: ZOOM_MIN,
+  zoomMax: ZOOM_MAX,
   outMin: 45, // in px
   outMax: 385, // in px
 }
