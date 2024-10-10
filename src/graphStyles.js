@@ -1,5 +1,7 @@
 import flourish from './assets/flourish.png'
-import hiddenIcon from './assets/icons/hidden.png'
+import hiddenIcon from './assets/hidden.png'
+import warningIcon from './assets/warning_triangle.png'
+
 // src/graphStyles.js
 const stylesheet = [
     {
@@ -18,7 +20,10 @@ const stylesheet = [
         'font-size': 10,
         'border-width': 0,
         'background-clip': 'none',
-        'background-image': 'data(image)',
+        'background-image': (ele) => {
+        const image = ele.data('image');
+          return image ? `url(${image})` : `url(${warningIcon})`;
+        },
         'background-fit': 'cover',
         'background-image-opacity': 1,
       },
@@ -138,8 +143,7 @@ const stylesheet = [
       'background-image': `url(${hiddenIcon})`,
       'label': ''
     }
-  }
-    
+  } 
   ];
   
   export default stylesheet;
