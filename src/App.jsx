@@ -1,24 +1,24 @@
 // src/App.jsx
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import CytoscapeComponent from 'react-cytoscapejs';
-import FontFaceObserver from 'fontfaceobserver';
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import CytoscapeComponent from "react-cytoscapejs";
+import FontFaceObserver from "fontfaceobserver";
 
-import stylesheet from './graphStyles';
-import useGraphHandlers from './hooks/useGraphHandlers';
+import stylesheet from "./graphStyles";
+import useGraphHandlers from "./hooks/useGraphHandlers";
 
-const PLAYER_MODE = 'player';
-const BUILDER_MODE = 'builder';
-const ACTIVE_STATE = 'activated';
-const AVAIL_STATE = 'available';
-const HIDDEN_STATE = 'hidden';
+const PLAYER_MODE = "player";
+const BUILDER_MODE = "builder";
+const ACTIVE_STATE = "activated";
+const AVAIL_STATE = "available";
+const HIDDEN_STATE = "hidden";
 
 // Function to load all icons from assets/icons/
 function loadIcons() {
   // Automatically import all files in the specified folder
-  const context = import.meta.glob('./assets/icons/*.png', { eager: true });
+  const context = import.meta.glob("./assets/icons/*.png", { eager: true });
   const icons = {};
   for (const key in context) {
-    const iconName = key.replace('./assets/icons/', '').replace('.png', '');
+    const iconName = key.replace("./assets/icons/", "").replace(".png", "");
     icons[iconName] = context[key].default;
   }
   return icons;
@@ -37,37 +37,37 @@ const zoomToFontRem = {
   outMax: 7, // in rem
 };
 
-
 const zoomToLabelWdith = {
   zoomMin: ZOOM_MIN,
   zoomMax: ZOOM_MAX,
   outMin: 120, // in px
   outMax: 800, // in px
-}
+};
 
 const zoomToYOffset = {
   zoomMin: ZOOM_MIN,
   zoomMax: ZOOM_MAX,
   outMin: 20, // in px
   outMax: 450, // in px
-}
+};
 
 const zoomToXOffset = {
   zoomMin: ZOOM_MIN,
   zoomMax: ZOOM_MAX,
   outMin: 45, // in px
   outMax: 385, // in px
-}
+};
 
 function mapZoomToVal(zoom, mapping) {
   const { zoomMin, zoomMax, outMin, outMax } = mapping;
-  const out = outMin + ((zoom - zoomMin) / (zoomMax - zoomMin)) * (outMax - outMin);
+  const out =
+    outMin + ((zoom - zoomMin) / (zoomMax - zoomMin)) * (outMax - outMin);
   // clamps output values for when outside of zoom range
   return Math.min(Math.max(out, outMin), outMax);
 }
 
 function App() {
-  const [treeName, setTreeName] = useState('Demo Tree');
+  const [treeName, setTreeName] = useState("Demo Tree");
 
   const [zoom, setZoom] = useState(2.2);
   const [pan, setPan] = useState({ x: 85, y: 315 });
@@ -90,31 +90,32 @@ function App() {
       }
     };
   }, []);
-  
 
   const validateSkillTree = () => {
-
     removeTemporaryNodes();
 
     // Logic to check if every connected component has at least one node set as 'available'
     const cyElements = cy.elements();
-  
+
     const components = cyElements.components(); // Get connected components
     for (let i = 0; i < components.length; i++) {
       const component = components[i];
 
       // skip flourish nodes
-      if(component.data().id.includes("flourish")) {
+      if (component.data().id.includes("flourish")) {
         continue;
       }
 
       // skip checking current component if it is a button node
-      if(component.data().id.includes("btn")) {
+      if (component.data().id.includes("btn")) {
         continue;
-      };
+      }
 
       const hasAvailableOrActivatedNode = component.nodes().some((node) => {
-        return node.data('initialState') === AVAIL_STATE || node.data('initialState') === ACTIVE_STATE;
+        return (
+          node.data("initialState") === AVAIL_STATE ||
+          node.data("initialState") === ACTIVE_STATE
+        );
       });
       if (!hasAvailableOrActivatedNode) {
         // Highlight the component or inform the user
@@ -122,7 +123,7 @@ function App() {
       }
     }
     return true;
-  };  
+  };
 
   // Initialize player progress data
   // Function which sets the current state of a node to its initial state
@@ -133,15 +134,15 @@ function App() {
     // console.log("initializing player data for player mode...");
     setElements((els) =>
       els.map((el) => {
-        if (el.group === 'nodes') {
+        if (el.group === "nodes") {
           return {
             ...el,
             data: {
               ...el.data,
               state: el.data.initialState,
-              tempState: null
+              tempState: null,
             },
-            locked: true
+            locked: true,
           };
         }
         return el;
@@ -153,27 +154,31 @@ function App() {
     // console.log("initializing player data for builder mode...");
     setElements((els) =>
       els.map((el) => {
-        if (el.group === 'nodes') {
+        if (el.group === "nodes") {
           return {
             ...el,
             data: {
               ...el.data,
               state: null,
-              tempState: el.data.initialState
+              tempState: el.data.initialState,
             },
-            locked: false
+            locked: false,
           };
         }
         return el;
       })
     );
-  }
+  };
 
   const resetSkillTreeProgress = () => {
-    if (window.confirm('Are you sure you want to reset the skill tree progress back to its initial state?')) {
+    if (
+      window.confirm(
+        "Are you sure you want to reset the skill tree progress back to its initial state?"
+      )
+    ) {
       initializePlayerDataForPlayerMode();
     }
-  }
+  };
 
   // Save player progress by setting the temp state of each node
   // to have the value of the current state of each node, and
@@ -182,21 +187,21 @@ function App() {
     // console.log("saving player progress to temp states...");
     setElements((els) =>
       els.map((el) => {
-        if (el.group === 'nodes') {
+        if (el.group === "nodes") {
           return {
             ...el,
             data: {
               ...el.data,
               tempState: el.data.state,
-              state: null
+              state: null,
             },
-            locked: false
+            locked: false,
           };
         }
         return el;
       })
     );
-  }
+  };
 
   // Restore player progress by setting the current state of each node
   // to have the value of the temp state of each node, and
@@ -205,7 +210,7 @@ function App() {
     // console.log("restoring player progress from temp states...");
     setElements((els) =>
       els.map((el) => {
-        if (el.group === 'nodes') {
+        if (el.group === "nodes") {
           return {
             ...el,
             data: {
@@ -213,32 +218,36 @@ function App() {
               state: el.data.tempState,
               tempState: null,
             },
-            locked: true
+            locked: true,
           };
         }
         return el;
       })
     );
-  }
+  };
 
   const skillTreeHasTempStates = () => {
     // Check if the skill tree has any temp states set
-    return elements.some((el) => el.group === 'nodes' && el.data.tempState !== null);
-  }
+    return elements.some(
+      (el) => el.group === "nodes" && el.data.tempState !== null
+    );
+  };
 
   // Function to toggle modes
   const toggleMode = () => {
     if (skillTreeMode === BUILDER_MODE) {
       // Validate the skill tree before switching
       if (validateSkillTree()) {
-        if(skillTreeHasTempStates()) {
+        if (skillTreeHasTempStates()) {
           restorePlayerProgress();
         } else {
           initializePlayerDataForBuilderMode();
         }
         setSkillTreeMode(PLAYER_MODE);
       } else {
-        alert('Skill tree is not valid. Please fix the errors before switching to Player Mode.');
+        alert(
+          "Skill tree is not valid. Please fix the errors before switching to Player Mode."
+        );
       }
     } else {
       // Save player progress
@@ -253,75 +262,96 @@ function App() {
   };
 
   // Define the demo elements
-  const demoElements = useMemo(() => [
-    {
-      group: 'nodes',
-      classes: 'icon-node',
-      data: { id: 'node-1', label: 'Insight', image: icons['eye'], initialState: AVAIL_STATE },
-      position: { x: 0, y: 0 },
-    },
-    {
-      group: 'nodes',
-      classes: 'icon-node',
-      data: { id: 'node-2', label: 'Leaf Shield', image: icons['leaf'], initialState: HIDDEN_STATE },
-      position: { x: 100, y: 0 },
-    },
-    {
-      group: 'nodes',
-      classes: 'icon-node',
-      data: { id: 'node-3', label: 'Air Strike Shield', image: icons['wind'], initialState: HIDDEN_STATE },
-      position: { x: 200, y: 0 },
-    },
-    {
-      group: 'edges',
-      data: {
-        id: 'edge-node-1-node-2',
-        source: 'node-1',
-        target: 'node-2',
+  const demoElements = useMemo(
+    () => [
+      {
+        group: "nodes",
+        classes: "icon-node",
+        data: {
+          id: "node-1",
+          label: "Insight",
+          image: icons["eye"],
+          initialState: AVAIL_STATE,
+        },
+        position: { x: 0, y: 0 },
       },
-    },
-    {
-      data: {
-        group: 'edges',
-        id: 'edge-node-2-node-3',
-        source: 'node-2',
-        target: 'node-3',
+      {
+        group: "nodes",
+        classes: "icon-node",
+        data: {
+          id: "node-2",
+          label: "Leaf Shield",
+          image: icons["leaf"],
+          initialState: HIDDEN_STATE,
+        },
+        position: { x: 100, y: 0 },
       },
-    },
-    {
-      classes: "flourish-node",
-      data: { id: "flourish-node-1", 
-        initialState: "available", 
-        parentId: "node-1",
-        state: null,
-        tempState: "available"
+      {
+        group: "nodes",
+        classes: "icon-node",
+        data: {
+          id: "node-3",
+          label: "Air Strike Shield",
+          image: icons["wind"],
+          initialState: HIDDEN_STATE,
+        },
+        position: { x: 200, y: 0 },
       },
-      group: "nodes",
-      position: {x: 0, y: -45}
-    },
-    {
-      classes: "flourish-node",
-      data: { id: "flourish-node-2", 
-        initialState: "hidden", 
-        parentId: "node-2",
-        state: null,
-        tempState: "hidden"
+      {
+        group: "edges",
+        data: {
+          id: "edge-node-1-node-2",
+          source: "node-1",
+          target: "node-2",
+        },
       },
-      group: "nodes",
-      position: {x: 100, y: -45}
-    },
-    {
-      classes: "flourish-node",
-      data: { id: "flourish-node-3", 
-        initialState: "hidden", 
-        parentId: "node-3",
-        state: null,
-        tempState: "hidden"
+      {
+        data: {
+          group: "edges",
+          id: "edge-node-2-node-3",
+          source: "node-2",
+          target: "node-3",
+        },
       },
-      group: "nodes",
-      position: {x: 200, y: -45}
-    }
-  ], []);
+      {
+        classes: "flourish-node",
+        data: {
+          id: "flourish-node-1",
+          initialState: "available",
+          parentId: "node-1",
+          state: null,
+          tempState: "available",
+        },
+        group: "nodes",
+        position: { x: 0, y: -45 },
+      },
+      {
+        classes: "flourish-node",
+        data: {
+          id: "flourish-node-2",
+          initialState: "hidden",
+          parentId: "node-2",
+          state: null,
+          tempState: "hidden",
+        },
+        group: "nodes",
+        position: { x: 100, y: -45 },
+      },
+      {
+        classes: "flourish-node",
+        data: {
+          id: "flourish-node-3",
+          initialState: "hidden",
+          parentId: "node-3",
+          state: null,
+          tempState: "hidden",
+        },
+        group: "nodes",
+        position: { x: 200, y: -45 },
+      },
+    ],
+    []
+  );
 
   const [elements, setElements] = useState(demoElements);
   const cyRef = useRef(null);
@@ -342,8 +372,15 @@ function App() {
     handleKeyDown,
     handleBlur,
     setEditLabel,
-    removeTemporaryNodes
-  } = useGraphHandlers(cy, elements, setElements, onChangeIcon, skillTreeMode, setIsChangingIcon);
+    removeTemporaryNodes,
+  } = useGraphHandlers(
+    cy,
+    elements,
+    setElements,
+    onChangeIcon,
+    skillTreeMode,
+    setIsChangingIcon
+  );
 
   // Handle icon selection
   const handleIconSelect = (iconName) => {
@@ -351,7 +388,7 @@ function App() {
       // Update the node's image data
       setElements((els) =>
         els.map((el) => {
-          if (el.data.id === iconChangeNodeId && el.group === 'nodes') {
+          if (el.data.id === iconChangeNodeId && el.group === "nodes") {
             return {
               ...el,
               data: {
@@ -371,9 +408,9 @@ function App() {
   };
 
   const printElements = () => {
-    console.log('Current elements:', elements);
-    console.log('Current zoom level:', cyRef.current.zoom());
-    console.log('Current pan position:', cyRef.current.pan());
+    console.log("Current elements:", elements);
+    console.log("Current zoom level:", cyRef.current.zoom());
+    console.log("Current pan position:", cyRef.current.pan());
   };
 
   const saveGraphToJSON = () => {
@@ -385,16 +422,16 @@ function App() {
         zoom: cyRef.current.zoom(),
         pan: cyRef.current.pan(),
       });
-      const blob = new Blob([json], { type: 'application/json' });
+      const blob = new Blob([json], { type: "application/json" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = `${treeName}.json`;
       a.click();
       URL.revokeObjectURL(url);
     }
   };
-  
+
   const saveToLocalStorage = useCallback(() => {
     if (cyRef && cyRef.current) {
       const elementsData = cyRef.current.elements().jsons(); // Includes node states
@@ -405,10 +442,9 @@ function App() {
         pan: cyRef.current.pan(),
         playerProgress: skillTreeMode === PLAYER_MODE ? elementsData : null,
       });
-      localStorage.setItem('graphState', json);
+      localStorage.setItem("graphState", json);
     }
   }, [cyRef, treeName, skillTreeMode]);
-  
 
   const loadFromJSON = (event) => {
     const file = event.target.files[0];
@@ -417,7 +453,7 @@ function App() {
       reader.onload = (e) => {
         const json = JSON.parse(e.target.result);
         setElements(json.elements || demoElements);
-        setTreeName(json.treeName || 'Untitled 1');
+        setTreeName(json.treeName || "Untitled 1");
         // Save zoom and pan in state variables
         setZoom(json.zoom || 1);
         setPan(json.pan || { x: 0, y: 0 });
@@ -427,23 +463,33 @@ function App() {
   };
 
   const loadGraphFromJSON = () => {
-    if(elements.length === 0 || window.confirm('Before loading a new skill tree, are you sure you want to overwrite the current skill tree data?')) {
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = 'application/json';
+    if (
+      elements.length === 0 ||
+      window.confirm(
+        "Before loading a new skill tree, are you sure you want to overwrite the current skill tree data?"
+      )
+    ) {
+      const fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = "application/json";
       fileInput.onchange = loadFromJSON;
       fileInput.click();
     }
   };
-  
-  const loadDemoGraph = useCallback(() =>{
-    if (elements.length === 0 || window.confirm('Before loading the demo tree, are you sure you want to overwrite the current skill tree data?')) {
+
+  const loadDemoGraph = useCallback(() => {
+    if (
+      elements.length === 0 ||
+      window.confirm(
+        "Before loading the demo tree, are you sure you want to overwrite the current skill tree data?"
+      )
+    ) {
       setElements(demoElements);
-      setTreeName('Demo Tree');
+      setTreeName("Demo Tree");
       setZoom(2.2);
       setPan({ x: 85, y: 315 });
       saveToLocalStorage();
-      if(skillTreeMode === PLAYER_MODE) {
+      if (skillTreeMode === PLAYER_MODE) {
         initializePlayerDataForPlayerMode();
       } else {
         initializePlayerDataForBuilderMode();
@@ -452,11 +498,11 @@ function App() {
   }, [demoElements, saveToLocalStorage, skillTreeMode, elements]);
 
   const loadFromLocalStorage = useCallback(() => {
-    const json = localStorage.getItem('graphState');
+    const json = localStorage.getItem("graphState");
     if (json) {
       const state = JSON.parse(json);
       setElements(state.elements || demoElements);
-      setTreeName(state.treeName || 'Untitled 1');
+      setTreeName(state.treeName || "Untitled 1");
       setZoom(state.zoom || 1);
       setPan(state.pan || { x: 0, y: 0 });
       //// TODO: confirm that player mode is relevant to whether or not player progress should be loaded
@@ -466,12 +512,12 @@ function App() {
       }
     } else {
       // Use demo data
-      console.log("Loading demo data because local storage data is not available");
+      console.log(
+        "Loading demo data because local storage data is not available"
+      );
       loadDemoGraph();
     }
   }, [demoElements, skillTreeMode, loadDemoGraph]);
-  
-  
 
   // Load from local storage once when the component mounts
   useEffect(() => {
@@ -488,15 +534,15 @@ function App() {
 
   // Load the custom font before rendering Cytoscape
   useEffect(() => {
-    const font = new FontFaceObserver('Old English Text MT'); // Replace with your font's name
+    const font = new FontFaceObserver("Old English Text MT"); // Replace with your font's name
 
     font.load().then(
       () => {
-        console.log('Font has loaded');
+        console.log("Font has loaded");
         setIsFontLoaded(true);
       },
       (err) => {
-        console.error('Font failed to load', err);
+        console.error("Font failed to load", err);
         setIsFontLoaded(true); // Proceed anyway
       }
     );
@@ -510,10 +556,12 @@ function App() {
   }, [cyRef, zoom, pan]);
 
   const clearGraphData = () => {
-    if (window.confirm('Are you sure you want to delete the current skill tree?')) {
-      localStorage.removeItem('graphState');
+    if (
+      window.confirm("Are you sure you want to delete the current skill tree?")
+    ) {
+      localStorage.removeItem("graphState");
       setElements([]);
-      setTreeName('Untitled 1');
+      setTreeName("Untitled 1");
     }
   };
 
@@ -524,7 +572,7 @@ function App() {
           className="bg-dark-gray h-100 w-100 relative z-0 pa3"
           elements={elements}
           stylesheet={stylesheet}
-          layout={{ name: 'preset' }}
+          layout={{ name: "preset" }}
           cy={(cyInstance) => {
             cyRef.current = cyInstance;
             setCy(cyInstance); // Set the cy state variable
@@ -535,14 +583,20 @@ function App() {
       <div className="z-1 absolute top-0 left-0 pa3 pointer-events-none flex items-start">
         {/* Menu Button */}
         <div
-          className={`menu-button relative top-0 left-0 pointer-events-auto ba bw1 b--white br4 pa2 ph3 dib ${menuHoverState === "focused" ? ' bg-white-20 ' : menuHoverState === "hovered" ? ' bg-white-10 ' : ' bg-transparent '}`}
+          className={`menu-button relative top-0 left-0 pointer-events-auto ba bw1 b--white br4 pa2 ph3 dib ${
+            menuHoverState === "focused"
+              ? " bg-white-20 "
+              : menuHoverState === "hovered"
+              ? " bg-white-10 "
+              : " bg-transparent "
+          }`}
           onMouseEnter={() => {
             setIsMenuVisible(true);
             if (hideMenuTimerRef.current) {
               clearTimeout(hideMenuTimerRef.current);
               hideMenuTimerRef.current = null;
             }
-            if(!isMenuFocused) {
+            if (!isMenuFocused) {
               setMenuHoverState("hovered");
             }
           }}
@@ -602,7 +656,7 @@ function App() {
                 className="f3 ph2 pointer-events-auto w-100"
                 type="text"
                 value={treeName}
-                onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
+                onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
                 onChange={(e) => setTreeName(e.target.value)}
               />
             </h1>
@@ -624,14 +678,20 @@ function App() {
               <button className="pointer-events-auto" onClick={saveGraphToJSON}>
                 Save
               </button>
-              <button className="pointer-events-auto" onClick={loadGraphFromJSON}>
+              <button
+                className="pointer-events-auto"
+                onClick={loadGraphFromJSON}
+              >
                 Load
               </button>
               <button className="pointer-events-auto" onClick={loadDemoGraph}>
                 Demo
               </button>
               {skillTreeMode === BUILDER_MODE && (
-                <button className="pointer-events-auto" onClick={clearGraphData}>
+                <button
+                  className="pointer-events-auto"
+                  onClick={clearGraphData}
+                >
                   Clear
                 </button>
               )}
@@ -644,7 +704,8 @@ function App() {
                 </button>
               )}
               <button className="pointer-events-auto" onClick={toggleMode}>
-                Switch to {skillTreeMode === BUILDER_MODE ? 'Player' : 'Builder'} Mode
+                Switch to{" "}
+                {skillTreeMode === BUILDER_MODE ? "Player" : "Builder"} Mode
               </button>
             </div>
           </div>
@@ -660,10 +721,14 @@ function App() {
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}
           style={{
-            left: editNodePosition.x - mapZoomToVal(cyRef.current.zoom(), zoomToXOffset), // Adjust based on input width
-            top: editNodePosition.y - mapZoomToVal(cyRef.current.zoom(), zoomToYOffset), // Adjust to position over the node
+            left:
+              editNodePosition.x -
+              mapZoomToVal(cyRef.current.zoom(), zoomToXOffset), // Adjust based on input width
+            top:
+              editNodePosition.y -
+              mapZoomToVal(cyRef.current.zoom(), zoomToYOffset), // Adjust to position over the node
             fontSize: `${mapZoomToVal(cyRef.current.zoom(), zoomToFontRem)}rem`,
-            width: `${mapZoomToVal(cyRef.current.zoom(), zoomToLabelWdith)}px`
+            width: `${mapZoomToVal(cyRef.current.zoom(), zoomToLabelWdith)}px`,
           }}
           autoFocus
         />

@@ -512,62 +512,62 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
 
         if (nodeData.state === AVAIL_STATE) {
           // Activate the node and its flourish node
-        let nodesToUpdate = [nodeData.id, flourishNodeId];
-        let nodesToSetAvailable = [];
+          let nodesToUpdate = [nodeData.id, flourishNodeId];
+          let nodesToSetAvailable = [];
 
-        // For each target node of this node's outgoing edges
-        const outgoingEdges = node.outgoers('edge');
-        const targetNodes = outgoingEdges.targets();
+          // For each target node of this node's outgoing edges
+          const outgoingEdges = node.outgoers('edge');
+          const targetNodes = outgoingEdges.targets();
 
-        targetNodes.forEach((targetNode) => {
-          // Get the source nodes of the target node
-          const incomingEdges = targetNode.incomers('edge');
-          const sourceNodes = incomingEdges.sources();
+          targetNodes.forEach((targetNode) => {
+            // Get the source nodes of the target node
+            const incomingEdges = targetNode.incomers('edge');
+            const sourceNodes = incomingEdges.sources();
 
-          // Check if all source nodes are activated
-          const allSourcesActivated = sourceNodes.every((sourceNode) => {
-            if (sourceNode.id() === nodeData.id) {
-              // The current node is being activated; consider it activated
-              return true;
+            // Check if all source nodes are activated
+            const allSourcesActivated = sourceNodes.every((sourceNode) => {
+              if (sourceNode.id() === nodeData.id) {
+                // The current node is being activated; consider it activated
+                return true;
+              }
+              return sourceNode.data('state') === ACTIVE_STATE;
+            });
+
+            if (allSourcesActivated) {
+              // Set the target node's state to 'available' if it was 'hidden'
+              const targetNodeData = targetNode.data();
+
+              if (targetNodeData.state === HIDDEN_STATE) {
+                nodesToSetAvailable.push(targetNodeData.id);
+                const targetFlourishNodeId = `flourish-${targetNodeData.id}`;
+                nodesToSetAvailable.push(targetFlourishNodeId);
+              }
             }
-            return sourceNode.data('state') === ACTIVE_STATE;
           });
 
-          if (allSourcesActivated) {
-            // Set the target node's state to 'available' if it was 'hidden'
-            const targetNodeData = targetNode.data();
-
-            if (targetNodeData.state === HIDDEN_STATE) {
-              nodesToSetAvailable.push(targetNodeData.id);
-              const targetFlourishNodeId = `flourish-${targetNodeData.id}`;
-              nodesToSetAvailable.push(targetFlourishNodeId);
-            }
-          }
-        });
-
-        // Now update elements
-        setElements((els) =>
-          els.map((el) => {
-            if (nodesToUpdate.includes(el.data.id)) {
-              return {
-                ...el,
-                data: {
-                  ...el.data,
-                  state: ACTIVE_STATE,
-                },
-              };
-            } else if (nodesToSetAvailable.includes(el.data.id)) {
-              return {
-                ...el,
-                data: {
-                  ...el.data,
-                  state: AVAIL_STATE,
-                },
-              };
-            }
-            return el;
-          })
-        );
+          // Now update elements
+          setElements((els) =>
+            els.map((el) => {
+              if (nodesToUpdate.includes(el.data.id)) {
+                return {
+                  ...el,
+                  data: {
+                    ...el.data,
+                    state: ACTIVE_STATE,
+                  },
+                };
+              } else if (nodesToSetAvailable.includes(el.data.id)) {
+                return {
+                  ...el,
+                  data: {
+                    ...el.data,
+                    state: AVAIL_STATE,
+                  },
+                };
+              }
+              return el;
+            })
+          );
         } else if (nodeData.state === ACTIVE_STATE) {
           // Deactivate the node
           setElements((els) =>
@@ -651,12 +651,12 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         // Add the delete button to the graph
         setElements((els) => [...els, deleteEdgeButton]);
         tempEdgeNodes.current = [deleteEdgeButtonId];
-      } 
-      
+      }
+
       // remove action nodes
       // this is necessary specifically for the case where the 
       // user clicks on an edge to manually deselect it
-      if(selectedEdges.current.length === 0) {
+      if (selectedEdges.current.length === 0) {
         removeTemporaryNodes();
         cleanupAfterAction();
       }
