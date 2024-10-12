@@ -1,8 +1,8 @@
+// src/graphStyles.js
 import flourish from './assets/flourish.png'
 import hiddenIcon from './assets/hidden.png'
 import warningIcon from './assets/warning_triangle.png'
 
-// src/graphStyles.js
 const stylesheet = [
   {
     selector: 'node.icon-node',
