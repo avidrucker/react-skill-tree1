@@ -16,6 +16,14 @@ const HIDDEN_STATE = 'hidden';
 
 const flourishOffsetY = 45;
 
+const createActionNode = (id, label, parentNodeId, position) => ({
+  data: { id, label, parentNodeId },
+  position,
+  selectable: false,
+  grabbable: false,
+  classes: 'action-node',
+});
+
 const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode, setIsChangingIcon) => {
   // Refs for temporary action nodes (e.g., Edit, Delete buttons)
   const tempNodes = useRef([]);
@@ -426,44 +434,31 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
    */
   const handleNodeDoubleClick = useCallback(
     (node) => {
-      if (skillTreeMode === BUILDER_MODE && node.classes().includes('icon-node')) {
+      if(!node.hasClass('icon-node')) return;
+
+      if (skillTreeMode === BUILDER_MODE) {
         removeTemporaryNodes();
 
         const nodePosition = node.position();
+    const nodeId = node.id();
+    const offsetY = 55; // Distance above the original node
 
-        const editNodeId = `btn-edit-${node.id()}`;
-        const deleteNodeId = `btn-delete-${node.id()}`;
-        const changeIconNodeId = `btn-change-icon-${node.id()}`;
+    const actionButtons = [
+      { id: `btn-edit-${nodeId}`, label: 'Rename', x: 60 },
+      { id: `btn-delete-${nodeId}`, label: 'Delete', x: -60 },
+      { id: `btn-change-icon-${nodeId}`, label: 'Change Icon', x: 0 },
+    ];
 
-        const offsetY = 55; // Distance above the original node
-
-        const editNodeButton = {
-          data: { id: editNodeId, label: 'Rename', parentNodeId: node.id() },
-          position: { x: nodePosition.x + 60, y: nodePosition.y - offsetY },
-          selectable: false,
-          grabbable: false,
-          classes: "action-node",
-        };
-
-        const deleteNodeButton = {
-          data: { id: deleteNodeId, label: 'Delete', parentNodeId: node.id() },
-          position: { x: nodePosition.x - 60, y: nodePosition.y - offsetY },
-          selectable: false,
-          grabbable: false,
-          classes: 'action-node',
-        };
-
-        const changeIconNodeButton = {
-          data: { id: changeIconNodeId, label: 'Change Icon', parentNodeId: node.id() },
-          position: { x: nodePosition.x, y: nodePosition.y - offsetY },
-          selectable: false,
-          grabbable: false,
-          classes: 'action-node',
-        };
+    const newActionNodes = actionButtons.map(({ id, label, x }) =>
+      createActionNode(id, label, nodeId, {
+        x: nodePosition.x + x,
+        y: nodePosition.y - offsetY,
+      })
+    );
 
         // Add the action buttons to the graph
-        setElements((els) => [...els, editNodeButton, deleteNodeButton, changeIconNodeButton]);
-        tempNodes.current = [editNodeId, deleteNodeId, changeIconNodeId];
+        setElements((els) => [...els, ...newActionNodes]);
+        tempNodes.current = actionButtons.map(({ id }) => id);
         setEditNode(node);
 
         // Set up position listener to move temporary nodes along with their parent
@@ -471,27 +466,12 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
           const updatedPosition = node.position();
           setElements((els) =>
             els.map((el) => {
-              if (el.data.id === editNodeId) {
+              const actionButton = actionButtons.find(({ id }) => id === el.data.id);
+              if (actionButton) {
                 return {
                   ...el,
                   position: {
-                    x: updatedPosition.x + 60,
-                    y: updatedPosition.y - offsetY,
-                  },
-                };
-              } else if (el.data.id === deleteNodeId) {
-                return {
-                  ...el,
-                  position: {
-                    x: updatedPosition.x - 60,
-                    y: updatedPosition.y - offsetY,
-                  },
-                };
-              } else if (el.data.id === changeIconNodeId) {
-                return {
-                  ...el,
-                  position: {
-                    x: updatedPosition.x,
+                    x: updatedPosition.x + actionButton.x,
                     y: updatedPosition.y - offsetY,
                   },
                 };
@@ -500,12 +480,13 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
             })
           );
         };
+        
         node.on('position', moveActionNodes);
 
         // Clean up listener when nodes are removed or deselected
         return () => node.removeListener('position', moveActionNodes);
 
-      } else if (skillTreeMode === PLAYER_MODE && node.classes().includes('icon-node')) {
+      } else if (skillTreeMode === PLAYER_MODE) {
         // toggle node state activation
         const nodeData = node.data();
         const flourishNodeId = `flourish-${nodeData.id}`;
