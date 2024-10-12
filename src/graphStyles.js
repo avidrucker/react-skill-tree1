@@ -1,7 +1,6 @@
 // src/graphStyles.js
 import flourish from './assets/flourish.png'
 import hiddenIcon from './assets/hidden.png'
-import warningIcon from './assets/warning_triangle.png'
 
 const stylesheet = [
   {
@@ -20,10 +19,7 @@ const stylesheet = [
       'font-size': 10,
       'border-width': 0,
       'background-clip': 'none',
-      'background-image': (ele) => {
-        const image = ele.data('image');
-        return image ? `url(${image})` : `url(${warningIcon})`;
-      },
+      'background-image': 'data(image)',
       'background-fit': 'cover',
       'background-image-opacity': 1,
     },

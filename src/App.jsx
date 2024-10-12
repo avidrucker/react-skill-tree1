@@ -6,6 +6,8 @@ import FontFaceObserver from "fontfaceobserver";
 import stylesheet from "./graphStyles";
 import useGraphHandlers from "./hooks/useGraphHandlers";
 
+import warningIcon from './assets/warning_triangle.png';
+
 const PLAYER_MODE = "player";
 const BUILDER_MODE = "builder";
 const ACTIVE_STATE = "activated";
@@ -388,11 +390,12 @@ function App() {
       // Update the node's image data
       setElements((els) =>
         els.map((el) => {
-          if (el.data.id === iconChangeNodeId && el.group === "nodes") {
+          if (el.data.id === iconChangeNodeId && el.group === 'nodes') {
             return {
               ...el,
               data: {
                 ...el.data,
+                iconName: iconName, // Store the icon name
                 image: icons[iconName], // Set the new image
               },
             };
@@ -400,12 +403,12 @@ function App() {
           return el;
         })
       );
-
+  
       // Close the sidebar
       setIsChangingIcon(false);
       setIconChangeNodeId(null);
     }
-  };
+  };  
 
   const printElements = () => {
     console.log("Current elements:", elements);
@@ -416,35 +419,67 @@ function App() {
   const saveGraphToJSON = () => {
     if (cyRef && cyRef.current) {
       const elementsData = cyRef.current.elements().jsons(); // Get elements with positions
+  
+      // Remove image URLs from data before saving
+      const adjustedElements = elementsData.map((el) => {
+        if (el.data && el.data.iconName) {
+          return {
+            ...el,
+            data: {
+              ...el.data,
+              image: undefined, // Remove the image property
+            },
+          };
+        }
+        return el;
+      });
+  
       const json = JSON.stringify({
-        elements: elementsData,
+        elements: adjustedElements,
         treeName,
         zoom: cyRef.current.zoom(),
         pan: cyRef.current.pan(),
       });
-      const blob = new Blob([json], { type: "application/json" });
+      const blob = new Blob([json], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       a.href = url;
       a.download = `${treeName}.json`;
       a.click();
       URL.revokeObjectURL(url);
     }
   };
+  
 
   const saveToLocalStorage = useCallback(() => {
     if (cyRef && cyRef.current) {
       const elementsData = cyRef.current.elements().jsons(); // Includes node states
+  
+      // Remove image URLs from data before saving
+      const adjustedElements = elementsData.map((el) => {
+        if (el.data && el.data.iconName) {
+          return {
+            ...el,
+            data: {
+              ...el.data,
+              image: undefined, // Remove the image property
+            },
+          };
+        }
+        return el;
+      });
+  
       const json = JSON.stringify({
-        elements: elementsData,
+        elements: adjustedElements,
         treeName,
         zoom: cyRef.current.zoom(),
         pan: cyRef.current.pan(),
-        playerProgress: skillTreeMode === PLAYER_MODE ? elementsData : null,
+        playerProgress: skillTreeMode === PLAYER_MODE ? adjustedElements : null,
       });
-      localStorage.setItem("graphState", json);
+      localStorage.setItem('graphState', json);
     }
   }, [cyRef, treeName, skillTreeMode]);
+  
 
   const loadFromJSON = (event) => {
     const file = event.target.files[0];
@@ -452,15 +487,43 @@ function App() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const json = JSON.parse(e.target.result);
-        setElements(json.elements || demoElements);
-        setTreeName(json.treeName || "Untitled 1");
-        // Save zoom and pan in state variables
+        const elements = json.elements || demoElements;
+  
+        // Reconstruct images from icon names
+        const updatedElements = elements.map((el) => {
+          if (el.group === 'nodes') {
+            let iconName = el.data.iconName;
+        
+            if (!iconName && el.data.image) {
+              // Attempt to find the icon name based on the image URL
+              iconName = Object.keys(icons).find(
+                (name) => icons[name] === el.data.image
+              );
+            }
+        
+            const iconImage = icons[iconName] || warningIcon;
+            return {
+              ...el,
+              data: {
+                ...el.data,
+                iconName: iconName,
+                image: iconImage,
+              },
+            };
+          }
+          return el;
+        });
+        
+  
+        setElements(updatedElements);
+        setTreeName(json.treeName || 'Untitled 1');
         setZoom(json.zoom || 1);
         setPan(json.pan || { x: 0, y: 0 });
       };
       reader.readAsText(file);
     }
   };
+  
 
   const loadGraphFromJSON = () => {
     if (
@@ -498,26 +561,53 @@ function App() {
   }, [demoElements, saveToLocalStorage, skillTreeMode, elements]);
 
   const loadFromLocalStorage = useCallback(() => {
-    const json = localStorage.getItem("graphState");
+    const json = localStorage.getItem('graphState');
     if (json) {
       const state = JSON.parse(json);
-      setElements(state.elements || demoElements);
-      setTreeName(state.treeName || "Untitled 1");
+      const elements = state.elements || demoElements;
+  
+      // Reconstruct images from icon names
+      const updatedElements = elements.map((el) => {
+        if (el.group === 'nodes') {
+          let iconName = el.data.iconName;
+      
+          if (!iconName && el.data.image) {
+            // Attempt to find the icon name based on the image URL
+            iconName = Object.keys(icons).find(
+              (name) => icons[name] === el.data.image
+            );
+          }
+      
+          const iconImage = icons[iconName] || warningIcon;
+          return {
+            ...el,
+            data: {
+              ...el.data,
+              iconName: iconName,
+              image: iconImage,
+            },
+          };
+        }
+        return el;
+      });
+      
+  
+      setElements(updatedElements);
+      setTreeName(state.treeName || 'Untitled 1');
       setZoom(state.zoom || 1);
       setPan(state.pan || { x: 0, y: 0 });
-      //// TODO: confirm that player mode is relevant to whether or not player progress should be loaded
+  
       if (state.playerProgress && skillTreeMode === PLAYER_MODE) {
         // Load player progress
-        setElements(state.playerProgress);
+        setElements(updatedElements);
       }
     } else {
       // Use demo data
-      console.log(
-        "Loading demo data because local storage data is not available"
-      );
+      console.log("Loading demo data because local storage data is not available");
       loadDemoGraph();
     }
   }, [demoElements, skillTreeMode, loadDemoGraph]);
+  
 
   // Load from local storage once when the component mounts
   useEffect(() => {
