@@ -106,6 +106,8 @@
   - [ ] make sidebar a horizontal carousel in the bottom right of the screen
   - [ ] display name text of each icon alongside it
 
+- [ ] fix bug where refreshing page while in player mode messes up node state
+
 - [x] fix async font loading issue so that the correct font is loaded consistently before the graph loads
 
 - [ ] decide how to handle selection of 1 node and 1 edge: should the buttons for the node show, for the edge show, neither, or both?
