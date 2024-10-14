@@ -436,6 +436,7 @@ function App() {
         treeName,
         zoom: cyRef.current.zoom(),
         pan: cyRef.current.pan(),
+        mode: skillTreeMode
       });
       const blob = new Blob([json], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -471,7 +472,7 @@ function App() {
         treeName,
         zoom: cyRef.current.zoom(),
         pan: cyRef.current.pan(),
-        playerProgress: skillTreeMode === PLAYER_MODE ? adjustedElements : null,
+        mode: skillTreeMode
       });
       localStorage.setItem('graphState', json);
     }
@@ -591,17 +592,15 @@ function App() {
   
       setElements(updatedElements);
       setTreeName(state.treeName || 'Untitled 1');
+      setSkillTreeMode(state.mode || BUILDER_MODE);
       setZoom(state.zoom || 1);
       setPan(state.pan || { x: 0, y: 0 });
   
-      if (state.playerProgress && skillTreeMode === PLAYER_MODE) {
-        // Load player progress
-        setElements(updatedElements);
+      if (!state.elements) {
+        // If the elements are not present in the local storage data  
+        console.log("Loading demo data because local storage data is not available");
+        loadDemoGraph();
       }
-    } else {
-      // Use demo data
-      console.log("Loading demo data because local storage data is not available");
-      loadDemoGraph();
     }
   }, [demoElements, skillTreeMode, loadDemoGraph]);
   
