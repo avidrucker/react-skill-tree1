@@ -10,7 +10,7 @@ import warningIcon from './assets/warning_triangle.png';
 
 const PLAYER_MODE = "player";
 const BUILDER_MODE = "builder";
-const ACTIVE_STATE = "activated";
+// const ACTIVE_STATE = "activated";
 const AVAIL_STATE = "available";
 const HIDDEN_STATE = "hidden";
 
@@ -96,36 +96,37 @@ function App() {
   const validateSkillTree = () => {
     removeTemporaryNodes();
 
-    // Logic to check if every connected component has at least one node set as 'available'
-    const cyElements = cy.elements();
-
-    const components = cyElements.components(); // Get connected components
-    for (let i = 0; i < components.length; i++) {
-      const component = components[i];
-
-      // skip flourish nodes
-      if (component.data().id.includes("flourish")) {
-        continue;
-      }
-
-      // skip checking current component if it is a button node
-      if (component.data().id.includes("btn")) {
-        continue;
-      }
-
-      const hasAvailableOrActivatedNode = component.nodes().some((node) => {
-        return (
-          node.data("initialState") === AVAIL_STATE ||
-          node.data("initialState") === ACTIVE_STATE
-        );
-      });
-      if (!hasAvailableOrActivatedNode) {
-        // Highlight the component or inform the user
-        return false;
-      }
+    if (!cy) {
+      console.error("Cytoscape instance not available");
+      return false;
     }
+
+    // Get all nodes excluding flourish and action nodes
+    const nodes = cy.nodes().filter((node) => {
+      return !node.hasClass('flourish-node') && !node.hasClass('action-node');
+    });
+
+    // Find root nodes (nodes with no incoming edges)
+    const rootNodes = nodes.roots();
+
+    // Check if any root node is hidden
+    const hiddenRootNodes = rootNodes.filter((node) => {
+      const initialState = node.data('initialState');
+      return initialState === HIDDEN_STATE;
+    });
+
+    if (hiddenRootNodes.length > 0) {
+      // Highlight hidden root nodes or inform the user
+      const hiddenRootNodeNames = hiddenRootNodes.map((node) => node.data('label') || node.id());
+      alert(`Validation failed: The following root nodes are hidden: ${hiddenRootNodeNames.join(', ')}. Please set them to "available" or "activated" before switching to Player Mode.`);
+      return false;
+    }
+
+    // All root nodes are available or activated
     return true;
   };
+
+
 
   // Initialize player progress data
   // Function which sets the current state of a node to its initial state
@@ -246,11 +247,7 @@ function App() {
           initializePlayerDataForBuilderMode();
         }
         setSkillTreeMode(PLAYER_MODE);
-      } else {
-        alert(
-          "Skill tree is not valid. Please fix the errors before switching to Player Mode."
-        );
-      }
+      } // else do nothing if validation returns false
     } else {
       // Save player progress
       savePlayerProgress();
