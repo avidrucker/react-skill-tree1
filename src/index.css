@@ -81,3 +81,7 @@ html, body, #root {
   font-family: "Old English Text MT", cursive;
   font-style: normal;
 }
+
+.capitalized {
+  text-transform: capitalize;
+}
