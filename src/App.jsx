@@ -68,6 +68,10 @@ function mapZoomToVal(zoom, mapping) {
   return Math.min(Math.max(out, outMin), outMax);
 }
 
+function stripUnderscores(str) {
+  return str.replace(/_/g, " ");
+}
+
 function App() {
   const [treeName, setTreeName] = useState("Demo Tree");
 
@@ -819,23 +823,34 @@ function App() {
           autoFocus
         />
       )}
-      {/* Icon Selection Sidebar */}
+      {/* Icon Selection Carousel */}
       {isChangingIcon && (
-        <div className="icon-sidebar bg-blue overflow-y-auto h-100 z-999 absolute top-0 right-0">
-          <div className="icon-list flex flex-column pa3">
+        <div
+          className="icon-carousel-container absolute bottom-0 right-0 z-999 pointer-events-auto w-100"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div
+            className="icon-carousel bg-black-20 pa2 flex items-center overflow-x-auto"
+            onWheel={(e) => {
+              e.preventDefault();
+              e.currentTarget.scrollLeft -= e.deltaY;
+            }}
+          >
             {Object.keys(icons).map((iconName) => (
-              <img
-                key={iconName}
-                src={icons[iconName]}
-                alt={iconName}
-                onClick={() => handleIconSelect(iconName)}
-                className="icon-button w4 h4 pa1 pointer"
-              />
+              <div key={iconName} className="icon-item flex flex-column items-center w4 mh2">
+                <img
+                  src={icons[iconName]}
+                  alt={iconName}
+                  onClick={() => handleIconSelect(iconName)}
+                  className="icon-button w3 h3 pa1 pointer"
+                />
+                <span className="icon-name w3 f6 white mt1 tc nowrap capitalized">{stripUnderscores(iconName)}</span>
+              </div>
             ))}
           </div>
-          <button onClick={() => setIsChangingIcon(false)}>Cancel</button>
         </div>
       )}
+
     </div>
   );
 }
