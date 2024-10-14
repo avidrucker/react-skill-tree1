@@ -52,6 +52,8 @@
 - [x] fix remove flourish and text from hidden nodes
 - [ ] feat dotted line for edges that are connected to hidden nodes
 
+- [ ] troubleshoot and fix built-in demo which appears to load in an inconsistent/broken state
+
 - [x] add design flourish above each node's text
 
 - [ ] add node icons
