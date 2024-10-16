@@ -82,6 +82,7 @@
   - [ ] feat text input for a given node upon click of new btn in builder mode
   - [ ] feat show more info about a node upon single click in player mode
   - [ ] hide display or show ??? display instead of actual node information when in player mode and the currently selected node is hidden
+  - [ ] brainstorm how else to show info, where it might be annoying to have a single click bring up the info modal/panel, and what alternatives could there be instead? (button, toggle, etc.)... one idea is to summon a button in the bottom right corner of the window which is the "open info panel/modal" button when only a single node is selected
 
 - [ ] create custom favicon
 - [ ] install custom favicon to replace current placeholder favicon
@@ -105,8 +106,20 @@
   - [x] add sidebar with visual icon list displayed
   - [x] implement selecting of a new node icon to close sidebar and update icon w/ new icon selection
   - [x] make sidebar close upon clicking on a node, edge, or bg
-  - [ ] make sidebar a horizontal carousel in the bottom right of the screen
-  - [ ] display name text of each icon alongside it
+  - [x] make sidebar a horizontal carousel in the bottom right of the screen
+  - [x] display name text of each icon alongside it
+
+- [ ] fix bug where text is not select and copy-able from info modal in player mode
+
+- [ ] feat custom background images behind the skill tree
+
+- [ ] brainstorm options for activating/summoning the info modal for a given node, would you prefer single click, long press, double click, or something else entirely? would you prefer to click to make another button, or directly open up the info modal itself on the designated gesture? keep in mind that single click and double-click can be differented with a timer, and 375ms is an acceptable threshold for differentiating
+
+- [ ] make sure that when loading a skill tree it conforms correctly to the mode that the user of the app is currently in, regardless of whatever mode the skill tree was saved in
+
+- [ ] prevent entering of player mode when there is no skill tree
+
+- [ ] add celebration modal/popup/thingie when the skill tree is fully activated in player mode
 
 - [ ] fix bug where refreshing page while in player mode messes up node state
 
