@@ -24,7 +24,7 @@ const createActionNode = (id, label, parentNodeId, position) => ({
   classes: 'action-node',
 });
 
-const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode, setIsChangingIcon) => {
+const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMode, setIsChangingIcon, handleEditDescription, setSelectedNodeData ) => {
   // Refs for temporary action nodes (e.g., Edit, Delete buttons)
   const tempNodes = useRef([]);
   const tempEdgeNodes = useRef([]);
@@ -32,6 +32,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
   const [editNode, setEditNode] = useState(null);
   const [editNodePosition, setEditNodePosition] = useState(null);
   const [editLabel, setEditLabel] = useState('');
+
   const selectedEdges = useRef([]);
 
   // Counter for generating unique node IDs
@@ -41,6 +42,8 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
   const selectedNodes = useRef([]);
   const lastTappedNode = useRef(null);
   const lastTapTime = useRef(0);
+
+  const singleClickTimer = useRef(null);
 
   /**
    * Removes temporary action nodes from the graph (e.g., Edit and Delete buttons).
@@ -295,6 +298,12 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       const node = evt.target;
       const nodeId = node.id();
 
+      ////
+      // setSelectedNodeData({
+      //   label: node.data('label'),
+      //   description: node.data('description')
+      // });
+
       // Add node to selectedNodes if not already there
       if (!selectedNodes.current.includes(nodeId)) {
         selectedNodes.current.push(nodeId);
@@ -324,6 +333,8 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
     (evt) => {
       const node = evt.target;
       const nodeId = node.id();
+
+      setSelectedNodeData(null);
 
       // Remove the node from selectedNodes
       selectedNodes.current = selectedNodes.current.filter((id) => id !== nodeId);
@@ -382,7 +393,8 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
         image: blankIcon,
         initialState: HIDDEN_STATE,
         state: null,
-        tempState: HIDDEN_STATE
+        tempState: HIDDEN_STATE,
+        description: '', // Initialize as empty string
       },
       classes: 'icon-node',
       position: viewportCenter,
@@ -444,9 +456,10 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
     const offsetY = 55; // Distance above the original node
 
     const actionButtons = [
-      { id: `btn-edit-${nodeId}`, label: 'Rename', x: 60 },
-      { id: `btn-delete-${nodeId}`, label: 'Delete', x: -60 },
-      { id: `btn-change-icon-${nodeId}`, label: 'Change Icon', x: 0 },
+      { id: `btn-edit-${nodeId}`, label: 'Rename', x: -30 },
+      { id: `btn-delete-${nodeId}`, label: 'Delete', x: -90 },
+      { id: `btn-change-icon-${nodeId}`, label: 'Change Icon', x: 30 },
+      { id: `btn-edit-description-${nodeId}`, label: 'Edit Info', x: 90 },
     ];
 
     const newActionNodes = actionButtons.map(({ id, label, x }) =>
@@ -710,7 +723,12 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
 
         // Clear selection and remove temp nodes
         cleanupAfterAction();
-      } else if (label === 'Activated') {
+      } else if (label === 'Edit Info') {
+        const parentNodeId = node.data('parentNodeId');
+        handleEditDescription(parentNodeId);
+        cleanupAfterAction();
+      }
+      else if (label === 'Activated') {
         // Set the current node's initial state and temp state to 'activated'
         const parentNodeId = node.data('parentNodeId');
         const flourishNodeId = `flourish-${parentNodeId}`;
@@ -1018,6 +1036,9 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
       // close the icon change modal if it is open
       setIsChangingIcon(false);
 
+      const tappedNode = evt.target;
+      const currentTime = new Date().getTime();
+
       if (skillTreeMode === BUILDER_MODE) {
         // Existing builder mode logic
         const tappedNode = evt.target;
@@ -1048,22 +1069,38 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
 
       } else if (skillTreeMode === PLAYER_MODE) {
         // Player mode logic for activating/deactivating nodes
-        const tappedNode = evt.target;
-        const currentTime = new Date().getTime();
-
         if (
           lastTappedNode.current &&
           lastTappedNode.current.id() === tappedNode.id() &&
-          currentTime - lastTapTime.current < 300
+          currentTime - lastTapTime.current < 375
         ) {
           // Double-click detected
+          if (singleClickTimer.current) {
+            clearTimeout(singleClickTimer.current);
+            singleClickTimer.current = null;
+          }
           handleNodeDoubleClick(tappedNode);
           lastTappedNode.current = null;
           lastTapTime.current = 0;
         } else {
-          // Single tap in player mode does not trigger any action
+          // Single tap: wait 375ms to differentiate from double-click
           lastTappedNode.current = tappedNode;
           lastTapTime.current = currentTime;
+    
+          if (singleClickTimer.current) {
+            clearTimeout(singleClickTimer.current);
+          }
+    
+          singleClickTimer.current = setTimeout(() => {
+            // Open info panel
+            const nodeData = tappedNode.data();
+            setSelectedNodeData({
+              id: nodeData.id,
+              label: nodeData.label,
+              description: nodeData.description,
+            });
+            singleClickTimer.current = null;
+          }, 375);
         }
       }
 
@@ -1101,6 +1138,7 @@ const useGraphHandlers = (cy, elements, setElements, onChangeIcon, skillTreeMode
           // Clear selected nodes
           cy.$('node:selected').unselect();
           selectedNodes.current = [];
+          setSelectedNodeData(null);  // Close info panel
         }
       }
 

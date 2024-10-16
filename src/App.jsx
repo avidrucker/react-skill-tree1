@@ -1,5 +1,6 @@
 // src/App.jsx
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import PropTypes from 'prop-types';
 import CytoscapeComponent from "react-cytoscapejs";
 import FontFaceObserver from "fontfaceobserver";
 
@@ -72,6 +73,61 @@ function stripUnderscores(str) {
   return str.replace(/_/g, " ");
 }
 
+// Modal component for editing description
+function DescriptionModal({ isOpen, onClose, onSave, description, onDescriptionChange }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay fixed top-0 left-0 w-100 h-100 bg-black-20 flex justify-center align-center">
+      <div className="modal-content pa3">
+        <h2 className="ma0">Edit Description</h2>
+        <textarea
+          value={description}
+          onChange={(e) => onDescriptionChange(e.target.value)}
+          rows={10}
+          cols={50}
+        />
+        <div className="mt3">
+          <button onClick={onSave}>Save</button>
+          <button onClick={onClose}>Close</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+DescriptionModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
+  description: PropTypes.string.isRequired,
+  onDescriptionChange: PropTypes.func.isRequired,
+};
+
+function InfoModal({ nodeData, onClose }) {
+  if (!nodeData) return null;
+
+  return (
+    <div
+      className="info-panel absolute left-0 top-0 w-100 h-100 bg-black-20 white pa4 tc bg-blur"
+    >
+      <div className="w-100 h-100 absolute o-0 left-0 top-0" onClick={onClose}>  
+        Click here to close
+      </div>
+      <h2 className="relative z-1 f1 old-english-text-mt ma0">{nodeData.label}</h2>
+      <p className="relative z-1 pa3 tl lh-copy measure mr-auto ml-auto">{nodeData.description}</p>
+    </div>
+  );
+}
+
+InfoModal.propTypes = {
+  nodeData: PropTypes.shape({
+    label: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+  }),
+  onClose: PropTypes.func.isRequired,
+};
+
 function App() {
   const [treeName, setTreeName] = useState("Demo Tree");
 
@@ -88,6 +144,49 @@ function App() {
   const [isMenuFocused, setIsMenuFocused] = useState(false);
   const [menuHoverState, setMenuHoverState] = useState("");
   const hideMenuTimerRef = useRef(null);
+
+  const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
+  const [currentDescription, setCurrentDescription] = useState('');
+  const [currentNodeId, setCurrentNodeId] = useState(null);
+
+  const [selectedNodeData, setSelectedNodeData] = useState(null);
+
+  const handleDescriptionChange = (newDescription) => {
+    setCurrentDescription(newDescription);
+  };
+
+  const handleEditDescription = (nodeId) => {
+    const node = elements.find((el) => el.data.id === nodeId);
+    if (node) {
+      setCurrentDescription(node.data.description || '');
+      setCurrentNodeId(nodeId);
+      setIsDescriptionModalOpen(true);
+    }
+  };
+
+  const saveDescription = () => {
+    setElements((els) =>
+      els.map((el) => {
+        if (el.data.id === currentNodeId) {
+          return {
+            ...el,
+            data: {
+              ...el.data,
+              description: currentDescription,
+            },
+          };
+        }
+        return el;
+      })
+    );
+    closeDescriptionModal();
+  };
+
+  const closeDescriptionModal = () => {
+    setIsDescriptionModalOpen(false);
+    setCurrentDescription('');
+    setCurrentNodeId(null);
+  };
 
   useEffect(() => {
     return () => {
@@ -272,9 +371,10 @@ function App() {
         classes: "icon-node",
         data: {
           id: "node-1",
-          label: "Insight",
-          image: icons["eye"],
+          label: "Small Shield",
+          image: icons["shield"],
           initialState: AVAIL_STATE,
+          description: `During the first episode of Shield Hero, the first monster that Naofumi encounters is the balloon, a small, orange, and rubbery creature with pointy incisor teeth. Balloons are possibly the weakest of any enemy that Naofumi has encountered, so, unsurprisingly, they transform into weak shields once absorbed. Naofumi receives three unremarkable shields, with each one providing a minor defense bonus when equipped.`
         },
         position: { x: 0, y: 0 },
       },
@@ -286,6 +386,9 @@ function App() {
           label: "Leaf Shield",
           image: icons["leaf"],
           initialState: HIDDEN_STATE,
+          description: `During the first episode of Shield Hero, Naofumi is attempting to gain enough money to live comfortably, taking on low-level monsters and collecting herbs. While experimenting and learning about his unique hero power, he places a leaf against his shield, and it's suddenly absorbed, transforming it into a Leaf Shield.
+
+This is the first of two plant-type shields he acquires, granting him an improved absorption rate, making medicine more effective, and a harvest ability that allows him to collect herbs more effectively. Later in the series, he encounters a BioPlant. After absorbing one of its seeds, he gains three additional shields: the BioPlant Shield, the PlantRiwe Shield, and the Mandragora Shield.`
         },
         position: { x: 100, y: 0 },
       },
@@ -297,6 +400,7 @@ function App() {
           label: "Air Strike Shield",
           image: icons["wind"],
           initialState: HIDDEN_STATE,
+          description: `Instantly creates a floating shield for defense anywhere within a radius of 5 meters which lasts for a duration of 15 seconds. This ability is very versatile, as it can create shields in the air that allow the user and others to jump over them to reach or escape threats, it can also be used to immobilize the enemy by blocking their path with shields. The Air Strike Shield was shown in the anime to be able to be thrown at targets, dealing light damage and knocking targets off balance.`
         },
         position: { x: 200, y: 0 },
       },
@@ -382,7 +486,9 @@ function App() {
     setElements,
     onChangeIcon,
     skillTreeMode,
-    setIsChangingIcon
+    setIsChangingIcon,
+    handleEditDescription,
+    setSelectedNodeData
   );
 
   // Handle icon selection
@@ -849,6 +955,22 @@ function App() {
             ))}
           </div>
         </div>
+      )}
+
+      {skillTreeMode === BUILDER_MODE &&
+        <DescriptionModal
+          isOpen={isDescriptionModalOpen}
+          description={currentDescription}
+          onDescriptionChange={handleDescriptionChange}
+          onSave={saveDescription}
+          onClose={closeDescriptionModal}
+        />}
+
+      {skillTreeMode === PLAYER_MODE && (
+        <InfoModal
+          nodeData={selectedNodeData}
+          onClose={() => setSelectedNodeData(null)}  // Close info panel
+        />
       )}
 
     </div>
