@@ -8,6 +8,7 @@ import stylesheet from "./graphStyles";
 import useGraphHandlers from "./hooks/useGraphHandlers";
 
 import warningIcon from './assets/warning_triangle.png';
+import hiddenIcon from './assets/hidden.png'
 
 const PLAYER_MODE = "player";
 const BUILDER_MODE = "builder";
@@ -125,13 +126,17 @@ function InfoModal({ nodeData, onClose }) {
       <h2 className="relative z-1 f1 old-english-text-mt ma0 dib mt4">{label}</h2>
       <br/>
       <div className="absolute w-100 z-1 h-75 pa4 pointer-events-none">
-        <img className="o-30 h-100" src={image} alt={label} />
+        {
+          image !== "" ?
+          <img className="o-30 h-100" src={image} alt={label} /> :
+          <img className="o-30 h-100" src={hiddenIcon} alt="hidden item" />
+        }
       </div>
       {
         description ?
-        <div className="pointer-events-none relative dib ma0 pa4 f4 z-1 tl lh-copy measure mr-auto ml-auto h-75 overflow-y-auto">
-          <p className="pointer-events-auto ma0">{description}</p></div> :
-        <p className="relative dib ma0 mt4 f4 dib z-1 tc lh-copy mr-auto ml-auto">No description available.</p>
+        <div className="pointer-events-none relative dib ma0 pa3 ph4 f4 z-1 tl lh-copy measure mr-auto ml-auto h-75">
+          <p className="ma0 h-100 overflow-y-auto">{renderTextWithNewlines(description)}</p></div> :
+        <p className="relative dib ma0 mt3 f4 dib z-1 tc lh-copy mr-auto ml-auto">No description available.</p>
       }
     </div>
   );
@@ -145,6 +150,15 @@ InfoModal.propTypes = {
     description: PropTypes.string.isRequired,
   }),
   onClose: PropTypes.func.isRequired,
+};
+
+const renderTextWithNewlines = (text) => {
+  return text.split('\n').map((line, index) => (
+    <p className="ma0 pointer-events-auto" key={index}>
+      {line}
+      <br />
+    </p>
+  ));
 };
 
 function App() {
