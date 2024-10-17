@@ -135,7 +135,8 @@ function InfoModal({ nodeData, onClose }) {
       {
         description ?
         <div className="pointer-events-none relative dib ma0 pa3 ph4 f4 z-1 tl lh-copy measure mr-auto ml-auto h-75">
-          <p className="ma0 h-100 overflow-y-auto">{renderTextWithNewlines(description)}</p></div> :
+          <div className="ma0 h-100 overflow-y-auto">{renderTextWithNewlines(description)}</div>
+        </div> :
         <p className="relative dib ma0 mt3 f4 dib z-1 tc lh-copy mr-auto ml-auto">No description available.</p>
       }
     </div>
