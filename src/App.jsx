@@ -185,6 +185,27 @@ function App() {
 
   const [selectedNodeData, setSelectedNodeData] = useState(null);
 
+  const carouselRef = useRef(null);
+
+  useEffect(() => {
+    const carousel = carouselRef.current;
+
+    const handleWheel = (e) => {
+      e.preventDefault();
+      carousel.scrollLeft -= e.deltaY;
+    };
+
+    if (carousel) {
+      carousel.addEventListener('wheel', handleWheel, { passive: false });
+    }
+
+    return () => {
+      if (carousel) {
+        carousel.removeEventListener('wheel', handleWheel);
+      }
+    };
+  }, [isChangingIcon]);
+
   const handleDescriptionChange = (newDescription) => {
     setCurrentDescription(newDescription);
   };
@@ -971,10 +992,7 @@ This is the first of two plant-type shields he acquires, granting him an improve
         >
           <div
             className="icon-carousel bg-black-20 pa2 flex items-center overflow-x-auto"
-            onWheel={(e) => {
-              e.preventDefault();
-              e.currentTarget.scrollLeft -= e.deltaY;
-            }}
+            ref={carouselRef}
           >
             {Object.keys(icons).map((iconName) => (
               <div key={iconName} className="icon-item flex flex-column items-center w4 mh2">
