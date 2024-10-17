@@ -80,15 +80,16 @@ function DescriptionModal({ isOpen, onClose, onSave, description, onDescriptionC
   return (
     <div className="modal-overlay fixed top-0 left-0 w-100 h-100 bg-black-20 flex justify-center align-center">
       <div className="modal-content pa3">
-        <h2 className="ma0">Edit Description</h2>
+        <h2 className="ma0 pb3">Edit Info Text</h2>
         <textarea
+          className=""
           value={description}
           onChange={(e) => onDescriptionChange(e.target.value)}
-          rows={10}
+          rows={15}
           cols={50}
         />
-        <div className="mt3">
-          <button onClick={onSave}>Save</button>
+        <div className="pt3">
+          <button className="mr2" onClick={onSave}>Save</button>
           <button onClick={onClose}>Close</button>
         </div>
       </div>
