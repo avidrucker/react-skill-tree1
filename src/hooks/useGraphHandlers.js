@@ -1090,6 +1090,8 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
             const nodeData = tappedNode.data();
             setSelectedNodeData({
               id: nodeData.id,
+              image: nodeData.image,
+              state: nodeData.state,
               label: nodeData.label,
               description: nodeData.description,
             });
