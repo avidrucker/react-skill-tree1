@@ -298,12 +298,6 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
       const node = evt.target;
       const nodeId = node.id();
 
-      ////
-      // setSelectedNodeData({
-      //   label: node.data('label'),
-      //   description: node.data('description')
-      // });
-
       // Add node to selectedNodes if not already there
       if (!selectedNodes.current.includes(nodeId)) {
         selectedNodes.current.push(nodeId);
