@@ -109,13 +109,16 @@ function InfoModal({ nodeData, onClose }) {
 
   return (
     <div
-      className="info-panel absolute left-0 top-0 w-100 h-100 bg-black-20 white pa4 tc bg-blur"
+      className="info-panel absolute left-0 top-0 w-100 h-100 bg-black-40 white pa4 tc bg-blur"
     >
       <div className="w-100 h-100 absolute o-0 left-0 top-0" onClick={onClose}>  
         Click here to close
       </div>
-      <h2 className="relative z-1 f1 old-english-text-mt ma0">{nodeData.label}</h2>
-      <p className="relative z-1 pa3 tl lh-copy measure mr-auto ml-auto">{nodeData.description}</p>
+      <h2 className="relative z-1 f1 old-english-text-mt ma0 dib">{nodeData.label}</h2>
+      {
+        nodeData.description &&
+        <p className="relative f4 z-1 pa3 tl lh-copy measure mr-auto ml-auto h-75 overflow-y-auto">{nodeData.description}</p>
+      }
     </div>
   );
 }
