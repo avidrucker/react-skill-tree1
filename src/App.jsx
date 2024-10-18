@@ -111,7 +111,7 @@ function InfoModal({ nodeData, onClose }) {
 
   let { label, image, description, state } = nodeData;
   if (state === HIDDEN_STATE) {
-    label = "???";
+    label = "Unknown";
     image = "";
     description = "This node is currently hidden. You must unlock it to view its description.";
   }
@@ -128,8 +128,8 @@ function InfoModal({ nodeData, onClose }) {
       <div className="absolute w-100 z-1 h-75 pa4 pointer-events-none">
         {
           image !== "" ?
-          <img className="o-30 h-100" src={image} alt={label} /> :
-          <img className="o-30 h-100" src={hiddenIcon} alt="hidden item" />
+          <img className="o-20 h-100" src={image} alt={label} /> :
+          <img className="o-20 h-100" src={hiddenIcon} alt="hidden item" />
         }
       </div>
       {
