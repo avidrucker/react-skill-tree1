@@ -89,3 +89,39 @@ html, body, #root {
 .bg-blur {
   backdrop-filter: blur(2px);
 }
+
+.dots {
+  width: 10px;
+  height: 100%;
+  position: absolute;
+}
+
+.dots:before, .dots:after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 10px;
+  background-image: radial-gradient(circle at center, white 2.5px, transparent 2.5px);
+  background-repeat: no-repeat;
+}
+
+.dots:before {
+  top: 0;
+  left: -5px;
+}
+.dots:after {
+  bottom: 0;
+  left: -5px;
+}
+
+.h34 {
+  height: 6.5rem;
+}
+
+.w34 {
+  width: 6.5rem;
+}
+
+.w33 {
+  width: 4rem;
+}

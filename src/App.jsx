@@ -1042,25 +1042,34 @@ This is the first of two plant-type shields he acquires, granting him an improve
           onClick={(e) => e.stopPropagation()}
         >
           <div
-            className="icon-carousel bg-black-20 pa2 flex items-center overflow-x-auto"
+            className="icon-carousel bg-blur bg-black-20 pa3 flex items-center overflow-x-auto"
             ref={carouselRef}
           >
             {Object.keys(icons).reduce((acc, iconName, index, array) => {
+              // Add a decorative div before the first icon
+              if (index === 0) {
+                acc.push(<div key="decorative-start" className="relative w2 bg-blue h34 db pointer-events-none"><div className="dots db"></div></div>);
+              }
+
+              // Add the icon div button
               acc.push(
-                <div key={iconName} className="icon-item flex flex-column items-center w4 mh2">
+                <div
+                  key={iconName}
+                  onClick={() => handleIconSelect(iconName)} 
+                  className="icon-item flex flex-column items-center w34 pointer"
+                >
                   <img
                     src={icons[iconName]}
                     alt={iconName}
-                    onClick={() => handleIconSelect(iconName)}
-                    className="icon-button w3 h3 pa1 pointer"
+                    className="icon-button w33 h33 pa1 pointer"
                   />
-                  <span className="icon-name w3 f6 white mt1 tc nowrap capitalized">{stripUnderscores(iconName)}</span>
+                  <span className="icon-name w34 f6 white tc nowrap capitalized">{stripUnderscores(iconName)}</span>
                 </div>
               );
 
-              // Add the dots div between elements, but not after the last element
-              if (index < array.length - 1) {
-                acc.push(<div key={`dot-${index}`} className="dots"></div>);
+              // Add a decorative div between elements AND after the last element
+              if (index < array.length) {
+                acc.push(<div key={`dot-${index}`} className="relative w2 bg-blue h34 db pointer-events-none"><div className="dots db"></div></div>);
               }
 
               return acc;
