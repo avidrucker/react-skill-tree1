@@ -259,6 +259,12 @@ function App() {
       return false;
     }
 
+    // Check for cycles in the graph
+    if(detectCycles(cy)) {
+      alert("Validation failed: The skill tree contains a cycle. Please remove the cycle before switching to Player Mode.");
+      return false;
+    }
+
     // Get all nodes excluding flourish and action nodes
     const nodes = cy.nodes().filter((node) => {
       return !node.hasClass('flourish-node') && !node.hasClass('action-node');
@@ -816,6 +822,51 @@ This is the first of two plant-type shields he acquires, granting him an improve
     }
   };
 
+  const dfs = (nodeId, visited, recStack) => {
+    visited.add(nodeId);
+    recStack.add(nodeId);
+    
+    // Only consider outgoing edges
+    const neighbors = cy.getElementById(nodeId).outgoers('node');
+  
+    for (const neighbor of neighbors) {
+      const neighborId = neighbor.id();
+      
+      // If the neighbor has not been visited, perform DFS
+      if (!visited.has(neighborId)) {
+        if (dfs(neighborId, visited, recStack)) {
+          return true;
+        }
+      // If the neighbor is in the recursion stack, a cycle is detected
+      } else if (recStack.has(neighborId)) {
+        // console.log(`Cycle detected between ${nodeId} and ${neighborId}`);
+        return true;
+      }
+    }
+  
+    // Remove node from the recursion stack once DFS is done
+    recStack.delete(nodeId);
+    return false;
+  };
+  
+  const detectCycles = (cy) => {
+    const visited = new Set();
+    const recStack = new Set();
+  
+    for (const node of cy.nodes()) {
+      const nodeId = node.id();  // Extract the node ID
+      if (!visited.has(nodeId)) {
+        if (dfs(nodeId, visited, recStack)) {
+          // console.log("Cycle detected");
+          return true;
+        }
+      }
+    }
+  
+    // console.log("No cycles detected");
+    return false;
+  };
+
   return (
     <div className="bg-black relative w-100 vh-100">
       {isFontLoaded && (
@@ -994,17 +1045,26 @@ This is the first of two plant-type shields he acquires, granting him an improve
             className="icon-carousel bg-black-20 pa2 flex items-center overflow-x-auto"
             ref={carouselRef}
           >
-            {Object.keys(icons).map((iconName) => (
-              <div key={iconName} className="icon-item flex flex-column items-center w4 mh2">
-                <img
-                  src={icons[iconName]}
-                  alt={iconName}
-                  onClick={() => handleIconSelect(iconName)}
-                  className="icon-button w3 h3 pa1 pointer"
-                />
-                <span className="icon-name w3 f6 white mt1 tc nowrap capitalized">{stripUnderscores(iconName)}</span>
-              </div>
-            ))}
+            {Object.keys(icons).reduce((acc, iconName, index, array) => {
+              acc.push(
+                <div key={iconName} className="icon-item flex flex-column items-center w4 mh2">
+                  <img
+                    src={icons[iconName]}
+                    alt={iconName}
+                    onClick={() => handleIconSelect(iconName)}
+                    className="icon-button w3 h3 pa1 pointer"
+                  />
+                  <span className="icon-name w3 f6 white mt1 tc nowrap capitalized">{stripUnderscores(iconName)}</span>
+                </div>
+              );
+
+              // Add the dots div between elements, but not after the last element
+              if (index < array.length - 1) {
+                acc.push(<div key={`dot-${index}`} className="dots"></div>);
+              }
+
+              return acc;
+            }, [])}
           </div>
         </div>
       )}
