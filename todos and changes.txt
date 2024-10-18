@@ -111,6 +111,9 @@
 
 - [ ] fix bug where text is not select and copy-able from info modal in player mode
 
+- [x] feat detection of cycles upon switching into player mode
+  - [x] disallow cycles in skill trees
+
 - [ ] feat custom background images behind the skill tree
 
 - [ ] brainstorm options for activating/summoning the info modal for a given node, would you prefer single click, long press, double click, or something else entirely? would you prefer to click to make another button, or directly open up the info modal itself on the designated gesture? keep in mind that single click and double-click can be differented with a timer, and 375ms is an acceptable threshold for differentiating
