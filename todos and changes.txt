@@ -125,11 +125,15 @@
 
 - [x] make sure that when loading a skill tree it conforms correctly to the mode that the user of the app is currently in, regardless of whatever mode the skill tree was saved in
 
-- [ ] prevent entering of player mode when there is no skill tree
+- [ ] prevent entering of player mode when there is no skill tree ( not sure yet if this is ideal or not, will think on it some more...)
+
+- [ ] update rm edge selection in player mode
 
 - [ ] add celebration modal/popup/thingie when the skill tree is fully activated in player mode
 
-- [ ] fix bug where refreshing page while in player mode messes up node state
+- [ ] fix bug where refreshing page while in player mode messes up node state (this appears to not be reproducable anymore, it may have been fixed already)
+
+- [ ] fix bug where refreshing page resets the zoom back to full view of the skill tree
 
 - [x] fix async font loading issue so that the correct font is loaded consistently before the graph loads
 
@@ -151,7 +155,7 @@
 
 - [x] fix connect node button so that it appears centered vertically as well as horizontally between the two nodes that it is to connect
 
-- [ ] fix bug where loading a tree saved in player mode directly into builder mode does not reset state and tempState for all nodes: this can be resolved by toggling the state and tempState for all nodes prior to saving and/or by checking upon loading, as well as by saving what mode the skill tree was saved in (though I'd prefer to simply always save in builder mode)
+- [x] fix bug where loading a tree saved in player mode directly into builder mode does not reset state and tempState for all nodes: this can be resolved by toggling the state and tempState for all nodes prior to saving and/or by checking upon loading, as well as by saving what mode the skill tree was saved in (though I'd prefer to simply always save in builder mode)
 
 - [x] modify text input so that it is located where the node text is
 
@@ -173,7 +177,7 @@ useGraphHandlers.js:51 Uncaught TypeError: Cannot read properties of undefined (
 """
 the suggested fix is to, upon deleting a node, clear the selected nodes list
 
-- [ ] build out shield hero skill tree & save to JSON
+- [o] build out shield hero skill tree & save to JSON
   - [ ] include shield hero skill tree as hidden bonus content
     - [ ] include rage shield skills as hidden bonus content within bonus content
 
