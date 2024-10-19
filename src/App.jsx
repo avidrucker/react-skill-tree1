@@ -565,6 +565,7 @@ This is the first of two plant-type shields he acquires, granting him an improve
 
   const loadFromJSON = (event) => {
     const file = event.target.files[0];
+    const preloadMode = skillTreeMode;
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -601,6 +602,14 @@ This is the first of two plant-type shields he acquires, granting him an improve
         setTreeName(json.treeName || 'Untitled 1');
         setZoom(json.zoom || 1);
         setPan(json.pan || { x: 0, y: 0 });
+        if(preloadMode !== json.mode) {
+          // Then, switch the mode to the preload mode using the appropriate function
+          if (preloadMode === PLAYER_MODE) {
+            initializePlayerDataForPlayerMode();
+          } else {
+            initializePlayerDataForBuilderMode();
+          }
+        }
       };
       reader.readAsText(file);
     }
