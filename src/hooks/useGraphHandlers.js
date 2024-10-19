@@ -1061,8 +1061,9 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
           }
         }
 
-      } else if (skillTreeMode === PLAYER_MODE) {
+      } else if (skillTreeMode === PLAYER_MODE && tappedNode.hasClass('icon-node')) {
         // Player mode logic for activating/deactivating nodes
+
         if (
           lastTappedNode.current &&
           lastTappedNode.current.id() === tappedNode.id() &&
