@@ -94,6 +94,7 @@ function App() {
 
   const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
   const [currentDescription, setCurrentDescription] = useState('');
+  const [currentLabel, setCurrentLabel] = useState('');
   const [currentNodeId, setCurrentNodeId] = useState(null);
 
   const [selectedNodeData, setSelectedNodeData] = useState(null);
@@ -127,6 +128,7 @@ function App() {
     const node = elements.find((el) => el.data.id === nodeId);
     if (node) {
       setCurrentDescription(node.data.description || '');
+      setCurrentLabel(node.data.label || '');
       setCurrentNodeId(nodeId);
       setIsDescriptionModalOpen(true);
     }
@@ -153,6 +155,7 @@ function App() {
   const closeDescriptionModal = () => {
     setIsDescriptionModalOpen(false);
     setCurrentDescription('');
+    setCurrentLabel('');
     setCurrentNodeId(null);
   };
 
@@ -1004,6 +1007,7 @@ This is the first of two plant-type shields he acquires, granting him an improve
         <EditModal
           isOpen={isDescriptionModalOpen}
           description={currentDescription}
+          label={currentLabel}
           onDescriptionChange={handleDescriptionChange}
           onSave={saveDescription}
           onClose={closeDescriptionModal}
