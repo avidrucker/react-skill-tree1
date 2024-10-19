@@ -1,14 +1,15 @@
 // src/App.jsx
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import PropTypes from 'prop-types';
 import CytoscapeComponent from "react-cytoscapejs";
 import FontFaceObserver from "fontfaceobserver";
+
+import EditModal from "./components/EditModal";
+import InfoModal from "./components/InfoModal";
 
 import stylesheet from "./graphStyles";
 import useGraphHandlers from "./hooks/useGraphHandlers";
 
 import warningIcon from './assets/warning_triangle.png';
-import hiddenIcon from './assets/hidden.png'
 
 const PLAYER_MODE = "player";
 const BUILDER_MODE = "builder";
@@ -73,94 +74,6 @@ function mapZoomToVal(zoom, mapping) {
 function stripUnderscores(str) {
   return str.replace(/_/g, " ");
 }
-
-// Modal component for editing description
-function DescriptionModal({ isOpen, onClose, onSave, description, onDescriptionChange }) {
-  if (!isOpen) return null;
-
-  return (
-    <div className="modal-overlay fixed top-0 left-0 w-100 h-100 bg-black-20 flex justify-center align-center">
-      <div className="modal-content pa3">
-        <h2 className="ma0 pb3">Edit Info Text</h2>
-        <textarea
-          className=""
-          value={description}
-          onChange={(e) => onDescriptionChange(e.target.value)}
-          rows={15}
-          cols={50}
-        />
-        <div className="pt3">
-          <button className="mr2" onClick={onSave}>Save</button>
-          <button onClick={onClose}>Close</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-DescriptionModal.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onSave: PropTypes.func.isRequired,
-  description: PropTypes.string.isRequired,
-  onDescriptionChange: PropTypes.func.isRequired,
-};
-
-function InfoModal({ nodeData, onClose }) {
-  if (!nodeData) return null;
-
-  let { label, image, description, state } = nodeData;
-  if (state === HIDDEN_STATE) {
-    label = "Unknown";
-    image = "";
-    description = "This node is currently hidden. You must unlock it to view its description.";
-  }
-
-  return (
-    <div
-      className="info-panel absolute left-0 top-0 w-100 h-100 bg-black-40 white tc bg-blur"
-    >
-      <div className="w-100 h-100 absolute o-0 left-0 top-0" onClick={onClose}>  
-        Click here to close
-      </div>
-      <h2 className="relative z-1 f1 old-english-text-mt ma0 dib mt4">{label}</h2>
-      <br/>
-      <div className="absolute w-100 z-1 h-75 pa4 pointer-events-none">
-        {
-          image !== "" ?
-          <img className="o-20 h-100" src={image} alt={label} /> :
-          <img className="o-20 h-100" src={hiddenIcon} alt="hidden item" />
-        }
-      </div>
-      {
-        description ?
-        <div className="pointer-events-none relative dib ma0 pa3 ph4 f4 z-1 tl lh-copy measure mr-auto ml-auto h-75">
-          <div className="ma0 h-100 overflow-y-auto">{renderTextWithNewlines(description)}</div>
-        </div> :
-        <p className="relative dib ma0 mt3 f4 dib z-1 tc lh-copy mr-auto ml-auto">No description available.</p>
-      }
-    </div>
-  );
-}
-
-InfoModal.propTypes = {
-  nodeData: PropTypes.shape({
-    label: PropTypes.string.isRequired,
-    image: PropTypes.string.isRequired,
-    state: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
-  }),
-  onClose: PropTypes.func.isRequired,
-};
-
-const renderTextWithNewlines = (text) => {
-  return text.split('\n').map((line, index) => (
-    <p className="ma0 pointer-events-auto" key={index}>
-      {line}
-      <br />
-    </p>
-  ));
-};
 
 function App() {
   const [treeName, setTreeName] = useState("Demo Tree");
@@ -1079,7 +992,7 @@ This is the first of two plant-type shields he acquires, granting him an improve
       )}
 
       {skillTreeMode === BUILDER_MODE &&
-        <DescriptionModal
+        <EditModal
           isOpen={isDescriptionModalOpen}
           description={currentDescription}
           onDescriptionChange={handleDescriptionChange}
