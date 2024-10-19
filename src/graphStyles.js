@@ -27,7 +27,8 @@ const stylesheet = [
   {
     selector: 'node.action-node',
     style: {
-      'background-opacity': 0,
+      'background-opacity': 0.25,
+      'background-color': 'black',
       label: 'data(label)',
       shape: 'round-rectangle',
       width: 50,
