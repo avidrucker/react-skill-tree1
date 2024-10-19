@@ -90,6 +90,10 @@ html, body, #root {
   backdrop-filter: blur(2px);
 }
 
+.bg-blur-1 {
+  backdrop-filter: blur(1px);
+}
+
 .dots {
   width: 10px;
   height: 100%;
