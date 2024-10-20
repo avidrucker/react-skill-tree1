@@ -103,22 +103,30 @@ function App() {
 
   useEffect(() => {
     const carousel = carouselRef.current;
-
+  
     const handleWheel = (e) => {
       e.preventDefault();
-      carousel.scrollLeft -= e.deltaY;
+  
+      // Determine if it is a touchpad or a mouse wheel
+      const isTouchpad = Math.abs(e.deltaY) < 50; // Touchpads usually have small deltaY values
+  
+      // Adjust the scroll direction based on the input device
+      const scrollAmount = isTouchpad ? e.deltaY : -e.deltaY;
+  
+      carousel.scrollLeft -= scrollAmount;
     };
-
+  
     if (carousel) {
       carousel.addEventListener('wheel', handleWheel, { passive: false });
     }
-
+  
     return () => {
       if (carousel) {
         carousel.removeEventListener('wheel', handleWheel);
       }
     };
   }, [isChangingIcon]);
+  
 
   const handleDescriptionChange = (newDescription) => {
     setCurrentDescription(newDescription);
