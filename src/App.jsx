@@ -800,7 +800,7 @@ This is the first of two plant-type shields he acquires, granting him an improve
           // src="https://images.unsplash.com/photo-1467810160588-c86c0deb5d16"
           src="https://www.pixelstalk.net/wp-content/uploads/2016/04/Stars-wallpapers-HD-backgrounds-download.jpg"
           alt="background"
-          className="w-100 h-100 object-cover"
+          className="w-100 h-100 object-cover db"
         />
       </div>
       {isFontLoaded && (
