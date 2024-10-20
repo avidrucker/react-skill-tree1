@@ -848,6 +848,36 @@ This is the first of two plant-type shields he acquires, granting him an improve
     }, 1000);
   }
 
+  useEffect(() => {
+    if (cy) {
+      // Add event listener for mouseover
+      cy.on('mouseover', 'node', (event) => {
+        const node = event.target;
+  
+        // Check if the node should display a pointer
+        if (node.hasClass('action-node')) { // Add a class to specify which nodes trigger pointer
+          cy.container().style.cursor = 'pointer';
+        }
+      });
+  
+      // Add event listener for mouseout
+      cy.on('mouseout', 'node', (event) => {
+        const node = event.target;
+  
+        // Check if the node should reset the cursor
+        if (node.hasClass('action-node')) {
+          cy.container().style.cursor = '';
+        }
+      });
+  
+      // Clean up event listeners when component unmounts or cy changes
+      return () => {
+        cy.off('mouseover', 'node');
+        cy.off('mouseout', 'node');
+      };
+    }
+  }, [cy]);  
+
   return (
     <div className="bg-dark-gray relative w-100 vh-100">
       <div className="background-image absolute w-100 h-100">
