@@ -792,6 +792,62 @@ This is the first of two plant-type shields he acquires, granting him an improve
     return false;
   };
 
+  const handleMenuMouseEnter = () => {
+    setIsMenuVisible(true);
+    if (hideMenuTimerRef.current) {
+      clearTimeout(hideMenuTimerRef.current);
+      hideMenuTimerRef.current = null;
+    }
+  }
+
+  const handleMenuMouseLeave = () => {
+    if (!isMenuFocused) {
+      setMenuHoverState(""); // Reset to default state
+      hideMenuTimerRef.current = setTimeout(() => {
+        setIsMenuVisible(false);
+        hideMenuTimerRef.current = null;
+      }, 1000);
+    }
+  }
+
+  const handleMenuBtnMouseEnter = () => {
+    setIsMenuVisible(true);
+    setMenuHoverState("hovered");
+    if (hideMenuTimerRef.current) {
+      clearTimeout(hideMenuTimerRef.current);
+      hideMenuTimerRef.current = null;
+    }
+  }
+
+  const handleMenuBtnMouseLeave = () => {
+    if (!isMenuFocused) {
+      setMenuHoverState(""); // Reset to default state
+      hideMenuTimerRef.current = setTimeout(() => {
+        setIsMenuVisible(false);
+        hideMenuTimerRef.current = null;
+      }, 1000);
+    }
+  }
+
+  const handleMenuBtnFocus = () => {
+    setIsMenuFocused(true);
+    setIsMenuVisible(true);
+    setMenuHoverState("focused");
+    if (hideMenuTimerRef.current) {
+      clearTimeout(hideMenuTimerRef.current);
+      hideMenuTimerRef.current = null;
+    }
+  }
+
+  const handleMenuBtnBlur = () => {
+    setIsMenuFocused(false);
+    hideMenuTimerRef.current = setTimeout(() => {
+      setIsMenuVisible(false);
+      setMenuHoverState("");
+      hideMenuTimerRef.current = null;
+    }, 1000);
+  }
+
   return (
     <div className="bg-dark-gray relative w-100 vh-100">
       <div className="background-image absolute w-100 h-100">
@@ -816,52 +872,20 @@ This is the first of two plant-type shields he acquires, granting him an improve
         />
       )}
       {/* Overlay UI Elements */}
-      <div className="z-1 absolute top-0 left-0 pa3 pointer-events-none flex items-start">
+      <div className="menu-container z-1 absolute top-0 left-0 pa3 pointer-events-none flex items-start">
         {/* Menu Button */}
         <div
-          className={`menu-button relative top-0 left-0 pointer-events-auto ba bw1 b--white br4 pa2 ph3 dib ${
+          className={`menu-button pointer relative top-0 left-0 pointer-events-auto ba bw1 b--white br4 pa2 ph3 dib ${
             menuHoverState === "focused"
               ? " bg-white-20 "
               : menuHoverState === "hovered"
               ? " bg-white-10 "
               : " bg-transparent "
           }`}
-          onMouseEnter={() => {
-            setIsMenuVisible(true);
-            if (hideMenuTimerRef.current) {
-              clearTimeout(hideMenuTimerRef.current);
-              hideMenuTimerRef.current = null;
-            }
-            if (!isMenuFocused) {
-              setMenuHoverState("hovered");
-            }
-          }}
-          onMouseLeave={() => {
-            if (!isMenuFocused) {
-              setMenuHoverState("");
-              hideMenuTimerRef.current = setTimeout(() => {
-                setIsMenuVisible(false);
-                hideMenuTimerRef.current = null;
-              }, 1000);
-            }
-          }}
-          onFocus={() => {
-            setIsMenuFocused(true);
-            setIsMenuVisible(true);
-            setMenuHoverState("focused");
-            if (hideMenuTimerRef.current) {
-              clearTimeout(hideMenuTimerRef.current);
-              hideMenuTimerRef.current = null;
-            }
-          }}
-          onBlur={() => {
-            setIsMenuFocused(false);
-            setMenuHoverState("");
-            hideMenuTimerRef.current = setTimeout(() => {
-              setIsMenuVisible(false);
-              hideMenuTimerRef.current = null;
-            }, 1000);
-          }}
+          onMouseEnter={handleMenuBtnMouseEnter}
+          onMouseLeave={handleMenuBtnMouseLeave}
+          onFocus={handleMenuBtnFocus}
+          onBlur={handleMenuBtnBlur}
           tabIndex="0" // Makes the div focusable
         >
           Menu
@@ -870,21 +894,8 @@ This is the first of two plant-type shields he acquires, granting him an improve
         {isMenuVisible && (
           <div
             className="menu-content pointer-events-auto ph3 dib"
-            onMouseEnter={() => {
-              setIsMenuVisible(true);
-              if (hideMenuTimerRef.current) {
-                clearTimeout(hideMenuTimerRef.current);
-                hideMenuTimerRef.current = null;
-              }
-            }}
-            onMouseLeave={() => {
-              if (!isMenuFocused) {
-                hideMenuTimerRef.current = setTimeout(() => {
-                  setIsMenuVisible(false);
-                  hideMenuTimerRef.current = null;
-                }, 1000);
-              }
-            }}
+            onMouseEnter={handleMenuMouseEnter}
+            onMouseLeave={handleMenuMouseLeave}
           >
             <h1 className="ma0 user-select-none dib flex">
               <span className="f2 mr2 w5 tc">Skill Tree:</span>
