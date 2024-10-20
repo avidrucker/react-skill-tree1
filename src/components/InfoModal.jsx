@@ -24,7 +24,7 @@ function InfoModal({ nodeData, onClose }) {
   }
 
   return (
-    <div className="info-panel absolute left-0 top-0 w-100 h-100 bg-black-40 white tc bg-blur">
+    <div className="info-panel z-5 absolute left-0 top-0 w-100 h-100 bg-black-40 white tc bg-blur">
       <div className="w-100 h-100 absolute o-0 left-0 top-0" onClick={onClose}>
         Click here to close
       </div>

@@ -5,7 +5,7 @@ function EditModal({ isOpen, onClose, onSave, description, label, onDescriptionC
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay fixed top-0 left-0 w-100 h-100 bg-black-40 bg-blur flex justify-center align-center">
+    <div className="modal-overlay z-5 fixed top-0 left-0 w-100 h-100 bg-black-40 bg-blur flex justify-center align-center">
       <div className="modal-content pa3">
         <h2 className="ma0 pb3">{`Edit Info Text for ${label}`}</h2>
         <textarea
