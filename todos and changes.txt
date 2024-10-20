@@ -5,7 +5,12 @@
 - [ ] add helpful readme to build and run project
 - [ ] add how to contribute doc for open source contributions
 
+- [ ] add help modal that explains what you can do with each mode, how to add, move, delete nodes & edges, rename nodes, change icons, etc.
+
 - [ ] feat offline mode
+
+- [x] publish to GitHub Pages
+- [x] set up CI/CD pipeline
 
 - [x] make border thinner
 - [x] make node text smaller
@@ -120,6 +125,9 @@
 - [x] fix prevent single click of flourish nodes from triggering the info modal popup
 
 - [ ] feat custom background images behind the skill tree
+- [ ] figure out how to incorporate background images in a way that doesn't deeply negatively impact readability
+
+- [ ] visualize the user's progress through the skill tree with progress bars or completion percentages
 
 - [ ] brainstorm options for activating/summoning the info modal for a given node, would you prefer single click, long press, double click, or something else entirely? would you prefer to click to make another button, or directly open up the info modal itself on the designated gesture? keep in mind that single click and double-click can be differented with a timer, and 375ms is an acceptable threshold for differentiating
 
