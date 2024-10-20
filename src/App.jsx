@@ -391,6 +391,7 @@ This is the first of two plant-type shields he acquires, granting him an improve
       },
       {
         group: "edges",
+        classes: "icon-edge",
         data: {
           id: "edge-node-1-node-2",
           source: "node-1",
@@ -398,8 +399,9 @@ This is the first of two plant-type shields he acquires, granting him an improve
         },
       },
       {
+        group: "edges",
+        classes: "icon-edge",
         data: {
-          group: "edges",
           id: "edge-node-2-node-3",
           source: "node-2",
           target: "node-3",
