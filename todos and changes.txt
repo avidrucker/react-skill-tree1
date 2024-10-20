@@ -131,7 +131,7 @@
 
 - [ ] add celebration modal/popup/thingie when the skill tree is fully activated in player mode
 
-- [ ] fix bug where refreshing page while in player mode messes up node state (this appears to not be reproducable anymore, it may have been fixed already)
+- ~~fix bug where refreshing page while in player mode messes up node state (this appears to not be reproducable anymore, it may have been fixed already)~~
 
 - [ ] fix bug where refreshing page resets the zoom back to full view of the skill tree
 
@@ -164,6 +164,8 @@
 - [x] prevent flashing edge bug from occurring when canvas is fullscreen height and width
 
 - [x] fix bug where three nodes are selected, and 1 is unselected and the connect button should reappear but currently doesn't
+
+- [ ] make the edit modal more beautiful
 
 - [x] prevent the connect button from appearing when selecting two nodes that are already connected
 
