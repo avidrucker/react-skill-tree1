@@ -856,32 +856,53 @@ This is the first of two plant-type shields he acquires, granting him an improve
     }, 1000);
   }
 
+  // useEffect hook which sets pointer cursor on action nodes and icon nodes
   useEffect(() => {
     if (cy) {
-      // Add event listener for mouseover
+      // Add event listener for mouseover on nodes
       cy.on('mouseover', 'node', (event) => {
         const node = event.target;
   
         // Check if the node should display a pointer
-        if (node.hasClass('action-node')) { // Add a class to specify which nodes trigger pointer
+        if (node.hasClass('action-node') || node.hasClass('icon-node')) { // Add a class to specify which nodes trigger pointer
           cy.container().style.cursor = 'pointer';
         }
       });
   
-      // Add event listener for mouseout
+      // Add event listener for mouseout on nodes
       cy.on('mouseout', 'node', (event) => {
         const node = event.target;
   
         // Check if the node should reset the cursor
-        if (node.hasClass('action-node')) {
+        if (node.hasClass('action-node') || node.hasClass('icon-node')) {
           cy.container().style.cursor = '';
         }
       });
+
+      // Add event listener for mouseover on edges
+      cy.on('mouseover', 'edge', (event) => {
+        const edge = event.target;
+        
+        if(edge.hasClass('icon-edge')) {
+          cy.container().style.cursor = 'pointer';
+        }
+      });
+
+      // Add event listener for mouseout on edges
+      cy.on('mouseout', 'edge', (event) => {
+        const edge = event.target;
   
+        if(edge.hasClass('icon-edge')) {
+          cy.container().style.cursor = '';
+        }
+      });
+
       // Clean up event listeners when component unmounts or cy changes
       return () => {
         cy.off('mouseover', 'node');
         cy.off('mouseout', 'node');
+        cy.off('mouseover', 'edge');
+        cy.off('mouseout', 'edge');
       };
     }
   }, [cy]);  

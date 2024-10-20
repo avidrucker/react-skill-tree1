@@ -419,6 +419,7 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
     if (editNode) {
       newEdge = {
         group: 'edges',
+        classes: 'icon-edge',
         data: {
           id: `edge-${editNode.id()}-${newId}`,
           source: editNode.id(),
@@ -706,6 +707,7 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
 
         const newEdge = {
           group: 'edges',
+          classes: 'icon-edge',
           data: {
             id: `edge-${sourceId}-${targetId}`,
             source: sourceId,
