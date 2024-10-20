@@ -1177,7 +1177,8 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
     handleGlobalKeyDown,
     skillTreeMode,
     setIsChangingIcon,
-    handleNodeSingleClick
+    handleNodeSingleClick,
+    setSelectedNodeData
   ]);
 
   /**
@@ -1185,6 +1186,12 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
    */
   useEffect(() => {
     if (!cy) return;
+
+    if(skillTreeMode === BUILDER_MODE) {
+      cy.edges().selectify();
+    } else {
+      cy.edges().unselectify();
+    }
 
     // Handler for edge selection
     cy.on('select', 'edge', handleEdgeSelect);
@@ -1197,7 +1204,7 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
       cy.off('select', 'edge', handleEdgeSelect);
       cy.off('unselect', 'edge', handleEdgeDeselect);
     };
-  }, [cy, handleEdgeSelect, handleEdgeDeselect]);
+  }, [cy, handleEdgeSelect, handleEdgeDeselect, skillTreeMode]);
 
   return {
     isEditing,
