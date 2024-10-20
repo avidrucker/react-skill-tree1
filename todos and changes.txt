@@ -78,10 +78,10 @@
 - [x] feat hiding of hidden nodes only in player mode
 - [x] feat storing of player node state data as tempState in builder mode
 
-- [ ] feat skill tree node info paragraph text
-  - [ ] feat text input for a given node upon click of new btn in builder mode
-  - [ ] feat show more info about a node upon single click in player mode
-  - [ ] hide display or show ??? display instead of actual node information when in player mode and the currently selected node is hidden
+- [x] feat skill tree node info paragraph text
+  - [x] feat text input for a given node upon click of new 'Edit Info' btn in builder mode
+  - [x] feat show more info about a node upon single click in player mode
+  - [x] show display with 'Unknown' label instead of actual node information when in player mode and the currently selected node is hidden
   - [ ] brainstorm how else to show info, where it might be annoying to have a single click bring up the info modal/panel, and what alternatives could there be instead? (button, toggle, etc.)... one idea is to summon a button in the bottom right corner of the window which is the "open info panel/modal" button when only a single node is selected
 
 - [ ] create custom favicon
@@ -127,7 +127,7 @@
 
 - [ ] prevent entering of player mode when there is no skill tree ( not sure yet if this is ideal or not, will think on it some more...)
 
-- [ ] update rm edge selection in player mode
+- [x] update rm edge selection in player mode
 
 - [ ] add celebration modal/popup/thingie when the skill tree is fully activated in player mode
 
