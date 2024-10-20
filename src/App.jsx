@@ -883,7 +883,7 @@ This is the first of two plant-type shields he acquires, granting him an improve
       cy.on('mouseover', 'edge', (event) => {
         const edge = event.target;
         
-        if(edge.hasClass('icon-edge')) {
+        if(edge.hasClass('icon-edge') && skillTreeMode === BUILDER_MODE) {
           cy.container().style.cursor = 'pointer';
         }
       });
@@ -892,7 +892,7 @@ This is the first of two plant-type shields he acquires, granting him an improve
       cy.on('mouseout', 'edge', (event) => {
         const edge = event.target;
   
-        if(edge.hasClass('icon-edge')) {
+        if(edge.hasClass('icon-edge') && skillTreeMode === BUILDER_MODE) {
           cy.container().style.cursor = '';
         }
       });
