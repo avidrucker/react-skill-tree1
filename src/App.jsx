@@ -936,7 +936,7 @@ This is the first of two plant-type shields he acquires, granting him an improve
       <div className="menu-container z-1 absolute top-0 left-0 pa3 pointer-events-none flex items-start">
         {/* Menu Button */}
         <div
-          className={`menu-button pointer relative top-0 left-0 pointer-events-auto ba bw1 b--white br4 pa2 ph3 dib ${
+          className={`menu-button pointer user-select-none relative top-0 left-0 pointer-events-auto ba bw1 b--white br4 pa2 ph3 dib ${
             menuHoverState === "focused"
               ? " bg-white-20 "
               : menuHoverState === "hovered"
@@ -958,8 +958,8 @@ This is the first of two plant-type shields he acquires, granting him an improve
             onMouseEnter={handleMenuMouseEnter}
             onMouseLeave={handleMenuMouseLeave}
           >
-            <h1 className="ma0 user-select-none dib flex">
-              <span className="f2 mr2 w5 tc">Skill Tree:</span>
+            <h1 className="ma0 dib flex">
+              <span className="f2 mr2 user-select-none w5 tc">Skill Tree:</span>
               <input
                 className="f3 ph2 pointer-events-auto w-100"
                 type="text"
@@ -970,34 +970,34 @@ This is the first of two plant-type shields he acquires, granting him an improve
             </h1>
             <div className="pointer-events-auto mt3">
               {skillTreeMode === BUILDER_MODE && (
-                <button className="pointer-events-auto" onClick={addNode}>
+                <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2" onClick={addNode}>
                   Add Skill
                 </button>
               )}
               <button
-                className="pointer-events-auto"
+                className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2"
                 onClick={() => cyRef && cyRef.current && cyRef.current.fit()}
               >
                 Re-Center
               </button>
-              <button className="pointer-events-auto" onClick={printElements}>
+              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2" onClick={printElements}>
                 Log
               </button>
-              <button className="pointer-events-auto" onClick={saveGraphToJSON}>
+              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2" onClick={saveGraphToJSON}>
                 Save
               </button>
               <button
-                className="pointer-events-auto"
+                className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2"
                 onClick={loadGraphFromJSON}
               >
                 Load
               </button>
-              <button className="pointer-events-auto" onClick={loadDemoGraph}>
+              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2" onClick={loadDemoGraph}>
                 Demo
               </button>
               {skillTreeMode === BUILDER_MODE && (
                 <button
-                  className="pointer-events-auto"
+                  className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2"
                   onClick={clearGraphData}
                 >
                   Clear
@@ -1005,13 +1005,13 @@ This is the first of two plant-type shields he acquires, granting him an improve
               )}
               {skillTreeMode === PLAYER_MODE && (
                 <button
-                  className="pointer-events-auto"
+                  className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2"
                   onClick={resetSkillTreeProgress}
                 >
                   Reset
                 </button>
               )}
-              <button className="pointer-events-auto" onClick={toggleMode}>
+              <button className="pointer-events-auto glow-bg ba b--white bw1 br4" onClick={toggleMode}>
                 Switch to{" "}
                 {skillTreeMode === BUILDER_MODE ? "Player" : "Builder"} Mode
               </button>

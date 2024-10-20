@@ -6,17 +6,17 @@ function EditModal({ isOpen, onClose, onSave, description, label, onDescriptionC
 
   return (
     <div className="modal-overlay z-5 fixed top-0 left-0 w-100 h-100 bg-black-40 bg-blur flex justify-center align-center">
-      <div className="modal-content pa3">
-        <h2 className="ma0 pb3">{`Edit Info Text for ${label}`}</h2>
+      <div className="modal-content">
+        <h2 className="ma0 mt4 mb3">{`Edit Info Text for ${label}`}</h2>
         <textarea
           value={description}
           onChange={(e) => onDescriptionChange(e.target.value)}
           rows={15}
           cols={50}
         />
-        <div className="pt3">
-          <button className="mr2" onClick={onSave}>Save</button>
-          <button onClick={onClose}>Close</button>
+        <div className="mt3">
+          <button className="mr2 glow-bg ba b--white bw1 br4" onClick={onSave}>Save</button>
+          <button className="glow-bg ba b--white bw1 br4" onClick={onClose}>Close</button>
         </div>
       </div>
     </div>
