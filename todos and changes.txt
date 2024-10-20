@@ -12,6 +12,11 @@
 - [x] publish to GitHub Pages
 - [x] set up CI/CD pipeline
 
+- [ ] make a search engine which focuses in on and/or highlights nodes that match the search text
+
+- [ ] make selected icons glow
+- [ ] make icons and edges glow and/or change color on hover/mouseover
+
 - [x] make border thinner
 - [x] make node text smaller
 - [x] change node text font to Old English Text MT
