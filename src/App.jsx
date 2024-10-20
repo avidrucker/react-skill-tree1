@@ -905,7 +905,7 @@ This is the first of two plant-type shields he acquires, granting him an improve
         cy.off('mouseout', 'edge');
       };
     }
-  }, [cy]);  
+  }, [cy, skillTreeMode]);  
 
   return (
     <div className="bg-dark-gray relative w-100 vh-100">
