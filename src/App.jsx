@@ -910,14 +910,14 @@ This is the first of two plant-type shields he acquires, granting him an improve
   return (
     <div className="bg-dark-gray relative w-100 vh-100">
       <div className="background-image absolute w-100 h-100">
-      <div className="blur-div absolute z-0 w-100 h-100 bg-blur-1"></div>
+      {/* <div className="blur-div absolute z-0 w-100 h-100 bg-blur-1"></div>
         <img
           // src="https://images.unsplash.com/photo-1467810160588-c86c0deb5d16"
           src="https://www.pixelstalk.net/wp-content/uploads/2016/04/Stars-wallpapers-HD-backgrounds-download.jpg"
           alt="background"
           className="w-100 h-100 object-cover db"
-        />
-      </div>
+        /> */}
+      </div> 
       {isFontLoaded && (
         <CytoscapeComponent
           className={`bg-transparent h-100 w-100 relative z-0 pa3 ${(isDescriptionModalOpen || selectedNodeData) && ' o-50 '}`}
