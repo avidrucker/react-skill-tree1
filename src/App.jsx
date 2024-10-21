@@ -885,7 +885,7 @@ const loadDemoGraphFromJSON = useCallback(() => {
       <div className="menu-container z-1 absolute top-0 left-0 pa3 pointer-events-none flex items-start">
         {/* Menu Button */}
         <div
-          className={`menu-button pointer user-select-none relative top-0 left-0 pointer-events-auto ba bw1 b--white br4 pa2 ph3 dib ${
+          className={`menu-button white pointer user-select-none relative top-0 left-0 pointer-events-auto ba bw1 b--white br4 pa2 ph3 dib fw6 ${
             menuHoverState === "focused"
               ? " bg-white-20 "
               : menuHoverState === "hovered"
