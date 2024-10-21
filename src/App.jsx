@@ -735,7 +735,7 @@ function App() {
 const loadDemoGraphFromJSON = useCallback(() => {
   const preloadMode = skillTreeMode;
 
-  fetch('/assets/Shield_Hero_Demo.json')
+  fetch('./Shield_Hero_Demo.json')
     .then((response) => response.json())
     .then((json) => {
       const elements = json.elements || [];
