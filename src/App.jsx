@@ -838,6 +838,8 @@ const loadDemoGraphFromJSON = useCallback(() => {
         console.log("Loading demo data because local storage data is not available");
         loadDemoGraph();
       }
+    } else {
+      loadDemoGraph();
     }
   }, [loadDemoGraph]);
   
@@ -854,6 +856,7 @@ const loadDemoGraphFromJSON = useCallback(() => {
   useEffect(() => {
     saveToLocalStorage();
   }, [treeName, elements, saveToLocalStorage]);
+
 
   return (
     <div className="bg-dark-gray relative w-100 vh-100">
