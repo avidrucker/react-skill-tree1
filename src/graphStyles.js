@@ -45,6 +45,7 @@ const stylesheet = [
       'border-width': 1,
       'text-margin-y': 0,
       'font-family': "sans-serif",
+      'font-weight': 600,
       'z-index-compare': 'manual',  // Use manual z-index comparison
       'z-index': 3,
     },
