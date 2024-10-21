@@ -978,7 +978,7 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
         // Create a temporary node for deleting the edge
         const deleteEdgeButton = {
           data: { id: deleteEdgeButtonId, label: 'Delete Edge' },
-          position: { x: midPointX, y: midPointY - 20 },
+          position: { x: midPointX, y: midPointY },
           selectable: false,
           grabbable: false,
           classes: 'delete-edge-button action-node',
