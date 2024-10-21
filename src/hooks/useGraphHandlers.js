@@ -350,7 +350,7 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
         showConnectButton();
       }
     },
-    [removeTemporaryNodes, handleNodeSingleClick, showConnectButton, cy, skillTreeMode]
+    [removeTemporaryNodes, handleNodeSingleClick, showConnectButton, cy, skillTreeMode, setSelectedNodeData]
   );
 
   /**
@@ -436,7 +436,7 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
 
   /**
    * Handles double-clicking on a node.
-   * Displays temporary 'Delete', 'Change Icon', and 'Rename' action buttons 
+   * Displays temporary 'Delete', 'Change Icon', 'Edit Label', and 'Edit Info' action buttons 
    * near the node.
    */
   const handleNodeDoubleClick = useCallback(
@@ -451,7 +451,7 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
     const offsetY = 55; // Distance above the original node
 
     const actionButtons = [
-      { id: `btn-edit-${nodeId}`, label: 'Rename', x: -30 },
+      { id: `btn-edit-${nodeId}`, label: 'Edit Label', x: -30 },
       { id: `btn-delete-${nodeId}`, label: 'Delete', x: -90 },
       { id: `btn-change-icon-${nodeId}`, label: 'Change Icon', x: 30 },
       { id: `btn-edit-description-${nodeId}`, label: 'Edit Info', x: 90 },
@@ -661,7 +661,7 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
     (node) => {
       const label = node.data('label');
 
-      if (label === 'Rename') {
+      if (label === 'Edit Label') {
         // Begin editing the original node
         const parentNodeId = node.data('parentNodeId');
         const parentNode = cy.getElementById(parentNodeId);
@@ -798,6 +798,7 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
       handleDeleteEdges,
       cleanupAfterAction,
       onChangeIcon,
+      handleEditDescription
     ]
   );
 
@@ -1041,7 +1042,7 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
         const currentTime = new Date().getTime();
 
         if (tappedNode.hasClass('action-node')) {
-          // Clicked on a temporary action node (e.g., 'Rename', 'Delete', 'Connect')
+          // Clicked on a temporary action node (e.g., 'Edit Label', 'Delete', 'Connect')
           handleActionNodeClick(tappedNode);
           removeTemporaryNodes();
         } else {
