@@ -436,7 +436,7 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
 
   /**
    * Handles double-clicking on a node.
-   * Displays temporary 'Delete', 'Change Icon', 'Edit Label', and 'Edit Info' action buttons 
+   * Displays temporary 'Delete', 'Edit Icon', 'Edit Label', and 'Edit Info' action buttons 
    * near the node.
    */
   const handleNodeDoubleClick = useCallback(
@@ -453,7 +453,7 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
     const actionButtons = [
       { id: `btn-edit-${nodeId}`, label: 'Edit Label', x: -30 },
       { id: `btn-delete-${nodeId}`, label: 'Delete', x: -90 },
-      { id: `btn-change-icon-${nodeId}`, label: 'Change Icon', x: 30 },
+      { id: `btn-change-icon-${nodeId}`, label: 'Edit Icon', x: 30 },
       { id: `btn-edit-description-${nodeId}`, label: 'Edit Info', x: 90 },
     ];
 
@@ -692,7 +692,7 @@ const useGraphHandlers = ( cy, elements, setElements, onChangeIcon, skillTreeMod
 
         // remove action nodes
         cleanupAfterAction();
-      } else if (label === 'Change Icon') {
+      } else if (label === 'Edit Icon') {
         // Begin icon changing process
         const parentNodeId = node.data('parentNodeId');
         // Trigger the callback to App component
