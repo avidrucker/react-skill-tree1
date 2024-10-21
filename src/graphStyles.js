@@ -73,6 +73,7 @@ const stylesheet = [
       'curve-style': 'bezier',
       'z-index-compare': 'manual',  // Use manual z-index comparison
       'z-index': 1,
+      'line-opacity': 0.5,
     },
   },
   {
@@ -81,6 +82,7 @@ const stylesheet = [
       'line-color': '#FFD700', // Highlight color for selected edge
       'target-arrow-color': '#FFD700',
       'width': 2,
+      'line-opacity': 0.75,
     },
   },
   {
