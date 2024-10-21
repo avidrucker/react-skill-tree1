@@ -23,6 +23,8 @@ const stylesheet = [
       'background-image': 'data(image)',
       'background-fit': 'cover',
       'background-image-opacity': 1,
+      'z-index-compare': 'manual',  // Use manual z-index comparison
+      'z-index': 2,
     },
   },
   {
@@ -42,7 +44,9 @@ const stylesheet = [
       'border-color': 'white',
       'border-width': 1,
       'text-margin-y': 0,
-      'font-family': "sans-serif"
+      'font-family': "sans-serif",
+      'z-index-compare': 'manual',  // Use manual z-index comparison
+      'z-index': 3,
     },
   },
   {
@@ -66,6 +70,8 @@ const stylesheet = [
       'target-arrow-color': '#ccc',
       'target-arrow-shape': 'triangle',
       'curve-style': 'bezier',
+      'z-index-compare': 'manual',  // Use manual z-index comparison
+      'z-index': 1,
     },
   },
   {
@@ -113,7 +119,8 @@ const stylesheet = [
       'border-width': 0,
       width: 30,
       height: 30,
-      'z-index': -1, // Ensure it's behind other nodes
+      'z-index-compare': 'manual',  // Use manual z-index comparison
+      'z-index': 0, // Ensure it's behind other nodes
     },
   },
   // Styles for flourish nodes based on state
