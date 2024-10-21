@@ -68,7 +68,7 @@ const stylesheet = [
     style: {
       width: 1,
       'line-color': 'white',
-      'target-arrow-color': '#ccc',
+      'target-arrow-color': '#fff',
       'target-arrow-shape': 'triangle',
       'curve-style': 'bezier',
       'z-index-compare': 'manual',  // Use manual z-index comparison
