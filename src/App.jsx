@@ -919,34 +919,34 @@ const loadDemoGraphFromJSON = useCallback(() => {
             </h1>
             <div className="pointer-events-auto mt3">
               {skillTreeMode === BUILDER_MODE && (
-                <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2" onClick={addNode}>
+                <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6" onClick={addNode}>
                   Add Skill
                 </button>
               )}
               <button
-                className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2"
+                className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6"
                 onClick={() => cyRef && cyRef.current && cyRef.current.fit()}
               >
                 Re-Center
               </button>
-              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2" onClick={printElements}>
+              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6" onClick={printElements}>
                 Log
               </button>
-              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2" onClick={saveGraphToJSON}>
+              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6" onClick={saveGraphToJSON}>
                 Save
               </button>
               <button
-                className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2"
+                className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6"
                 onClick={loadGraphFromJSON}
               >
                 Load
               </button>
-              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2" onClick={loadDemoGraph}>
+              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6" onClick={loadDemoGraph}>
                 Demo
               </button>
               {skillTreeMode === BUILDER_MODE && (
                 <button
-                  className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2"
+                  className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6"
                   onClick={clearGraphData}
                 >
                   Clear
@@ -954,13 +954,13 @@ const loadDemoGraphFromJSON = useCallback(() => {
               )}
               {skillTreeMode === PLAYER_MODE && (
                 <button
-                  className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2"
+                  className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6"
                   onClick={resetSkillTreeProgress}
                 >
                   Reset
                 </button>
               )}
-              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mb2" onClick={toggleMode}>
+              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mb2 fw6" onClick={toggleMode}>
                 Switch to{" "}
                 {skillTreeMode === BUILDER_MODE ? "Player" : "Builder"} Mode
               </button>
