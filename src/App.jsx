@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 import FontFaceObserver from "fontfaceobserver";
 
@@ -14,7 +14,7 @@ import warningIcon from './assets/warning_triangle.png';
 const PLAYER_MODE = "player";
 const BUILDER_MODE = "builder";
 // const ACTIVE_STATE = "activated";
-const AVAIL_STATE = "available";
+// const AVAIL_STATE = "available";
 const HIDDEN_STATE = "hidden";
 
 // Function to load all icons from assets/icons/
@@ -348,115 +348,7 @@ function App() {
     setIsChangingIcon(true);
   };
 
-  // Define the demo elements
-  const demoElements = useMemo(
-    () => [
-      {
-        group: "nodes",
-        classes: "icon-node",
-        data: {
-          id: "node-1",
-          label: "Small Shield",
-          image: icons["shield"],
-          initialState: AVAIL_STATE,
-          description: `During the first episode of Shield Hero, the first monster that Naofumi encounters is the balloon, a small, orange, and rubbery creature with pointy incisor teeth. Balloons are possibly the weakest of any enemy that Naofumi has encountered, so, unsurprisingly, they transform into weak shields once absorbed. Naofumi receives three unremarkable shields, with each one providing a minor defense bonus when equipped.`
-        },
-        position: { x: 0, y: 0 },
-      },
-      {
-        group: "nodes",
-        classes: "icon-node",
-        data: {
-          id: "node-2",
-          label: "Leaf Shield",
-          image: icons["leaf"],
-          initialState: HIDDEN_STATE,
-          description: `During the first episode of Shield Hero, Naofumi is attempting to gain enough money to live comfortably, taking on low-level monsters and collecting herbs. While experimenting and learning about his unique hero power, he places a leaf against his shield, and it's suddenly absorbed, transforming it into a Leaf Shield.
-
-This is the first of two plant-type shields he acquires, granting him an improved absorption rate, making medicine more effective, and a harvest ability that allows him to collect herbs more effectively. Later in the series, he encounters a BioPlant. After absorbing one of its seeds, he gains three additional shields: the BioPlant Shield, the PlantRiwe Shield, and the Mandragora Shield.`
-        },
-        position: { x: 100, y: 0 },
-      },
-      {
-        group: "nodes",
-        classes: "icon-node",
-        data: {
-          id: "node-3",
-          label: "Air Strike Shield",
-          image: icons["wind"],
-          initialState: HIDDEN_STATE,
-          description: `Instantly creates a floating shield for defense anywhere within a radius of 5 meters which lasts for a duration of 15 seconds. This ability is very versatile, as it can create shields in the air that allow the user and others to jump over them to reach or escape threats, it can also be used to immobilize the enemy by blocking their path with shields. The Air Strike Shield was shown in the anime to be able to be thrown at targets, dealing light damage and knocking targets off balance.`
-        },
-        position: { x: 200, y: 0 },
-      },
-      {
-        group: "edges",
-        classes: "icon-edge",
-        data: {
-          id: "edge-node-1-node-2",
-          source: "node-1",
-          target: "node-2",
-        },
-      },
-      {
-        group: "edges",
-        classes: "icon-edge",
-        data: {
-          id: "edge-node-2-node-3",
-          source: "node-2",
-          target: "node-3",
-        },
-      },
-      {
-        classes: "flourish-node",
-        data: {
-          id: "flourish-node-1",
-          initialState: "available",
-          parentId: "node-1",
-          state: null,
-          tempState: "available",
-        },
-        selectable: false,
-        pannable: true,
-        grabbable: false,
-        group: "nodes",
-        position: { x: 0, y: -45 },
-      },
-      {
-        classes: "flourish-node",
-        data: {
-          id: "flourish-node-2",
-          initialState: "hidden",
-          parentId: "node-2",
-          state: null,
-          tempState: "hidden",
-        },
-        selectable: false,
-        pannable: true,
-        grabbable: false,
-        group: "nodes",
-        position: { x: 100, y: -45 },
-      },
-      {
-        classes: "flourish-node",
-        data: {
-          id: "flourish-node-3",
-          initialState: "hidden",
-          parentId: "node-3",
-          state: null,
-          tempState: "hidden",
-        },
-        selectable: false,
-        pannable: true,
-        grabbable: false,
-        group: "nodes",
-        position: { x: 200, y: -45 },
-      },
-    ],
-    []
-  );
-
-  const [elements, setElements] = useState(demoElements);
+  const [elements, setElements] = useState([]);
   const cyRef = useRef(null);
   const [cy, setCy] = useState(null); // Add this line
 
@@ -592,7 +484,7 @@ This is the first of two plant-type shields he acquires, granting him an improve
       const reader = new FileReader();
       reader.onload = (e) => {
         const json = JSON.parse(e.target.result);
-        const elements = json.elements || demoElements;
+        const elements = json.elements || [];
   
         // Reconstruct images from icon names
         const updatedElements = elements.map((el) => {
@@ -652,86 +544,6 @@ This is the first of two plant-type shields he acquires, granting him an improve
       fileInput.click();
     }
   };
-
-  const loadDemoGraph = useCallback(() => {
-    if (
-      elements.length === 0 ||
-      window.confirm(
-        "Before loading the demo tree, are you sure you want to overwrite the current skill tree data?"
-      )
-    ) {
-      setElements(demoElements);
-      setTreeName("Demo Tree");
-      setZoom(2.2);
-      setPan({ x: 85, y: 315 });
-      saveToLocalStorage();
-      if (skillTreeMode === PLAYER_MODE) {
-        initializePlayerDataForPlayerMode();
-      } else {
-        initializePlayerDataForBuilderMode();
-      }
-    }
-  }, [demoElements, saveToLocalStorage, skillTreeMode, elements]);
-
-  const loadFromLocalStorage = useCallback(() => {
-    const json = localStorage.getItem('graphState');
-    if (json) {
-      const state = JSON.parse(json);
-      const elements = state.elements || demoElements;
-  
-      // Reconstruct images from icon names
-      const updatedElements = elements.map((el) => {
-        if (el.group === 'nodes') {
-          let iconName = el.data.iconName;
-      
-          if (!iconName && el.data.image) {
-            // Attempt to find the icon name based on the image URL
-            iconName = Object.keys(icons).find(
-              (name) => icons[name] === el.data.image
-            );
-          }
-      
-          const iconImage = icons[iconName] || warningIcon;
-          return {
-            ...el,
-            data: {
-              ...el.data,
-              iconName: iconName,
-              image: iconImage,
-            },
-          };
-        }
-        return el;
-      });
-      
-  
-      setElements(updatedElements);
-      setTreeName(state.treeName || 'Untitled 1');
-      setSkillTreeMode(state.mode || BUILDER_MODE);
-      setZoom(state.zoom || 1);
-      setPan(state.pan || { x: 0, y: 0 });
-  
-      if (!state.elements) {
-        // If the elements are not present in the local storage data  
-        console.log("Loading demo data because local storage data is not available");
-        loadDemoGraph();
-      }
-    }
-  }, [demoElements, skillTreeMode, loadDemoGraph]);
-  
-
-  // Load from local storage once when the component mounts
-  useEffect(() => {
-    if (!hasLoadedFromLocalStorage.current) {
-      loadFromLocalStorage();
-      hasLoadedFromLocalStorage.current = true;
-    }
-  }, [loadFromLocalStorage]); // Empty dependency array ensures this runs once
-
-  // Save to local storage whenever elements or treeName change
-  useEffect(() => {
-    saveToLocalStorage();
-  }, [treeName, elements, saveToLocalStorage]);
 
   // Load the custom font before rendering Cytoscape
   useEffect(() => {
@@ -916,7 +728,132 @@ This is the first of two plant-type shields he acquires, granting him an improve
         cy.off('mouseout', 'edge');
       };
     }
-  }, [cy, skillTreeMode]);  
+  }, [cy, skillTreeMode]);
+
+  ////
+  // loads the demo graph from /assets/Shield_Hero_Demo.json
+const loadDemoGraphFromJSON = useCallback(() => {
+  const preloadMode = skillTreeMode;
+
+  fetch('/assets/Shield_Hero_Demo.json')
+    .then((response) => response.json())
+    .then((json) => {
+      const elements = json.elements || [];
+
+      // Reconstruct images from icon names
+      const updatedElements = elements.map((el) => {
+        if (el.group === 'nodes') {
+          let iconName = el.data.iconName;
+
+          if (!iconName && el.data.image) {
+            // Attempt to find the icon name based on the image URL
+            iconName = Object.keys(icons).find(
+              (name) => icons[name] === el.data.image
+            );
+          }
+
+          const iconImage = icons[iconName] || warningIcon;
+          return {
+            ...el,
+            data: {
+              ...el.data,
+              iconName: iconName,
+              image: iconImage,
+            },
+          };
+        }
+        return el;
+      });
+
+      setElements(updatedElements);
+      setTreeName(json.treeName || 'Untitled 1');
+      setZoom(json.zoom || 1);
+      setPan(json.pan || { x: 0, y: 0 });
+
+      if (preloadMode !== json.mode) {
+        // Then, switch the mode to the preload mode using the appropriate function
+        if (preloadMode === PLAYER_MODE) {
+          initializePlayerDataForPlayerMode();
+        } else {
+          initializePlayerDataForBuilderMode();
+        }
+      }
+    })
+    .catch((error) => {
+      console.error('Error loading demo graph:', error);
+    });
+  }, [skillTreeMode]);
+
+  const loadDemoGraph = useCallback(() => {
+    if (
+      elements.length === 0 ||
+      window.confirm(
+        "Before loading the demo tree, are you sure you want to overwrite the current skill tree data?"
+      )
+    ) {
+      loadDemoGraphFromJSON();
+    }
+  }, [elements.length, loadDemoGraphFromJSON]);
+
+  const loadFromLocalStorage = useCallback(() => {
+    const json = localStorage.getItem('graphState');
+    if (json) {
+      const state = JSON.parse(json);
+      const elements = state.elements || [];
+  
+      // Reconstruct images from icon names
+      const updatedElements = elements.map((el) => {
+        if (el.group === 'nodes') {
+          let iconName = el.data.iconName;
+      
+          if (!iconName && el.data.image) {
+            // Attempt to find the icon name based on the image URL
+            iconName = Object.keys(icons).find(
+              (name) => icons[name] === el.data.image
+            );
+          }
+      
+          const iconImage = icons[iconName] || warningIcon;
+          return {
+            ...el,
+            data: {
+              ...el.data,
+              iconName: iconName,
+              image: iconImage,
+            },
+          };
+        }
+        return el;
+      });
+      
+  
+      setElements(updatedElements);
+      setTreeName(state.treeName || 'Untitled 1');
+      setSkillTreeMode(state.mode || BUILDER_MODE);
+      setZoom(state.zoom || 1);
+      setPan(state.pan || { x: 0, y: 0 });
+  
+      if (!state.elements) {
+        // If the elements are not present in the local storage data  
+        console.log("Loading demo data because local storage data is not available");
+        loadDemoGraph();
+      }
+    }
+  }, [loadDemoGraph]);
+  
+
+  // Load from local storage once when the component mounts
+  useEffect(() => {
+    if (!hasLoadedFromLocalStorage.current) {
+      loadFromLocalStorage();
+      hasLoadedFromLocalStorage.current = true;
+    }
+  }, [loadFromLocalStorage]); // Empty dependency array ensures this runs once
+
+  // Save to local storage whenever elements or treeName change
+  useEffect(() => {
+    saveToLocalStorage();
+  }, [treeName, elements, saveToLocalStorage]);
 
   return (
     <div className="bg-dark-gray relative w-100 vh-100">
@@ -979,34 +916,34 @@ This is the first of two plant-type shields he acquires, granting him an improve
             </h1>
             <div className="pointer-events-auto mt3">
               {skillTreeMode === BUILDER_MODE && (
-                <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2" onClick={addNode}>
+                <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2" onClick={addNode}>
                   Add Skill
                 </button>
               )}
               <button
-                className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2"
+                className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2"
                 onClick={() => cyRef && cyRef.current && cyRef.current.fit()}
               >
                 Re-Center
               </button>
-              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2" onClick={printElements}>
+              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2" onClick={printElements}>
                 Log
               </button>
-              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2" onClick={saveGraphToJSON}>
+              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2" onClick={saveGraphToJSON}>
                 Save
               </button>
               <button
-                className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2"
+                className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2"
                 onClick={loadGraphFromJSON}
               >
                 Load
               </button>
-              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2" onClick={loadDemoGraph}>
+              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2" onClick={loadDemoGraph}>
                 Demo
               </button>
               {skillTreeMode === BUILDER_MODE && (
                 <button
-                  className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2"
+                  className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2"
                   onClick={clearGraphData}
                 >
                   Clear
@@ -1014,13 +951,13 @@ This is the first of two plant-type shields he acquires, granting him an improve
               )}
               {skillTreeMode === PLAYER_MODE && (
                 <button
-                  className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2"
+                  className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2"
                   onClick={resetSkillTreeProgress}
                 >
                   Reset
                 </button>
               )}
-              <button className="pointer-events-auto glow-bg ba b--white bw1 br4" onClick={toggleMode}>
+              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mb2" onClick={toggleMode}>
                 Switch to{" "}
                 {skillTreeMode === BUILDER_MODE ? "Player" : "Builder"} Mode
               </button>
