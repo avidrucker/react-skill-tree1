@@ -100,6 +100,7 @@ function App() {
   const [selectedNodeData, setSelectedNodeData] = useState(null);
 
   const carouselRef = useRef(null);
+  const toggleBtnRef = useRef(null);
 
   useEffect(() => {
     const carousel = carouselRef.current;
@@ -341,6 +342,8 @@ function App() {
       savePlayerProgress();
       setSkillTreeMode(BUILDER_MODE);
     }
+    // deselect btn with toggleBtnRef ref
+    toggleBtnRef.current.blur();
   };
 
   const onChangeIcon = (nodeId) => {
@@ -885,7 +888,7 @@ const loadDemoGraphFromJSON = useCallback(() => {
       <div className="menu-container z-1 absolute top-0 left-0 pa3 pointer-events-none flex items-start">
         {/* Menu Button */}
         <div
-          className={`menu-button white pointer user-select-none relative top-0 left-0 pointer-events-auto ba bw1 b--white br4 pa2 ph3 dib fw6 ${
+          className={`menu-button glow o-50 white pointer user-select-none relative top-0 left-0 pointer-events-auto ba bw1 b--white br4 pa2 ph3 dib fw6 ${
             menuHoverState === "focused"
               ? " bg-white-20 "
               : menuHoverState === "hovered"
@@ -919,34 +922,34 @@ const loadDemoGraphFromJSON = useCallback(() => {
             </h1>
             <div className="pointer-events-auto mt3">
               {skillTreeMode === BUILDER_MODE && (
-                <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6" onClick={addNode}>
+                <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6 glow o-50" onClick={addNode}>
                   Add Skill
                 </button>
               )}
               <button
-                className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6"
+                className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6 glow o-50"
                 onClick={() => cyRef && cyRef.current && cyRef.current.fit()}
               >
                 Re-Center
               </button>
-              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6" onClick={printElements}>
+              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6 glow o-50" onClick={printElements}>
                 Log
               </button>
-              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6" onClick={saveGraphToJSON}>
+              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6 glow o-50" onClick={saveGraphToJSON}>
                 Save
               </button>
               <button
-                className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6"
+                className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6 glow o-50"
                 onClick={loadGraphFromJSON}
               >
                 Load
               </button>
-              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6" onClick={loadDemoGraph}>
+              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6 glow o-50" onClick={loadDemoGraph}>
                 Demo
               </button>
               {skillTreeMode === BUILDER_MODE && (
                 <button
-                  className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6"
+                  className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6 glow o-50"
                   onClick={clearGraphData}
                 >
                   Clear
@@ -954,13 +957,13 @@ const loadDemoGraphFromJSON = useCallback(() => {
               )}
               {skillTreeMode === PLAYER_MODE && (
                 <button
-                  className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6"
+                  className="pointer-events-auto glow-bg ba b--white bw1 br4 mr2 mb2 fw6 glow o-50"
                   onClick={resetSkillTreeProgress}
                 >
                   Reset
                 </button>
               )}
-              <button className="pointer-events-auto glow-bg ba b--white bw1 br4 mb2 fw6" onClick={toggleMode}>
+              <button ref={toggleBtnRef} className="pointer-events-auto glow-bg ba b--white bw1 br4 mb2 fw6 glow o-50" onClick={toggleMode}>
                 Switch to{" "}
                 {skillTreeMode === BUILDER_MODE ? "Player" : "Builder"} Mode
               </button>
