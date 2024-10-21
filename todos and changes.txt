@@ -7,6 +7,8 @@
 
 - [ ] add help modal that explains what you can do with each mode, how to add, move, delete nodes & edges, rename nodes, change icons, etc.
 
+- [ ] feat upload of imgs from the user for custom icons
+
 - [ ] feat offline mode
 
 - [x] publish to GitHub Pages
